@@ -38,25 +38,26 @@ const WIZARD_STEPS = [
 ];
 
 // Demo story — text + prompts. Images generated via Replicate on landing mount.
+// Demo story — illustrations pre-generated and hardcoded for instant load
 const DEMO_STORY = [
   {
     text: "The night Lily found a tiny glowing door in the garden wall, she squeezed Mr. Hops tight.",
-    prompt: "soft watercolor children's book illustration, a small girl with brown hair hugging a white stuffed rabbit, discovering a tiny glowing magical golden door set into an old mossy garden wall at night, warm purple and amber light, dreamy pastel storybook art, no text",
+    img: "https://replicate.delivery/czjl/Az7fonj6SMWvdS5qSzeK2U2Be3lcFsDX0tSt8sge5ImP3zyYB/out-0.webp",
     fallback: "linear-gradient(135deg,#1a0d3e,#3d1d7e,#7c4dcc)",
   },
   {
     text: "Beyond the door lay a moonlit garden — silver flowers and fireflies dancing in the dark.",
-    prompt: "soft watercolor children's book illustration, a magical moonlit garden beyond a stone wall, glowing silver and gold flowers, fireflies dancing like tiny lanterns, a little girl and white rabbit gazing in wonder, enchanted dreamy night scene, pastel purples and blues, storybook art, no text",
+    img: "https://replicate.delivery/czjl/WHsWhrqPGf0BOCObs3befXtKFnedXpgZCX4ifI44lleJgPLjF/out-0.webp",
     fallback: "linear-gradient(135deg,#0a1628,#1a3060,#2a50a0)",
   },
   {
     text: "Even the shadows were friendly here. The dark wasn't scary — it was where all the magic hid.",
-    prompt: "soft watercolor children's book illustration, friendly whimsical glowing shadow creatures shaped like animals in an enchanted glowing forest, a brave little girl laughing among them, warm teals and purples, magical night scene, children's storybook art, no text",
+    img: "https://replicate.delivery/czjl/ASCBdmDniMZSJ9HUsf6imeWzXosEp2TgaCXLGlKz2FEOeZZsA/out-0.webp",
     fallback: "linear-gradient(135deg,#0f1a30,#1a3050,#2a5080)",
   },
   {
     text: "She curled up beneath a starflower, Mr. Hops tucked under her chin, and drifted off to sleep.",
-    prompt: "soft watercolor children's book illustration, a small girl sleeping peacefully curled under a giant glowing starflower, white stuffed rabbit tucked under her chin, soft golden moonlight, cozy magical bedtime scene, warm pastels, children's storybook art, no text",
+    img: "https://replicate.delivery/czjl/Ya4Es99flcSeP0SlwDChKnbE93ukjs7bfjRCceoYd9qw5zyYB/out-0.webp",
     fallback: "linear-gradient(135deg,#0a0a1e,#1a1a40,#3030a0)",
   },
 ];
@@ -609,8 +610,6 @@ export default function App() {
 
   // Demo book
   const [demoSpread, setDemoSpread] = useState(0);
-  const [demoImgs, setDemoImgs] = useState([null,null,null,null]);
-  const demoGenRef = useRef(false);
 
   // Shared story
   const [shared, setShared] = useState(null);
@@ -648,18 +647,7 @@ export default function App() {
     return () => clearInterval(t);
   }, [screen]);
 
-  // Generate demo illustrations once (same Replicate API = same style as real stories)
-  useEffect(() => {
-    if (screen !== "landing" || demoGenRef.current) return;
-    demoGenRef.current = true;
-    // Generate in order so they appear sequentially
-    (async () => {
-      for (let i = 0; i < DEMO_STORY.length; i++) {
-        const url = await generateImage(DEMO_STORY[i].prompt);
-        if (url) setDemoImgs(prev => { const n=[...prev]; n[i]=url; return n; });
-      }
-    })();
-  }, [screen]);
+
 
 
 
@@ -1077,17 +1065,11 @@ NO title. Start immediately.`;
                         position:"relative",
                       }}>
                         <div style={{ width:"100%", aspectRatio:"4/3", position:"relative", overflow:"hidden", background:page?.fallback||"linear-gradient(135deg,#1a0d3e,#3d1d7e)" }}>
-                          {demoImgs[idx] ? (
-                            <img
-                              src={demoImgs[idx]} alt=""
-                              style={{ width:"100%", height:"100%", objectFit:"cover", display:"block" }}
-                            />
-                          ) : (
-                            <div style={{ width:"100%", height:"100%", display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", gap:8 }}>
-                              <div style={{ width:20, height:20, borderRadius:"50%", border:"2px solid rgba(255,255,255,0.3)", borderTopColor:"transparent", animation:"spin 0.9s linear infinite" }} />
-                              <span style={{ color:"rgba(255,255,255,0.35)", fontSize:11, fontFamily:"'Nunito',sans-serif" }}>Painting…</span>
-                            </div>
-                          )}
+                          <img
+                            src={page?.img} alt=""
+                            style={{ width:"100%", height:"100%", objectFit:"cover", display:"block" }}
+                            onError={e => { e.target.style.display="none"; e.target.parentElement.style.background=page?.fallback; }}
+                          />
                           <div style={{ position:"absolute", bottom:0, left:0, right:0, height:32, background:`linear-gradient(to bottom,transparent,${side===0?"rgba(253,252,247,0.9)":"rgba(253,248,239,0.9)"})` }} />
                           <div style={{
                             position:"absolute", bottom:8, [side===0?"right":"left"]:10,
