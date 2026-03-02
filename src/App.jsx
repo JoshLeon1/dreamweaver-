@@ -1228,11 +1228,20 @@ export default function App() {
       setStory(saved);
 
       const coverPrompt=`${active.child_name} age ${active.age||5} with ${active.stuffed_animal||"stuffed bear"}, ${m.prompt} bedtime children's book COVER illustration, dramatic and beautiful, soft watercolor pastel art, dreamy storybook style, bold composition, the title scene. No text.`;
-      generateImage(coverPrompt).then(async url => { if (!url) return; const cached=saved?.id?await cacheImage(url,saved.id,"cover"):url; setCoverImg(cached); if (saved?.id) supabase.from("stories").update({ cover_image:cached }).eq("id",saved.id); });
 
       const generated=new Array(ps.length).fill(null); let loaded=0;
-      // Fire ALL images in parallel with stagger - each polls independently
-      await Promise.all(ps.map(async (pageText, i) => {
+      // Fire cover + all page images in parallel — cover gets a head start (no stagger)
+      const coverPromise = (async () => {
+        const url = await generateImage(coverPrompt);
+        if (!url) return;
+        const cached = saved?.id ? await cacheImage(url, saved.id, "cover") : url;
+        setCoverImg(cached);
+        if (saved?.id) await supabase.from("stories").update({ cover_image: cached }).eq("id", saved.id);
+      })();
+
+      await Promise.all([
+        coverPromise,
+        ...ps.map(async (pageText, i) => {
         await new Promise(r => setTimeout(r, i * 1200)); // 1.2s stagger to avoid rate limit
         const url = await generateImage(imgPromptFor(pageText, m, charCard));
         if (url) {
@@ -1246,7 +1255,8 @@ export default function App() {
           console.warn("Image failed for page", i, "- using gradient fallback");
         }
         if (i===1) setStoryPhase("ready");
-      }));
+      })
+      ]);
       if (loaded<=1) setStoryPhase("ready");
       // Final save with complete array
       if (saved?.id) await supabase.from("stories").update({ page_images:generated }).eq("id",saved.id);
@@ -2242,7 +2252,7 @@ export default function App() {
                   const label=isToday?"Tonight":d.toLocaleDateString("en-US",{weekday:"short",month:"short",day:"numeric"});
                   return (
                     <div key={s.id}
-                      onClick={()=>{const ps=s.text.split("\n\n✦\n\n");setPages(ps);setTitle(s.title||"");setImgs(s.page_images||[]);const saved=parseInt(localStorage.getItem("dw_spread_"+s.id)||"-1");setSpread(Math.min(saved,ps.length-1));setStory(s);setStoryPhase("ready");setScreen("story");}}
+                      onClick={()=>{const ps=s.text.split("\n\n✦\n\n");setPages(ps);setTitle(s.title||"");setImgs(s.page_images||[]);setCoverImg(s.cover_image||null);setSpread(s.cover_image?-1:0);setStory(s);setStoryPhase("ready");setScreen("story");}}
                       style={{ display:"flex", gap:12, alignItems:"center", padding:"14px", cursor:"pointer", borderRadius:18, background:"rgba(255,255,255,.04)", border:`1px solid ${isToday?"rgba(201,168,76,.2)":"rgba(255,255,255,.07)"}`, transition:"all .2s", WebkitTapHighlightColor:"transparent" }}
                       onMouseEnter={e=>{e.currentTarget.style.background="rgba(255,255,255,.08)"}}
                       onMouseLeave={e=>{e.currentTarget.style.background="rgba(255,255,255,.04)"}}>
