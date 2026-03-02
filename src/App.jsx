@@ -148,14 +148,16 @@ body{background:var(--night);min-height:100vh;font-family:'Nunito',sans-serif;co
   background-size:280% 100%;animation:gradFlow 4s ease infinite;
   color:white;border:none;border-radius:999px;
   padding:17px 44px;font-size:17px;font-weight:800;
-  font-family:'Nunito',sans-serif;cursor:pointer;width:100%;
+  font-family:'Nunito',sans-serif;cursor:pointer;
   transition:transform .2s,box-shadow .2s;
   box-shadow:0 6px 32px rgba(130,80,240,.45);
   letter-spacing:.01em;min-height:52px;
-  -webkit-tap-highlight-color:transparent;touch-action:manipulation
+  -webkit-tap-highlight-color:transparent;touch-action:manipulation;
+  display:inline-block
 }
 .btn-cta:hover{transform:translateY(-2px) scale(1.01);box-shadow:0 10px 40px rgba(130,80,240,.6)}
 .btn-cta:active{transform:scale(.97);box-shadow:0 3px 16px rgba(130,80,240,.4)}
+.btn-cta.full{width:100%;display:block}
 
 .btn-solid{
   background:linear-gradient(135deg,#4c2d99,#7c4dcc);
@@ -778,7 +780,7 @@ export default function App() {
               </p>
 
               {/* CTA */}
-              <div style={{ display:"flex", flexDirection:"column", alignItems:"center", gap:10, maxWidth:300, margin:"0 auto" }}>
+              <div style={{ display:"flex", flexDirection:"column", alignItems:"center", gap:10, margin:"0 auto" }}>
                 <button className="btn-cta" onClick={()=>setScreen("signup")}>Start free — 7 nights free ✨</button>
                 <button className="btn-soft" style={{ borderRadius:999, width:"auto", padding:"10px 26px", fontSize:13 }} onClick={()=>setScreen("login")}>Already have an account</button>
               </div>
@@ -924,7 +926,7 @@ export default function App() {
                 7 nights free — no credit card<br/>Then $4.99/month · cancel anytime
               </p>
               <div style={{ maxWidth:300, margin:"0 auto", position:"relative" }}>
-                <button className="btn-cta" onClick={()=>setScreen("signup")}>Create Free Account ✨</button>
+                <button className="btn-cta full" onClick={()=>setScreen("signup")}>Create Free Account ✨</button>
               </div>
             </div>
 
@@ -1084,7 +1086,7 @@ export default function App() {
 
             {/* Actions */}
             <div style={{ display:"flex", flexDirection:"column", gap:10 }}>
-              <button className="btn-cta" onClick={generateStory}>
+              <button className="btn-cta full" onClick={generateStory}>
                 {storyMode==="lesson" ? `✨ Story about ${LESSONS.find(l=>l.id===lesson)?.label||"Kindness"}` : "✨ Open Tonight's Story"}
               </button>
               <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:10 }}>
@@ -1218,7 +1220,7 @@ export default function App() {
               ))}
             </div>
             <div style={{ display:"flex", flexDirection:"column", gap:10 }}>
-              <button className="btn-cta">Subscribe — $4.99/month</button>
+              <button className="btn-cta full">Subscribe — $4.99/month</button>
               <button className="btn-soft" onClick={()=>setScreen("home")}>Maybe later</button>
             </div>
           </div>
@@ -1237,7 +1239,7 @@ export default function App() {
                   <OpenBook pages={sp} imgs={si} spread={0} onFlip={()=>{}} title={shared.title} mobile={mobile} coverImg={shared.cover_image||null} />
                   <div style={{ textAlign:"center", marginTop:24, padding:"28px 20px", background:"rgba(255,255,255,.04)", border:"1px solid rgba(255,255,255,.07)", borderRadius:20 }}>
                     <p style={{ color:"rgba(255,255,255,.38)", marginBottom:16, fontFamily:"'Crimson Pro',serif", fontSize:16, fontStyle:"italic" }}>Make personalized 10-page picture books for your child every night</p>
-                    <button className="btn-cta" style={{ width:"auto", maxWidth:300, margin:"0 auto" }} onClick={()=>setScreen("signup")}>Try DreamWeaver free ✨</button>
+                    <button className="btn-cta" onClick={()=>setScreen("signup")}>Try DreamWeaver free ✨</button>
                   </div>
                 </>
               );
