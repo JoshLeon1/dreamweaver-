@@ -1586,7 +1586,7 @@ NO title. Start immediately.`;
     // Pick the most vivid page (middle of story)
     const bestPage = pages[Math.floor(pages.length / 2)] || pages[0];
     const charCard = active?.character_card || `${active.child_name} age ${active.age||5} with ${active.stuffed_animal||"stuffed bear"}`;
-    const prompt = `Black and white children's coloring book page. Clean thick outlines only, no shading, no gray fills, pure white background. Character: ${charCard.slice(0,120)} Scene: ${bestPage.slice(0,120)}. Simple, bold shapes perfect for a child to color in. No text.`;
+    const prompt = `Children's coloring book page. Pure black outlines on a completely white background. NO color, NO gray, NO shading, NO fills — only clean black lines on white. NO text, NO letters, NO words, NO numbers anywhere. Large simple bold shapes with thick outlines, lots of open white space for a child to color in. Character: ${charCard.slice(0,100)} Scene: ${bestPage.slice(0,100)}.`;
     const url = await generateImage(prompt, true);
     setColoringUrl(url);
     setColoringLoading(false);
