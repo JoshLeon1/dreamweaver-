@@ -139,6 +139,23 @@ body{background:var(--night);min-height:100vh;font-family:'Nunito',sans-serif;co
 @keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
 @keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
 /* Page turn — perspective slide that doesn't clip */
+/* Mobile swipe page turn */
+@keyframes mobileExitForward{
+  from { transform:translateX(0);    opacity:1; }
+  to   { transform:translateX(-100%); opacity:0.4; }
+}
+@keyframes mobileEnterForward{
+  from { transform:translateX(100%); opacity:0.4; }
+  to   { transform:translateX(0);    opacity:1; }
+}
+@keyframes mobileExitBack{
+  from { transform:translateX(0);   opacity:1; }
+  to   { transform:translateX(100%); opacity:0.4; }
+}
+@keyframes mobileEnterBack{
+  from { transform:translateX(-100%); opacity:0.4; }
+  to   { transform:translateX(0);    opacity:1; }
+}
 @keyframes pageExitForward{
   0%   { transform:perspective(1200px) translateX(0%) rotateY(0deg) scaleX(1); opacity:1; }
   40%  { transform:perspective(1200px) translateX(-8%) rotateY(-25deg) scaleX(0.92); opacity:1; }
@@ -383,13 +400,17 @@ input::placeholder{color:rgba(255,255,255,.18)}
 
 /* ── Badge toast ── */
 .badge-toast{
-  position:fixed;bottom:calc(24px + env(safe-area-inset-bottom));left:50%;
-  transform:translateX(-50%);z-index:200;
+  position:fixed;
+  bottom:calc(76px + env(safe-area-inset-bottom));
+  left:16px; right:16px;
+  max-width:360px;
+  margin:0 auto;
+  z-index:10000;
   background:linear-gradient(135deg,#1a0a38,#2d1060);
   border:1px solid rgba(201,168,76,.4);border-radius:16px;
-  padding:14px 20px;display:flex;gap:12px;align-items:center;
+  padding:14px 18px;display:flex;gap:12px;align-items:center;
   box-shadow:0 8px 32px rgba(0,0,0,.6),0 0 0 1px rgba(255,255,255,.06);
-  animation:fadeUp .4s ease both;white-space:nowrap
+  animation:fadeUp .4s ease both;
 }
 
 /* ── Badge grid ── */
@@ -814,46 +835,75 @@ function OpenBook({ pages, imgs, spread, onFlip, title, mobile=false, coverImg=n
   const li = displaySpread * 2;
   const ri = displaySpread * 2 + 1;
 
-  // ── MOBILE: single page view ───────────────────────────────────────────────
+  // ── MOBILE: single page view with proper layered slide animation ─────────────
   if (mobile) {
     const handleTouchStart = (e) => { touchStart.current = e.touches[0].clientX; };
     const handleTouchEnd = (e) => {
-      if (touchStart.current === null) return;
+      if (touchStart.current === null || animating) return;
       const dx = e.changedTouches[0].clientX - touchStart.current;
       touchStart.current = null;
       if (Math.abs(dx) < 40) return;
       if (dx < 0 && spread < pages.length - 1) onFlip("forward");
       if (dx > 0 && spread > (coverImg ? -1 : 0)) onFlip("back");
     };
+
+    const MobilePage = ({ pageIdx }) => (
+      <div style={{ display:"flex", flexDirection:"column", background:"linear-gradient(175deg,#fefcf7,#fdf9f0)", borderRadius:16, overflow:"hidden", boxShadow:"0 20px 60px rgba(0,0,0,.7), 0 0 0 1px rgba(255,255,255,.06)" }}>
+        <div style={{ width:"100%", aspectRatio:"4/3", position:"relative", overflow:"hidden" }}>
+          {imgs[pageIdx]
+            ? <img src={imgs[pageIdx]} alt="" style={{ width:"100%", height:"100%", objectFit:"cover", display:"block" }} />
+            : <div className="skeleton" style={{ width:"100%", height:"100%" }} />}
+          <div style={{ position:"absolute", bottom:0, left:0, right:0, height:40, background:"linear-gradient(to bottom,transparent,rgba(253,249,240,.9))" }} />
+          <div style={{ position:"absolute", bottom:10, right:14, background:"rgba(255,255,255,.88)", backdropFilter:"blur(4px)", borderRadius:99, padding:"3px 11px", color:"var(--ink)", fontSize:12, fontFamily:"'Nunito',sans-serif", fontWeight:700 }}>{pageIdx+1}</div>
+        </div>
+        <div style={{ padding:"clamp(16px,4vw,20px) clamp(18px,5vw,26px)", minHeight:80 }}>
+          <p style={{ fontFamily:"'Crimson Pro',serif", fontSize:"clamp(16px,4.5vw,20px)", lineHeight:1.9, color:"var(--ink)", textAlign:"center" }}>{pages[pageIdx]}</p>
+        </div>
+      </div>
+    );
+
+    // Determine animation styles for current (exiting) and incoming (entering) page
+    const isForward = flipClass === "page-flip-forward" || enterClass === "page-enter-forward";
+    const isBack    = flipClass === "page-flip-back"    || enterClass === "page-enter-back";
+    const exitAnim  = flipClass  === "page-flip-forward" ? "mobileExitForward .45s ease forwards"
+                    : flipClass  === "page-flip-back"    ? "mobileExitBack .45s ease forwards"
+                    : "none";
+    const enterAnim = enterClass === "page-enter-forward" ? "mobileEnterForward .45s ease forwards"
+                    : enterClass === "page-enter-back"    ? "mobileEnterBack .45s ease forwards"
+                    : "none";
+
     return (
-      <div style={{ width:"100%", maxWidth:"min(92vw,520px)", margin:"0 auto" }}>
-        {title && <div style={{ textAlign:"center", marginBottom:12 }}><h2 style={{ fontFamily:"'Playfair Display',serif", fontSize:"clamp(17px,4vw,22px)", fontStyle:"italic", color:"var(--gold-light)" }}>{title}</h2></div>}
+      <div style={{ width:"100%", maxWidth:"min(92vw,480px)", margin:"0 auto" }}>
+        {title && <div style={{ textAlign:"center", marginBottom:10 }}><h2 style={{ fontFamily:"'Playfair Display',serif", fontSize:"clamp(16px,4vw,20px)", fontStyle:"italic", color:"var(--gold-light)" }}>{title}</h2></div>}
+
+        {/* Page container — position:relative so layers stack, overflow:hidden clips the slide */}
         <div
           onTouchStart={handleTouchStart} onTouchEnd={handleTouchEnd}
-          className={flipClass || enterClass}
-          style={{ borderRadius:16, overflow:"hidden", touchAction:"pan-y",
-            boxShadow:"0 40px 80px rgba(0,0,0,.8), 0 0 0 1px rgba(255,255,255,.06)",
-          }}>
-          <div style={{ display:"flex", flexDirection:"column", background:"linear-gradient(175deg,#fefcf7,#fdf9f0)", position:"relative" }}>
-            <div style={{ width:"100%", aspectRatio:"4/3", position:"relative", overflow:"hidden" }}>
-              {imgs[spread]
-                ? <img src={imgs[spread]} alt="" style={{ width:"100%", height:"100%", objectFit:"cover", display:"block" }} />
-                : <div className="skeleton" style={{ width:"100%", height:"100%" }} />}
-              <div style={{ position:"absolute", bottom:0, left:0, right:0, height:40, background:"linear-gradient(to bottom,transparent,rgba(253,249,240,.9))" }} />
-              <div style={{ position:"absolute", bottom:10, right:14, background:"rgba(255,255,255,.88)", backdropFilter:"blur(4px)", borderRadius:99, padding:"3px 11px", color:"var(--ink)", fontSize:12, fontFamily:"'Nunito',sans-serif", fontWeight:700 }}>{spread+1}</div>
+          style={{ position:"relative", touchAction:"pan-y", borderRadius:16, overflow:"hidden" }}>
+
+          {/* Exiting page — only visible during flip */}
+          {(flipClass === "page-flip-forward" || flipClass === "page-flip-back") && (
+            <div style={{ position:"absolute", inset:0, zIndex:1, animation:exitAnim }}>
+              <MobilePage pageIdx={displaySpread} />
             </div>
-            <div style={{ padding:"clamp(16px,4vw,22px) clamp(18px,5vw,28px) clamp(18px,4vw,24px)", minHeight:90 }}>
-              <p style={{ fontFamily:"'Crimson Pro',serif", fontSize:"clamp(16px,4.5vw,20px)", lineHeight:1.9, color:"var(--ink)", textAlign:"center" }}>{pages[spread]}</p>
-            </div>
+          )}
+
+          {/* Current/entering page */}
+          <div style={{ position:"relative", zIndex:2, animation:enterAnim }}>
+            <MobilePage pageIdx={displaySpread} />
           </div>
         </div>
+
         {/* Navigation */}
-        <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginTop:14, gap:10 }}>
+        <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginTop:12, gap:10 }}>
           <button className="btn-book" disabled={(coverImg?spread===-1:spread===0)||animating} onClick={()=>onFlip("back")} style={{ flex:1 }}>← Prev</button>
           <div style={{ display:"flex", gap:5, alignItems:"center", flexShrink:0 }}>
-            {pages.length <= 14
-              ? Array.from({length:pages.length}).map((_,i) => <div key={i} onClick={()=>!animating&&onFlip(i)} style={{ width:i===spread?20:6, height:6, borderRadius:99, background:i===spread?"var(--gold)":"rgba(255,255,255,.2)", transition:"all .3s", cursor:"pointer" }} />)
-              : <span style={{ color:"rgba(255,255,255,.35)", fontSize:13, fontFamily:"'Nunito',sans-serif" }}>{spread+1}/{pages.length}</span>}
+            {Array.from({length:pages.length}).map((_,i) => (
+              <div key={i} onClick={()=>!animating&&onFlip(i)}
+                style={{ width:i===displaySpread?18:5, height:5, borderRadius:99,
+                  background:i===displaySpread?"var(--gold)":"rgba(255,255,255,.2)",
+                  transition:"all .3s", cursor:"pointer" }} />
+            ))}
           </div>
           <button className="btn-book" disabled={spread>=pages.length-1||animating} onClick={()=>onFlip("forward")} style={{ flex:1 }}>Next →</button>
         </div>
