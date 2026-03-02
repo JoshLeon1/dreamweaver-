@@ -1078,7 +1078,7 @@ export default function App() {
               {/* Headline */}
               <h1 style={{ fontFamily:"'Playfair Display',serif", fontSize:"clamp(36px,8vw,78px)", lineHeight:1.1, marginBottom:22, letterSpacing:"-.02em" }}>
                 Your Child Is
-                <em style={{ background:"linear-gradient(120deg,#e879f9 0%,#a78bfa 35%,#67e8f9 65%,#a3e635 100%)", WebkitBackgroundClip:"text", WebkitTextFillColor:"transparent", backgroundClip:"text", fontStyle:"italic" }}>
+                <em style={{ background:"linear-gradient(120deg,#f6d98a 0%,#e8b84b 45%,#c9a030 100%)", WebkitBackgroundClip:"text", WebkitTextFillColor:"transparent", backgroundClip:"text", fontStyle:"italic" }}>
                   The Hero. Every Night.
                 </em>
               </h1>
