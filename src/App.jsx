@@ -6,7 +6,7 @@ const APP_URL = "https://dreamweaverstory.com";
 const TRIAL_DAYS = 7;
 const PRICE_BASE = 5.99;       // first child per month
 const PRICE_PER_EXTRA = 2.99;  // each additional child per month
-const STORY_PAGES = 10;
+const STORY_PAGES = 14;
 
 const MOODS = [
   { id: "magical",  emoji: "✨", label: "Magical",  prompt: "magical and full of wonder" },
@@ -140,39 +140,40 @@ body{background:var(--night);min-height:100vh;font-family:'Nunito',sans-serif;co
 @keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
 /* Page turn — right page flips forward (slides left with curl) */
 @keyframes flipRight{
-  0%   { transform:perspective(1400px) rotateY(0deg) translateZ(0px); box-shadow: 0 0 0 rgba(0,0,0,0); z-index:10; }
-  30%  { transform:perspective(1400px) rotateY(-25deg) translateZ(30px); box-shadow:-12px 0 40px rgba(0,0,0,.35); z-index:10; }
-  70%  { transform:perspective(1400px) rotateY(-145deg) translateZ(30px); box-shadow:-18px 0 50px rgba(0,0,0,.4); z-index:10; }
-  100% { transform:perspective(1400px) rotateY(-180deg) translateZ(0px); z-index:10; }
+  0%   { transform:perspective(2000px) rotateY(0deg) translateZ(0px); }
+  25%  { transform:perspective(2000px) rotateY(-30deg) translateZ(50px); box-shadow:-20px 0 60px rgba(0,0,0,.5); }
+  50%  { transform:perspective(2000px) rotateY(-90deg) translateZ(60px); box-shadow:-30px 0 80px rgba(0,0,0,.6); }
+  75%  { transform:perspective(2000px) rotateY(-150deg) translateZ(50px); box-shadow:-20px 0 60px rgba(0,0,0,.5); }
+  100% { transform:perspective(2000px) rotateY(-180deg) translateZ(0px); }
 }
-/* Left page flips backward */
 @keyframes flipLeft{
-  0%   { transform:perspective(1400px) rotateY(0deg) translateZ(0px); }
-  30%  { transform:perspective(1400px) rotateY(25deg) translateZ(30px); box-shadow:12px 0 40px rgba(0,0,0,.35); }
-  70%  { transform:perspective(1400px) rotateY(145deg) translateZ(30px); box-shadow:18px 0 50px rgba(0,0,0,.4); }
-  100% { transform:perspective(1400px) rotateY(180deg) translateZ(0px); }
+  0%   { transform:perspective(2000px) rotateY(0deg) translateZ(0px); }
+  25%  { transform:perspective(2000px) rotateY(30deg) translateZ(50px); box-shadow:20px 0 60px rgba(0,0,0,.5); }
+  50%  { transform:perspective(2000px) rotateY(90deg) translateZ(60px); box-shadow:30px 0 80px rgba(0,0,0,.6); }
+  75%  { transform:perspective(2000px) rotateY(150deg) translateZ(50px); box-shadow:20px 0 60px rgba(0,0,0,.5); }
+  100% { transform:perspective(2000px) rotateY(180deg) translateZ(0px); }
 }
-/* New right page enters from left */
 @keyframes unflipRight{
-  0%   { transform:perspective(1400px) rotateY(-180deg) translateZ(0px); opacity:0; }
-  1%   { opacity:1; }
-  30%  { transform:perspective(1400px) rotateY(-140deg) translateZ(30px); }
-  70%  { transform:perspective(1400px) rotateY(-20deg) translateZ(30px); }
-  100% { transform:perspective(1400px) rotateY(0deg) translateZ(0px); }
+  0%   { transform:perspective(2000px) rotateY(-180deg) translateZ(0px); opacity:0; }
+  5%   { opacity:1; }
+  25%  { transform:perspective(2000px) rotateY(-150deg) translateZ(50px); }
+  50%  { transform:perspective(2000px) rotateY(-90deg) translateZ(60px); }
+  75%  { transform:perspective(2000px) rotateY(-30deg) translateZ(50px); }
+  100% { transform:perspective(2000px) rotateY(0deg) translateZ(0px); }
 }
-/* New left page enters from right */
 @keyframes unflipLeft{
-  0%   { transform:perspective(1400px) rotateY(180deg) translateZ(0px); opacity:0; }
-  1%   { opacity:1; }
-  30%  { transform:perspective(1400px) rotateY(140deg) translateZ(30px); }
-  70%  { transform:perspective(1400px) rotateY(20deg) translateZ(30px); }
-  100% { transform:perspective(1400px) rotateY(0deg) translateZ(0px); }
+  0%   { transform:perspective(2000px) rotateY(180deg) translateZ(0px); opacity:0; }
+  5%   { opacity:1; }
+  25%  { transform:perspective(2000px) rotateY(150deg) translateZ(50px); }
+  50%  { transform:perspective(2000px) rotateY(90deg) translateZ(60px); }
+  75%  { transform:perspective(2000px) rotateY(30deg) translateZ(50px); }
+  100% { transform:perspective(2000px) rotateY(0deg) translateZ(0px); }
 }
-/* Cover opening — swings open from left spine */
 @keyframes coverOpen{
-  0%   { transform:perspective(1400px) rotateY(0deg) translateZ(0px); }
-  40%  { transform:perspective(1400px) rotateY(-60deg) translateZ(40px); }
-  100% { transform:perspective(1400px) rotateY(-180deg) translateZ(0px); opacity:0; }
+  0%   { transform:perspective(2000px) rotateY(0deg) translateZ(0px); }
+  30%  { transform:perspective(2000px) rotateY(-45deg) translateZ(60px); }
+  60%  { transform:perspective(2000px) rotateY(-120deg) translateZ(60px); }
+  100% { transform:perspective(2000px) rotateY(-180deg) translateZ(0px); opacity:0; }
 }
 @keyframes pulse{0%,100%{opacity:.6;transform:scale(1)}50%{opacity:1;transform:scale(1.05)}}
 @keyframes orb{0%,100%{transform:translate(0,0) scale(1)}33%{transform:translate(20px,-15px) scale(1.05)}66%{transform:translate(-10px,20px) scale(.97)}}
@@ -181,11 +182,11 @@ body{background:var(--night);min-height:100vh;font-family:'Nunito',sans-serif;co
 .fadein{animation:fadeIn .3s ease both}
 .float{animation:float 4s ease-in-out infinite}
 
-.page-flip-forward{animation:flipRight .62s cubic-bezier(.25,.46,.45,.94) forwards; transform-style:preserve-3d; backface-visibility:hidden;}
-.page-flip-back{animation:flipLeft .62s cubic-bezier(.25,.46,.45,.94) forwards; transform-style:preserve-3d; backface-visibility:hidden;}
-.page-enter-forward{animation:unflipRight .62s cubic-bezier(.25,.46,.45,.94) forwards; transform-style:preserve-3d; backface-visibility:hidden;}
-.page-enter-back{animation:unflipLeft .62s cubic-bezier(.25,.46,.45,.94) forwards; transform-style:preserve-3d; backface-visibility:hidden;}
-.cover-opening{animation:coverOpen .75s cubic-bezier(.25,.46,.45,.94) forwards; transform-style:preserve-3d; backface-visibility:hidden; transform-origin:left center;}
+.page-flip-forward{animation:flipRight 1.0s cubic-bezier(.3,0,.2,1) forwards; transform-style:preserve-3d; backface-visibility:hidden; will-change:transform;}
+.page-flip-back{animation:flipLeft 1.0s cubic-bezier(.3,0,.2,1) forwards; transform-style:preserve-3d; backface-visibility:hidden; will-change:transform;}
+.page-enter-forward{animation:unflipRight 1.0s cubic-bezier(.3,0,.2,1) forwards; transform-style:preserve-3d; backface-visibility:hidden; will-change:transform;}
+.page-enter-back{animation:unflipLeft 1.0s cubic-bezier(.3,0,.2,1) forwards; transform-style:preserve-3d; backface-visibility:hidden; will-change:transform;}
+.cover-opening{animation:coverOpen 1.0s cubic-bezier(.3,0,.2,1) forwards; transform-style:preserve-3d; backface-visibility:hidden; transform-origin:left center; will-change:transform;}
 
 /* ── Wrap ── */
 .wrap{
@@ -568,6 +569,20 @@ function IllustrationLoader({ total, loaded, title, imgs=[] }) {
 
 
 
+
+// ── SharedBook — standalone readable book for share links ────────────────────
+function SharedBook({ pages, imgs, title, coverImg, mobile }) {
+  const [spread, setSpread] = useState(coverImg ? -1 : 0);
+  const handleFlip = (dir) => {
+    const min = coverImg ? -1 : 0;
+    const max = mobile ? pages.length - 1 : Math.ceil(pages.length / 2) - 1;
+    if (dir === "forward" && spread < max) setSpread(s => s + 1);
+    else if (dir === "back" && spread > min) setSpread(s => s - 1);
+    else if (typeof dir === "number") setSpread(dir);
+  };
+  return <OpenBook pages={pages} imgs={imgs} spread={spread} onFlip={handleFlip} title={title} mobile={mobile} coverImg={coverImg} />;
+}
+
 // ── Bottom Nav (mobile only) ──────────────────────────────────────────────────
 function BottomNav({ screen, setScreen, loadLibrary }) {
   const C_ON  = "#c084fc";
@@ -686,8 +701,8 @@ function OpenBook({ pages, imgs, spread, onFlip, title, mobile=false, coverImg=n
         setOpeningCover(false);
         setDisplaySpread(0);
         setEnterClass("page-enter-forward");
-        setTimeout(() => { setEnterClass(""); setAnimating(false); }, 680);
-      }, 780);
+        setTimeout(() => { setEnterClass(""); setAnimating(false); }, 1050);
+      }, 1000);
       return;
     }
 
@@ -949,6 +964,7 @@ export default function App() {
   const [lesson, setLesson]       = useState("kindness");
   const [wizStep, setWizStep]     = useState(0);
   const [library, setLibrary]     = useState([]);
+  const [libFilter, setLibFilter] = useState("all"); // "all" | "favorites"
   const [copied, setCopied]       = useState(false);
   const [speaking, setSpeaking]   = useState(false);
   const [err, setErr]             = useState("");
@@ -1198,8 +1214,8 @@ export default function App() {
     const charCard = await getCharacterCard(active);
 
     const storyPrompt=isLesson
-      ?`Write a warm personalized bedtime picture book that gently teaches a lesson for:\n${profileText(active)}\nTone: ${m.prompt}.\nLesson to teach: ${lessonData?.prompt||"being kind to others"}.\n\nWrite EXACTLY ${STORY_PAGES} pages, separated by [PAGE].\nEach page = 1-2 SHORT sentences. Pure picture book style — brief, lyrical, beautiful.\nPage 1: introduce child and stuffed animal in a cozy relatable situation that sets up the lesson.\nPages 2-4: adventure begins, a challenge appears that relates to the lesson. Weave in best friend and favorite animal.\nPages 5-7: the heart of the story — child faces the lesson challenge. Show the struggle gently. Let it feel real.\nPages 8-9: child discovers the lesson naturally through the story, feels proud and changed.\nPage 10: child drifts peacefully to sleep, carrying the lesson in their heart.\nThe lesson should feel discovered, never lectured. NO title. Start immediately.`
-      :`Write a warm personalized bedtime picture book for:\n${profileText(active)}\nTone: ${m.prompt}.\nWrite EXACTLY ${STORY_PAGES} pages, separated by [PAGE].\nEach page = 1-2 SHORT sentences. Pure picture book style — brief, lyrical, beautiful.\nPage 1: introduce child and stuffed animal in a cozy setting.\nPages 2-4: adventure begins, weave in best friend and favorite animal.\nPages 5-7: heart of story, gently face their fear.\nPages 8-9: resolution, magic and wonder.\nPage 10: child drifts peacefully to sleep.\nNO title. Start immediately.`;
+      ?`Write a warm personalized bedtime picture book that gently teaches a lesson for:\n${profileText(active)}\nTone: ${m.prompt}.\nLesson to teach: ${lessonData?.prompt||"being kind to others"}.\n\nWrite EXACTLY 14 pages, separated by [PAGE].\nEach page = 1-2 SHORT sentences. Pure picture book style — brief, lyrical, beautiful.\nPage 1: introduce child and stuffed animal in a cozy relatable situation that sets up the lesson.\nPages 2-4: adventure begins, a challenge appears that relates to the lesson. Weave in best friend and favorite animal.\nPages 5-8: the heart of the story — child faces the lesson challenge. Show the struggle gently. Let it feel real.\nPages 9-11: child discovers the lesson naturally, feels proud and changed.\nPages 12-13: resolution — warmth, joy, love from the people around them.\nPage 14: child drifts peacefully to sleep, a smile on their face, the lesson in their heart. A complete, satisfying ending.\nThe lesson should feel discovered, never lectured. NO title. Start immediately.`
+      :`Write a warm personalized bedtime picture book for:\n${profileText(active)}\nTone: ${m.prompt}.\nWrite EXACTLY 14 pages, separated by [PAGE].\nEach page = 1-2 SHORT sentences. Pure picture book style — brief, lyrical, beautiful.\nPage 1: introduce child and stuffed animal in a cozy setting.\nPages 2-4: adventure begins, weave in best friend and favorite animal.\nPages 5-8: heart of story, gently face their fear, build to the climax.\nPages 9-11: resolution — magic, wonder, the problem is solved.\nPages 12-13: warmth and celebration with the people they love.\nPage 14: child drifts peacefully to sleep. A complete, happy, satisfying ending.\nNO title. Start immediately.`;
 
     try {
       const [rawText,rawTitle] = await Promise.all([
@@ -1305,6 +1321,65 @@ export default function App() {
         const cached=story?.id?await cacheImage(url,story.id,i):url;
         setImgs(prev=>{const n=[...prev];n[i]=cached; supabase.from("stories").update({page_images:n}).eq("id",story.id); return n;});
       }));
+    } catch(e) { console.error(e); }
+    setExtending(false);
+  };
+
+  const toggleFavorite = async () => {
+    if (!story) return;
+    const newVal = !story.is_favorite;
+    setStory(s => ({ ...s, is_favorite: newVal }));
+    await supabase.from("stories").update({ is_favorite: newVal }).eq("id", story.id);
+  };
+
+  const generateSequel = async () => {
+    if (extending || !story) return;
+    setExtending(true);
+    const m = MOODS.find(x => x.id === mood) || MOODS[0];
+    const charCard = await getCharacterCard(active);
+    const summary = pages.slice(0, 3).join(" ").slice(0, 300);
+    const sequelPrompt = `Write a brand new 14-page bedtime picture book sequel to this story for ${profileText(active)}.
+The previous story was called "${title}" and began: ${summary}...
+Tone: ${m.prompt}.
+This is a NEW standalone story — same characters, new adventure, new lesson.
+Write EXACTLY 14 pages, separated by [PAGE].
+Each page = 1-2 SHORT sentences. Pure picture book style.
+Pages 1-2: re-introduce the characters in a new cozy situation.
+Pages 3-6: new adventure begins, new challenge appears.
+Pages 7-10: heart of story, face the challenge.
+Pages 11-13: resolution, magic, joy.
+Page 14: child drifts peacefully to sleep. Complete happy ending.
+NO title. Start immediately.`;
+    try {
+      const [rawText, rawTitle] = await Promise.all([
+        callClaude([{ role:"user", content:sequelPrompt }], 1800),
+        callClaude([{ role:"user", content:`Magical 4-6 word sequel title for a bedtime story about ${active.child_name} and ${active.stuffed_animal||"a stuffed bear"}. Make it feel like a sequel to "${title}". Only the title.` }], 30),
+      ]);
+      const ps = rawText.split("[PAGE]").map(p => p.trim()).filter(p => p.length > 5).slice(0, 14);
+      const fullText = ps.join("\n\n✦\n\n");
+      const sequelTitle = rawTitle.trim();
+      // Save as new story for today
+      const payload = { user_id:user.id, story_date:todayStr(), text:fullText, title:sequelTitle, child_profile_id:active.id, page_images:[], cover_image:null, is_sequel_of:story.id };
+      const { data:saved } = await supabase.from("stories").insert(payload).select().single();
+      setTitle(sequelTitle); setPages(ps); setImgs([]); setImgsLoaded(0); setCoverImg(null); setSpread(-1); setStory(saved); setStoryPhase("ready");
+      // Generate cover + images
+      const coverPrompt = `${active.child_name} age ${active.age||5} with ${active.stuffed_animal||"stuffed bear"}, ${m.prompt} bedtime children's book COVER illustration, sequel adventure, soft watercolor pastel art, dreamy storybook style. No text.`;
+      const generated = new Array(ps.length).fill(null);
+      const coverP = (async () => {
+        const url = await generateImage(coverPrompt); if (!url) return;
+        const cached = saved?.id ? await cacheImage(url, saved.id, "cover") : url;
+        setCoverImg(cached); if (saved?.id) supabase.from("stories").update({ cover_image:cached }).eq("id",saved.id);
+      })();
+      await Promise.all([coverP, ...ps.map(async (pageText, i) => {
+        await new Promise(r => setTimeout(r, i * 1200));
+        const url = await generateImage(imgPromptFor(pageText, m, charCard)); if (!url) return;
+        const cached = saved?.id ? await cacheImage(url, saved.id, i) : url;
+        generated[i] = cached; setImgsLoaded(l => l+1);
+        setImgs(prev => { const n=[...prev]; n[i]=cached; return n; });
+        if (saved?.id) supabase.from("stories").update({ page_images:[...generated] }).eq("id",saved.id);
+        if (i===1) setStoryPhase("ready");
+      })]);
+      if (saved?.id) await supabase.from("stories").update({ page_images:generated }).eq("id",saved.id);
     } catch(e) { console.error(e); }
     setExtending(false);
   };
@@ -1520,7 +1595,7 @@ export default function App() {
               </h1>
 
               <p style={{ fontFamily:"'Crimson Pro',serif", fontSize:"clamp(17px,2.8vw,22px)", color:"rgba(255,255,255,.45)", lineHeight:1.75, maxWidth:520, margin:"0 auto 38px", fontStyle:"italic" }}>
-                Every night, a brand new 10-page illustrated picture book — starring your child's name, stuffed animal, best friend, and the things they love most.
+                Every night, a brand new 14-page illustrated picture book — starring your child's name, stuffed animal, best friend, and the things they love most.
               </p>
 
               <div style={{ display:"flex", flexDirection:"column", alignItems:"center", gap:12 }}>
@@ -1621,7 +1696,7 @@ export default function App() {
                   { icon:"📸", title:"Illustrated Like Them",  desc:"Upload a photo and the hero looks just like your child", big:false },
                   { icon:"🧸", title:"Deeply Personalized",    desc:"Name, stuffed animal, best friend, fears — woven into every page naturally", big:true },
                   { icon:"✨", title:"Life Lesson Stories",    desc:"Pick a value — kindness, bravery, patience — your child discovers it through adventure, never a lecture", big:true },
-                  { icon:"📖", title:"10 Pages Every Night",   desc:"A complete illustrated picture book every single night", big:false },
+                  { icon:"📖", title:"14 Pages Every Night",   desc:"A complete illustrated picture book every single night", big:false },
                   { icon:"🔊", title:"Read Aloud Voice",       desc:"Calm, soothing narration reads the story aloud at bedtime", big:false },
                   { icon:"🎨", title:"Coloring Book Mode",     desc:"Turn any story into a printable coloring page your child can color in", big:false },
                   { icon:"📚", title:"Story Library",          desc:"Every story saved forever — revisit old favorites anytime", big:false },
@@ -1719,7 +1794,7 @@ export default function App() {
                     </p>
                   </div>
                   <div style={{ display:"flex", flexDirection:"column", gap:11, marginBottom:28 }}>
-                    {["10-Page Illustrated Story Every Night","AI Watercolor Art On Every Page","Photo-Matched Character Illustrations","Life Lesson Story Mode","Read Aloud Narrator","Story Library Saved Forever","Coloring Book Generator","Milestone Badges For Kids","Add More Kids For +$2.99/mo Per Additional Child","Cancel Anytime"].map(f => (
+                    {["14-Page Illustrated Story Every Night","AI Watercolor Art On Every Page","Photo-Matched Character Illustrations","Life Lesson Story Mode","Read Aloud Narrator","Story Library Saved Forever","Coloring Book Generator","Milestone Badges For Kids","Add More Kids For +$2.99/mo Per Additional Child","Cancel Anytime"].map(f => (
                       <div key={f} style={{ display:"flex", alignItems:"center", gap:10 }}>
                         <span style={{ color:"#a78bfa", fontSize:14, flexShrink:0 }}>✦</span>
                         <span style={{ color:"rgba(255,255,255,.6)", fontSize:"clamp(13px,1.5vw,14px)", fontFamily:"'Nunito',sans-serif" }}>{f}</span>
@@ -1972,7 +2047,7 @@ export default function App() {
               <h1 style={{ fontFamily:"'Playfair Display',serif", fontSize:"clamp(20px,5.5vw,28px)", lineHeight:1.25, marginBottom:6 }}>
                 Tonight's story for <em style={{ color:"var(--gold-light)" }}>{active.child_name}</em>
               </h1>
-              <p style={{ color:"rgba(255,255,255,.28)", fontFamily:"'Crimson Pro',serif", fontStyle:"italic", fontSize:"clamp(13px,3vw,15px)" }}>10 pages · personalized · fully illustrated</p>
+              <p style={{ color:"rgba(255,255,255,.28)", fontFamily:"'Crimson Pro',serif", fontStyle:"italic", fontSize:"clamp(13px,3vw,15px)" }}>14 pages · personalized · fully illustrated</p>
             </div>
 
             {/* Photo prompt - show if no photo-based character card yet */}
@@ -2125,10 +2200,14 @@ export default function App() {
 
                 {/* Actions — stacked rows on mobile */}
                 <div style={{ marginTop:18, display:"flex", flexDirection:"column", gap:10, maxWidth: tablet ? 680 : 520, margin:"18px auto 0" }}>
-                  {/* Row 1: main story actions */}
+                  {/* Row 1: sequel + favorite */}
                   <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:8 }}>
-                    <button className="btn-book" onClick={continueStory} disabled={extending} style={{ opacity:extending?0.6:1 }}>{extending?"✨ Writing…":"✨ Continue"}</button>
-                    <button className="btn-book" onClick={happyEnding} disabled={extending} style={{ opacity:extending?0.6:1, background:"linear-gradient(135deg,#132018,#1f3828)", borderColor:"rgba(80,200,120,.3)", color:"#7de8a0" }}>{extending?"✨ Writing…":"🌟 Happy Ending"}</button>
+                    <button className="btn-book" onClick={toggleFavorite} style={{ background:story?.is_favorite?"linear-gradient(135deg,rgba(201,168,76,.2),rgba(201,168,76,.1))":"", borderColor:story?.is_favorite?"rgba(201,168,76,.5)":"", color:story?.is_favorite?"var(--gold-light)":"" }}>
+                      {story?.is_favorite ? "★ Favorited" : "☆ Favorite"}
+                    </button>
+                    <button className="btn-book" onClick={generateSequel} disabled={extending} style={{ opacity:extending?0.6:1, background:"linear-gradient(135deg,#132018,#1f3828)", borderColor:"rgba(80,200,120,.3)", color:"#7de8a0" }}>
+                      {extending ? "✨ Writing…" : "📖 Sequel"}
+                    </button>
                   </div>
                   {/* Row 2: coloring book */}
                   <button className="btn-book" onClick={generateColoringPage} disabled={coloringLoading} style={{ background:"linear-gradient(135deg,#0d0a1e,#1a1040)", borderColor:"rgba(192,132,252,.3)", color:"#d8b4fe", opacity:coloringLoading?0.6:1 }}>
@@ -2222,9 +2301,21 @@ export default function App() {
         ══════════════════════════════════════════════════════════════════════ */}
         {screen==="library" && (
           <div className="fade has-bottom-nav" style={{ maxWidth:560, width:"100%" }}>
-            <div style={{ display:"flex", alignItems:"center", gap:12, marginBottom:20 }}>
+            <div style={{ display:"flex", alignItems:"center", gap:12, marginBottom:16 }}>
               <button className="btn-soft" style={{ flexShrink:0, width:"auto", padding:"12px 16px" }} onClick={()=>setScreen("home")}>← Home</button>
               <h2 style={{ fontFamily:"'Playfair Display',serif", fontSize:"clamp(16px,4vw,20px)", fontStyle:"italic", overflow:"hidden", textOverflow:"ellipsis", whiteSpace:"nowrap" }}>📚 {active?.child_name}'s Library</h2>
+            </div>
+            {/* Filter tabs */}
+            <div style={{ display:"flex", gap:8, marginBottom:18 }}>
+              {[{id:"all",label:"All Stories"},{id:"favorites",label:"★ Favorites"}].map(f => (
+                <button key={f.id} onClick={()=>setLibFilter(f.id)}
+                  style={{ padding:"8px 18px", borderRadius:999, border:"1px solid", fontSize:13, fontFamily:"'Nunito',sans-serif", fontWeight:700, cursor:"pointer", transition:"all .2s",
+                    background: libFilter===f.id ? "rgba(201,168,76,.15)" : "transparent",
+                    borderColor: libFilter===f.id ? "rgba(201,168,76,.4)" : "rgba(255,255,255,.12)",
+                    color: libFilter===f.id ? "var(--gold-light)" : "rgba(255,255,255,.45)" }}>
+                  {f.label}
+                </button>
+              ))}
             </div>
             {library.length===0 ? (
               <div style={{ textAlign:"center", padding:"clamp(48px,10vw,72px) 20px" }}>
@@ -2237,7 +2328,7 @@ export default function App() {
                   {active?.child_name}'s first story<br/>is waiting to be written
                 </h3>
                 <p style={{ color:"rgba(255,255,255,.32)", fontFamily:"'Crimson Pro',serif", fontStyle:"italic", fontSize:"clamp(14px,3.5vw,16px)", lineHeight:1.8, maxWidth:300, margin:"0 auto 28px" }}>
-                  Every night, a brand new 10-page illustrated picture book — starring {active?.child_name} as the hero.
+                  Every night, a brand new 14-page illustrated picture book — starring {active?.child_name} as the hero.
                 </p>
                 <button className="btn-cta" style={{ margin:"0 auto", display:"block", width:"auto", padding:"16px 32px" }} onClick={()=>setScreen("home")}>
                   ✨ Open Tonight's Story
@@ -2246,7 +2337,7 @@ export default function App() {
               </div>
             ) : (
               <div style={{ display:"flex", flexDirection:"column", gap:10 }}>
-                {library.map(s => {
+                {library.filter(s => libFilter==="all" || s.is_favorite).map(s => {
                   const isToday=s.story_date===todayStr();
                   const d=new Date(s.story_date+"T00:00:00");
                   const label=isToday?"Tonight":d.toLocaleDateString("en-US",{weekday:"short",month:"short",day:"numeric"});
@@ -2264,7 +2355,10 @@ export default function App() {
                           <span style={{ color:isToday?"var(--gold)":"rgba(255,255,255,.28)", fontSize:11, letterSpacing:".08em", textTransform:"uppercase", fontWeight:700 }}>{label}</span>
                           {s.lesson_type && <span style={{ background:"rgba(74,222,128,.12)", border:"1px solid rgba(74,222,128,.22)", borderRadius:999, padding:"1px 8px", fontSize:10, color:"#6ee7a0", flexShrink:0 }}>{LESSONS.find(l=>l.id===s.lesson_type)?.emoji} {LESSONS.find(l=>l.id===s.lesson_type)?.label}</span>}
                         </div>
-                        <div style={{ color:"rgba(255,255,255,.85)", fontFamily:"'Crimson Pro',serif", fontStyle:"italic", fontSize:"clamp(13px,3.5vw,15px)", overflow:"hidden", textOverflow:"ellipsis", whiteSpace:"nowrap" }}>{s.title||s.text?.slice(0,60)+"…"}</div>
+                        <div style={{ display:"flex", alignItems:"center", gap:6 }}>
+                          {s.is_favorite && <span style={{ color:"var(--gold)", fontSize:12, flexShrink:0 }}>★</span>}
+                          <div style={{ color:"rgba(255,255,255,.85)", fontFamily:"'Crimson Pro',serif", fontStyle:"italic", fontSize:"clamp(13px,3.5vw,15px)", overflow:"hidden", textOverflow:"ellipsis", whiteSpace:"nowrap" }}>{s.title||s.text?.slice(0,60)+"…"}</div>
+                        </div>
                       </div>
                       <span style={{ color:"rgba(201,168,76,.4)", fontSize:16, flexShrink:0 }}>›</span>
                     </div>
@@ -2315,7 +2409,7 @@ export default function App() {
                 <span style={{ color:"white", fontWeight:700, fontSize:14 }}>+${PRICE_PER_EXTRA.toFixed(2)}/mo</span>
               </div>
               {[
-                "10-Page Illustrated Story Every Night",
+                "14-Page Illustrated Story Every Night",
                 "AI Watercolor Art On Every Page",
                 "Photo-Matched Character Illustrations",
                 "Life Lesson Story Mode",
@@ -2348,23 +2442,23 @@ export default function App() {
         {/* ═══════════════════════════════════════════════════════════════════
             SHARED
         ══════════════════════════════════════════════════════════════════════ */}
-        {screen==="shared" && (
+        {screen==="shared" && (() => {
+          const sp = shared?.text?.split("\n\n✦\n\n") || [];
+          const si = shared?.page_images || [];
+          return (
           <div className="fade" style={{ maxWidth:980, width:"100%" }}>
-            {!shared ? <MoonLoader /> : (() => {
-              const sp=shared.text?.split("\n\n✦\n\n")||[shared.text];
-              const si=shared.page_images||[];
-              return (
-                <>
-                  <OpenBook pages={sp} imgs={si} spread={0} onFlip={()=>{}} title={shared.title} mobile={mobile||tablet} coverImg={shared.cover_image||null} />
-                  <div style={{ textAlign:"center", marginTop:24, padding:"28px 20px", background:"rgba(255,255,255,.04)", border:"1px solid rgba(255,255,255,.07)", borderRadius:20 }}>
-                    <p style={{ color:"rgba(255,255,255,.38)", marginBottom:16, fontFamily:"'Crimson Pro',serif", fontSize:16, fontStyle:"italic" }}>Make personalized 10-page picture books for your child every night</p>
-                    <button className="btn-cta" onClick={()=>setScreen("signup")}>Try DreamWeaver free ✨</button>
-                  </div>
-                </>
-              );
-            })()}
+            {!shared ? <MoonLoader /> : (
+              <>
+                <SharedBook pages={sp} imgs={si} title={shared.title} coverImg={shared.cover_image||null} mobile={mobile||tablet} />
+                <div style={{ textAlign:"center", marginTop:24, padding:"28px 20px", background:"rgba(255,255,255,.04)", border:"1px solid rgba(255,255,255,.07)", borderRadius:20 }}>
+                  <p style={{ color:"rgba(255,255,255,.38)", marginBottom:16, fontFamily:"'Crimson Pro',serif", fontSize:16, fontStyle:"italic" }}>Make personalized 14-page picture books for your child every night</p>
+                  <button className="btn-cta" onClick={()=>setScreen("signup")}>Try DreamWeaver free ✨</button>
+                </div>
+              </>
+            )}
           </div>
-        )}
+          );
+        })()}
 
       </div>
 
