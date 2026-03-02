@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { supabase } from "./supabase.js";
 
 const ANTHROPIC_KEY = import.meta.env.VITE_ANTHROPIC_KEY;
-const APP_URL = "https://dreamweaver-kohl.vercel.app";
+const APP_URL = "https://dreamweaverstory.com";
 const TRIAL_DAYS = 7;
 const STORY_PAGES = 10;
 
@@ -97,7 +97,7 @@ async function cacheImage(replicateUrl, storyId, pageIndex) {
   try {
     const resp = await fetch(replicateUrl);
     const blob = await resp.blob();
-    const ext = blob.type.includes("png") ? "png" : "jpg";
+    const ext = blob.type.includes("png") ? "png" : blob.type.includes("webp") ? "webp" : "jpg";
     const path = `stories/${storyId}/page_${pageIndex}.${ext}`;
     const { error } = await supabase.storage.from("story-images").upload(path, blob, { contentType: blob.type, upsert: true });
     if (error) return replicateUrl;
@@ -684,6 +684,13 @@ export default function App() {
     return `${base} Style: ${m.prompt}, soft pastel watercolor, dreamy storybook art. No text.`;
   };
 
+  // Persist page position
+  useEffect(() => {
+    if (story?.id) {
+      try { localStorage.setItem("dw_spread_" + story.id, spread); } catch {}
+    }
+  }, [spread, story]);
+
   const handleFlip = (dir) => {
     if (mobile) { if (dir==="forward"&&spread<pages.length-1) setSpread(s=>s+1); else if (dir==="back"&&spread>0) setSpread(s=>s-1); else if (typeof dir==="number") setSpread(dir); }
     else { const ts=Math.ceil(pages.length/2); if (dir==="forward"&&spread<ts-1) setSpread(s=>s+1); else if (dir==="back"&&spread>0) setSpread(s=>s-1); else if (typeof dir==="number") setSpread(dir); }
@@ -734,7 +741,7 @@ export default function App() {
       const fullText=ps.join("\n\n✦\n\n");
       const storyTitle=rawTitle.trim();
       setTitle(storyTitle); setPages(ps);
-      const { data:saved } = await supabase.from("stories").insert({ user_id:user.id, story_date:todayStr(), text:fullText, title:storyTitle, child_profile_id:active.id, page_images:[], cover_image:null, lesson_type:isLesson?lesson:null, history:[{role:"user",content:storyPrompt},{role:"assistant",content:rawText}] }).select().single();
+      const { data:saved } = await supabase.from("stories").upsert({ user_id:user.id, story_date:todayStr(), text:fullText, title:storyTitle, child_profile_id:active.id, page_images:[], cover_image:null, lesson_type:isLesson?lesson:null, history:[{role:"user",content:storyPrompt},{role:"assistant",content:rawText}] }, { onConflict:"user_id,story_date,child_profile_id", ignoreDuplicates:false }).select().single();
       setStory(saved);
 
       const coverPrompt=`${active.child_name} age ${active.age||5} with ${active.stuffed_animal||"stuffed bear"}, ${m.prompt} bedtime children's book COVER illustration, dramatic and beautiful, soft watercolor pastel art, dreamy storybook style, bold composition, the title scene. No text.`;
@@ -745,7 +752,13 @@ export default function App() {
       await Promise.all(ps.map(async (pageText, i) => {
         await new Promise(r => setTimeout(r, i * 1200)); // 1.2s stagger to avoid rate limit
         const url = await generateImage(imgPromptFor(pageText, m, charCard));
-        if (url) { generated[i]=url; loaded++; setImgsLoaded(loaded); setImgs(prev=>{const n=[...prev];n[i]=url;return n;}); }
+        if (url) {
+          const cached = saved?.id ? await cacheImage(url, saved.id, i) : url;
+          generated[i]=cached; loaded++; setImgsLoaded(loaded);
+          setImgs(prev=>{const n=[...prev];n[i]=cached;return n;});
+        } else {
+          console.warn("Image failed for page", i, "- using gradient fallback");
+        }
         if (i===1) setStoryPhase("ready");
       }));
       if (loaded<=1) setStoryPhase("ready");
@@ -1343,7 +1356,7 @@ export default function App() {
                   const label=isToday?"Tonight":d.toLocaleDateString("en-US",{weekday:"short",month:"short",day:"numeric"});
                   return (
                     <div key={s.id}
-                      onClick={()=>{const ps=s.text.split("\n\n✦\n\n");setPages(ps);setTitle(s.title||"");setImgs(s.page_images||[]);setSpread(0);setStory(s);setStoryPhase("ready");setScreen("story");}}
+                      onClick={()=>{const ps=s.text.split("\n\n✦\n\n");setPages(ps);setTitle(s.title||"");setImgs(s.page_images||[]);const saved=parseInt(localStorage.getItem("dw_spread_"+s.id)||"0");setSpread(Math.min(saved,ps.length-1));setStory(s);setStoryPhase("ready");setScreen("story");}}
                       style={{ display:"flex", gap:12, alignItems:"center", padding:"14px", cursor:"pointer", borderRadius:18, background:"rgba(255,255,255,.04)", border:`1px solid ${isToday?"rgba(201,168,76,.2)":"rgba(255,255,255,.07)"}`, transition:"all .2s", WebkitTapHighlightColor:"transparent" }}
                       onMouseEnter={e=>{e.currentTarget.style.background="rgba(255,255,255,.08)"}}
                       onMouseLeave={e=>{e.currentTarget.style.background="rgba(255,255,255,.04)"}}>
