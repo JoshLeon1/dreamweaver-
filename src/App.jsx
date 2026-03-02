@@ -741,11 +741,11 @@ export default function App() {
       generateImage(coverPrompt).then(async url => { if (!url) return; const cached=saved?.id?await cacheImage(url,saved.id,"cover"):url; setCoverImg(cached); if (saved?.id) supabase.from("stories").update({ cover_image:cached }).eq("id",saved.id); });
 
       const generated=new Array(ps.length).fill(null); let loaded=0;
-      // Fire all images in parallel with small stagger to avoid rate limit burst
+      // Fire ALL images in parallel - each polls independently
       await Promise.all(ps.map(async (pageText, i) => {
-        await new Promise(r => setTimeout(r, i * 600));
-        const url=await generateImage(imgPromptFor(pageText,m,charCard));
-        if (url) { const cached=saved?.id?await cacheImage(url,saved.id,i):url; generated[i]=cached; loaded++; setImgsLoaded(loaded); setImgs(prev=>{const n=[...prev];n[i]=cached;return n;}); }
+        await new Promise(r => setTimeout(r, i * 300)); // 300ms stagger
+        const url = await generateImage(imgPromptFor(pageText, m, charCard));
+        if (url) { generated[i]=url; loaded++; setImgsLoaded(loaded); setImgs(prev=>{const n=[...prev];n[i]=url;return n;}); }
         if (i===1) setStoryPhase("ready");
       }));
       if (loaded<=1) setStoryPhase("ready");
@@ -1450,5 +1450,4 @@ export default function App() {
     </>
   );
 }
-// v22
-// v23
+// v24
