@@ -756,27 +756,45 @@ export default function App() {
       const fullText=ps.join("\n\n✦\n\n");
       const storyTitle=rawTitle.trim();
       setTitle(storyTitle); setPages(ps);
-      const { data:saved } = await supabase.from("stories").upsert({ user_id:user.id, story_date:todayStr(), text:fullText, title:storyTitle, child_profile_id:active.id, page_images:[], cover_image:null, lesson_type:isLesson?lesson:null, history:[{role:"user",content:storyPrompt},{role:"assistant",content:rawText}] }, { onConflict:"user_id,story_date,child_profile_id", ignoreDuplicates:false }).select().single();
+      // Try insert first; if duplicate exists (same day/child), update it instead
+      let saved = null;
+      const storyPayload = { user_id:user.id, story_date:todayStr(), text:fullText, title:storyTitle, child_profile_id:active.id, page_images:[], cover_image:null, lesson_type:isLesson?lesson:null, history:[{role:"user",content:storyPrompt},{role:"assistant",content:rawText}] };
+      const { data:inserted, error:insertErr } = await supabase.from("stories").insert(storyPayload).select().single();
+      if (insertErr) {
+        // Likely duplicate - fetch existing and update it
+        console.warn("Insert failed, trying update:", insertErr.message);
+        const { data:existing } = await supabase.from("stories").select("*").eq("user_id",user.id).eq("story_date",todayStr()).eq("child_profile_id",active.id).maybeSingle();
+        if (existing) {
+          await supabase.from("stories").update({ text:fullText, title:storyTitle, page_images:[], cover_image:null, history:storyPayload.history }).eq("id",existing.id);
+          saved = { ...existing, text:fullText, title:storyTitle };
+        }
+      } else {
+        saved = inserted;
+      }
       setStory(saved);
 
       const coverPrompt=`${active.child_name} age ${active.age||5} with ${active.stuffed_animal||"stuffed bear"}, ${m.prompt} bedtime children's book COVER illustration, dramatic and beautiful, soft watercolor pastel art, dreamy storybook style, bold composition, the title scene. No text.`;
       generateImage(coverPrompt).then(async url => { if (!url) return; const cached=saved?.id?await cacheImage(url,saved.id,"cover"):url; setCoverImg(cached); if (saved?.id) supabase.from("stories").update({ cover_image:cached }).eq("id",saved.id); });
 
       const generated=new Array(ps.length).fill(null); let loaded=0;
-      // Fire ALL images in parallel - each polls independently
+      // Fire ALL images in parallel with stagger - each polls independently
       await Promise.all(ps.map(async (pageText, i) => {
         await new Promise(r => setTimeout(r, i * 1200)); // 1.2s stagger to avoid rate limit
         const url = await generateImage(imgPromptFor(pageText, m, charCard));
         if (url) {
           const cached = saved?.id ? await cacheImage(url, saved.id, i) : url;
-          generated[i]=cached; loaded++; setImgsLoaded(loaded);
+          generated[i]=cached; loaded++;
+          setImgsLoaded(l => l + 1);
           setImgs(prev=>{const n=[...prev];n[i]=cached;return n;});
+          // Save incrementally so partial progress is preserved
+          if (saved?.id) supabase.from("stories").update({ page_images:[...generated] }).eq("id",saved.id);
         } else {
           console.warn("Image failed for page", i, "- using gradient fallback");
         }
         if (i===1) setStoryPhase("ready");
       }));
       if (loaded<=1) setStoryPhase("ready");
+      // Final save with complete array
       if (saved?.id) await supabase.from("stories").update({ page_images:generated }).eq("id",saved.id);
     await calcStreak(user.id);
     await calcBadges(user.id, streak);
@@ -796,6 +814,7 @@ export default function App() {
       if (story?.id) await supabase.from("stories").update({ text:allPages.join("\n\n✦\n\n") }).eq("id",story.id);
       const startIdx=pages.length;
       await Promise.all(newPages.map(async (pt,j) => {
+        await new Promise(r => setTimeout(r, j * 1200)); // stagger to avoid 429
         const i=startIdx+j; const url=await generateImage(imgPromptFor(pt,m,charCard)); if (!url) return;
         const cached=story?.id?await cacheImage(url,story.id,i):url;
         setImgs(prev=>{const n=[...prev];n[i]=cached; supabase.from("stories").update({page_images:n}).eq("id",story.id); return n;});
@@ -817,6 +836,7 @@ export default function App() {
       if (story?.id) await supabase.from("stories").update({ text:allPages.join("\n\n✦\n\n") }).eq("id",story.id);
       const startIdx=pages.length;
       await Promise.all(endPages.map(async (pt,j) => {
+        await new Promise(r => setTimeout(r, j * 1200)); // stagger to avoid 429
         const i=startIdx+j; const url=await generateImage(imgPromptFor(pt,m,charCard)); if (!url) return;
         const cached=story?.id?await cacheImage(url,story.id,i):url;
         setImgs(prev=>{const n=[...prev];n[i]=cached; supabase.from("stories").update({page_images:n}).eq("id",story.id); return n;});
@@ -838,7 +858,7 @@ export default function App() {
   };
 
   const shareStory = async () => { try { await navigator.clipboard.writeText(`${APP_URL}?story=${story?.id}`); } catch {} setCopied(true); setTimeout(()=>setCopied(false),2500); };
-  const loadLibrary = async () => { if (!active) return; const { data } = await supabase.from("stories").select("*").eq("user_id",user.id).eq("child_profile_id",active.id).order("story_date",{ ascending:false }); setLibrary(data||[]); };
+  const loadLibrary = async () => { if (!user) return; const { data, error } = await supabase.from("stories").select("*").eq("user_id",user.id).order("story_date",{ ascending:false }); if (error) console.error("Library load error:", error); setLibrary(data||[]); };
 
   // ── Coloring book ──────────────────────────────────────────────────────────
   const generateColoringPage = async () => {
