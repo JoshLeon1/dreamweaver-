@@ -39,10 +39,10 @@ const WIZARD_STEPS = [
 
 // Demo story — hardcoded pre-generated images for instant load
 const DEMO_STORY = [
-  { text: "The night Lily found a tiny glowing door in the garden wall, she squeezed Mr. Hops tight.", img: "https://replicate.delivery/czjl/Az7fonj6SMWvdS5qSzeK2U2Be3lcFsDX0tSt8sge5ImP3zyYB/out-0.webp", fallback: "linear-gradient(135deg,#1a0d3e,#3d1d7e,#7c4dcc)" },
-  { text: "Beyond the door lay a moonlit garden — silver flowers and fireflies dancing in the dark.", img: "https://replicate.delivery/czjl/WHsWhrqPGf0BOCObs3befXtKFnedXpgZCX4ifI44lleJgPLjF/out-0.webp", fallback: "linear-gradient(135deg,#0a1628,#1a3060,#2a50a0)" },
-  { text: "Even the shadows were friendly here. The dark wasn't scary — it was where all the magic hid.", img: "https://replicate.delivery/czjl/ASCBdmDniMZSJ9HUsf6imeWzXosEp2TgaCXLGlKz2FEOeZZsA/out-0.webp", fallback: "linear-gradient(135deg,#0f1a30,#1a3050,#2a5080)" },
-  { text: "She curled up beneath a starflower, Mr. Hops tucked under her chin, and drifted off to sleep.", img: "https://replicate.delivery/czjl/Ya4Es99flcSeP0SlwDChKnbE93ukjs7bfjRCceoYd9qw5zyYB/out-0.webp", fallback: "linear-gradient(135deg,#0a0a1e,#1a1a40,#3030a0)" },
+  { text: "The night Lily found a tiny glowing door in the garden wall, she squeezed Mr. Hops tight.", img: "https://nhkwocgbxxwarkjqenkj.supabase.co/storage/v1/object/public/story-images/demo/demo_1.webp", fallback: "linear-gradient(135deg,#1a0d3e,#3d1d7e,#7c4dcc)" },
+  { text: "Beyond the door lay a moonlit garden — silver flowers and fireflies dancing in the dark.", img: "https://nhkwocgbxxwarkjqenkj.supabase.co/storage/v1/object/public/story-images/demo/demo_2.webp", fallback: "linear-gradient(135deg,#0a1628,#1a3060,#2a50a0)" },
+  { text: "Even the shadows were friendly here. The dark wasn't scary — it was where all the magic hid.", img: "https://nhkwocgbxxwarkjqenkj.supabase.co/storage/v1/object/public/story-images/demo/demo_3.webp", fallback: "linear-gradient(135deg,#0f1a30,#1a3050,#2a5080)" },
+  { text: "She curled up beneath a starflower, Mr. Hops tucked under her chin, and drifted off to sleep.", img: "https://nhkwocgbxxwarkjqenkj.supabase.co/storage/v1/object/public/story-images/demo/demo_4.webp", fallback: "linear-gradient(135deg,#0a0a1e,#1a1a40,#3030a0)" },
 ];
 
 const STARS = Array.from({ length: 70 }, (_, i) => ({
