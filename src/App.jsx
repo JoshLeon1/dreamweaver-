@@ -725,7 +725,7 @@ export default function App() {
 
     try {
       const [rawText,rawTitle] = await Promise.all([
-        callClaude([{role:"user",content:storyPrompt}],900),
+        callClaude([{role:"user",content:storyPrompt}],1800),
         callClaude([{role:"user",content:isLesson?`Magical 4-6 word bedtime story title for ${active.child_name} about ${lessonData?.label||"kindness"}. Only the title, nothing else.`:`Magical 4-6 word bedtime story title for ${active.child_name} and ${active.stuffed_animal||"a stuffed bear"}. Only the title, nothing else.`}],30),
       ]);
       const ps=rawText.split("[PAGE]").map(p=>p.trim()).filter(p=>p.length>5).slice(0,STORY_PAGES);
