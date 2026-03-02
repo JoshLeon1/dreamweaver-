@@ -634,7 +634,21 @@ export default function App() {
     ]);
     if (profs?.length) { setProfiles(profs); setActive(profs[0]); }
     if (s) setSub(s);
-    else { const { data: ns } = await supabase.from("subscriptions").insert({ user_id:u.id, status:"trial", trial_ends_at:new Date(Date.now()+TRIAL_DAYS*86400000).toISOString() }).select().single(); if (ns) setSub(ns); }
+    else {
+      // New user - create trial subscription with upsert to avoid race conditions
+      const { data: ns, error: se } = await supabase.from("subscriptions").upsert(
+        { user_id:u.id, status:"trial", trial_ends_at:new Date(Date.now()+TRIAL_DAYS*86400000).toISOString() },
+        { onConflict:"user_id", ignoreDuplicates:true }
+      ).select().single();
+      if (ns) setSub(ns);
+      else if (se) {
+        // Upsert failed - try a plain select in case it already exists
+        console.error("Sub create error:", se);
+        const { data: existing } = await supabase.from("subscriptions").select("*").eq("user_id",u.id).maybeSingle();
+        if (existing) setSub(existing);
+        else setSub({ status:"trial", trial_ends_at:new Date(Date.now()+TRIAL_DAYS*86400000).toISOString() });
+      }
+    }
     await calcStreak(u.id);
     setScreen(profs?.length ? "home" : "wizard");
     if (profs?.length) { const { data:b } = await supabase.from("badges").select("badge_id").eq("user_id",u.id); if (b) setBadges(b.map(x=>x.badge_id)); }
@@ -647,7 +661,8 @@ export default function App() {
     setStreak(n);
   };
 
-  const hasAccess = () => { if (!sub) return false; if (sub.status==="active") return true; if (sub.status==="trial"&&new Date(sub.trial_ends_at)>new Date()) return true; return false; };
+  const hasAccess = () => { if (!sub) return true; // allow while loading - server will catch expired
+    if (sub.status==="active") return true; if (sub.status==="trial"&&new Date(sub.trial_ends_at)>new Date()) return true; return false; };
   const daysLeft = () => sub ? Math.max(0,Math.ceil((new Date(sub.trial_ends_at)-new Date())/86400000)) : 0;
 
   const signup = async () => { setErr(""); if (!af.email||!af.password||!af.name) return setErr("All fields required."); const { error:e } = await supabase.auth.signUp({ email:af.email, password:af.password, options:{ data:{ name:af.name } } }); if (e) setErr(e.message); };
