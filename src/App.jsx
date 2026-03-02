@@ -66,12 +66,29 @@ async function callClaude(messages, maxTokens = 1200) {
   return data.content?.[0]?.text || "";
 }
 
-async function generateImage(prompt) {
+async function generateImage(prompt, coloring = false) {
   try {
-    const res = await fetch("/api/generate-image", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ prompt }) });
-    const data = await res.json();
-    return data.url || null;
-  } catch { return null; }
+    // Step 1: start the prediction — fast, returns pollUrl immediately
+    const res = await fetch("/api/generate-image", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ prompt, coloring }),
+    });
+    const { pollUrl, error } = await res.json();
+    if (error || !pollUrl) { console.error("Image start error:", error); return null; }
+
+    // Step 2: poll from the browser — no serverless timeout risk
+    for (let i = 0; i < 90; i++) {
+      await new Promise(r => setTimeout(r, 1500));
+      try {
+        const poll = await fetch(pollUrl);
+        const data = await poll.json();
+        if (data.status === "succeeded" && data.output?.[0]) return data.output[0];
+        if (data.status === "failed") { console.error("Image failed:", data.logs); return null; }
+      } catch {}
+    }
+    return null;
+  } catch (e) { console.error("generateImage error:", e); return null; }
 }
 
 async function cacheImage(replicateUrl, storyId, pageIndex) {
@@ -799,7 +816,7 @@ export default function App() {
     const bestPage = pages[Math.floor(pages.length / 2)] || pages[0];
     const charCard = active?.character_card || `${active.child_name} age ${active.age||5} with ${active.stuffed_animal||"stuffed bear"}`;
     const prompt = `Black and white children's coloring book page. Clean thick outlines only, no shading, no gray fills, pure white background. Character: ${charCard.slice(0,120)} Scene: ${bestPage.slice(0,120)}. Simple, bold shapes perfect for a child to color in. No text.`;
-    const url = await generateImage(prompt);
+    const url = await generateImage(prompt, true);
     setColoringUrl(url);
     setColoringLoading(false);
   };
