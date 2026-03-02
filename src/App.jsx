@@ -1319,6 +1319,7 @@ export default function App() {
 
       const coverPrompt=`${active.child_name} age ${active.age||5} with ${active.stuffed_animal||"stuffed bear"}, ${m.prompt} bedtime children's book COVER illustration, dramatic and beautiful, soft watercolor pastel art, dreamy storybook style, bold composition, the title scene. NO letters, NO words, NO text, NO title, NO writing anywhere in the image.`;
 
+      setStoryPhase("illustrating");
       const generated=new Array(ps.length).fill(null); let loaded=0;
       // Fire cover + all page images in parallel — cover gets a head start (no stagger)
       const coverPromise = (async () => {
@@ -1344,10 +1345,9 @@ export default function App() {
         } else {
           console.warn("Image failed for page", i, "- using gradient fallback");
         }
-        if (i===1) setStoryPhase("ready");
       })
       ]);
-      if (loaded<=1) setStoryPhase("ready");
+      setStoryPhase("ready");
       // Final save with complete array
       if (saved?.id) await supabase.from("stories").update({ page_images:generated }).eq("id",saved.id);
     await calcStreak(user.id, streak);
