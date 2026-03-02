@@ -68,24 +68,26 @@ async function callClaude(messages, maxTokens = 1200) {
 
 async function generateImage(prompt, coloring = false) {
   try {
-    // Step 1: start the prediction — fast, returns pollUrl immediately
-    const res = await fetch("/api/generate-image", {
+    // Step 1: start — returns prediction id instantly (<1s, no timeout risk)
+    const startRes = await fetch("/api/start-image", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ prompt, coloring }),
     });
-    const { pollUrl, error } = await res.json();
-    if (error || !pollUrl) { console.error("Image start error:", error); return null; }
+    const { id, error: startErr } = await startRes.json();
+    if (startErr || !id) { console.error("start-image error:", startErr); return null; }
 
-    // Step 2: poll from the browser — no serverless timeout risk
-    for (let i = 0; i < 90; i++) {
-      await new Promise(r => setTimeout(r, 1500));
-      try {
-        const poll = await fetch(pollUrl);
-        const data = await poll.json();
-        if (data.status === "succeeded" && data.output?.[0]) return data.output[0];
-        if (data.status === "failed") { console.error("Image failed:", data.logs); return null; }
-      } catch {}
+    // Step 2: poll via our own API route every 2s (<1s per call, no timeout risk)
+    for (let i = 0; i < 60; i++) {
+      await new Promise(r => setTimeout(r, 2000));
+      const pollRes = await fetch("/api/poll-image", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id }),
+      });
+      const data = await pollRes.json();
+      if (data.status === "succeeded" && data.url) return data.url;
+      if (data.status === "failed") { console.error("Image failed:", data.error); return null; }
     }
     return null;
   } catch (e) { console.error("generateImage error:", e); return null; }
