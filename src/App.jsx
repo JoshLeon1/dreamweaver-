@@ -415,9 +415,49 @@ input::placeholder{color:rgba(255,255,255,.18)}
 }
 .badge-item.earned:hover{background:rgba(201,168,76,.18);transform:translateY(-2px)}
 
+/* ── Mobile bottom nav ── */
+.bottom-nav {
+  position: fixed;
+  bottom: 0; left: 0; right: 0;
+  z-index: 9999;
+  display: flex;
+  height: 60px;
+  background: rgba(7,5,14,.98);
+  border-top: 1px solid rgba(255,255,255,.07);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+.bottom-nav button {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+  opacity: .45;
+  transition: opacity .15s;
+}
+.bottom-nav button.active { opacity: 1; }
+.bottom-nav button svg { display: block; }
+.bottom-nav button .nav-label {
+  font-family: 'Nunito', sans-serif;
+  font-size: 10px;
+  font-weight: 700;
+  color: white;
+  letter-spacing: .03em;
+}
+.has-bottom-nav {
+  padding-bottom: calc(68px + env(safe-area-inset-bottom, 0px)) !important;
+}
+
 /* ── Mobile-first layout ── */
 @media(max-width:640px){
-  .wrap{padding-top:14px;padding-bottom:max(72px,calc(56px + env(safe-area-inset-bottom)))}
+  .wrap{padding-top:14px}
   .hero-title{font-size:clamp(34px,9.5vw,52px);letter-spacing:-.02em}
   .hero-sub{font-size:15px;line-height:1.7}
   .btn-cta{font-size:15px;padding:15px 20px;min-height:52px}
@@ -529,30 +569,51 @@ function IllustrationLoader({ total, loaded, title, imgs=[] }) {
 
 
 // ── Bottom Nav (mobile only) ──────────────────────────────────────────────────
-function BottomNav({ screen, setScreen, loadLibrary, badgeCount, totalBadges }) {
+function BottomNav({ screen, setScreen, loadLibrary }) {
+  const C_ON  = "#c084fc";
+  const C_OFF = "rgba(255,255,255,.55)";
   const tabs = [
-    { id:"home",    icon:"🏠", label:"Home"    },
-    { id:"library", icon:"📚", label:"Library" },
-    { id:"badges",  icon:"🏅", label:"Badges",  badge: badgeCount > 0 ? `${badgeCount}` : null },
+    {
+      id: "home", label: "Home",
+      icon: (on) => (
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+          <path d="M3 12L12 4l9 8" stroke={on?C_ON:C_OFF} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
+          <path d="M5 10v9a1 1 0 001 1h4v-4h4v4h4a1 1 0 001-1v-9" stroke={on?C_ON:C_OFF} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
+        </svg>
+      ),
+    },
+    {
+      id: "library", label: "Library",
+      icon: (on) => (
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+          <rect x="4" y="4" width="4" height="16" rx="1" stroke={on?C_ON:C_OFF} strokeWidth="1.8"/>
+          <rect x="10" y="4" width="4" height="16" rx="1" stroke={on?C_ON:C_OFF} strokeWidth="1.8"/>
+          <path d="M17 4l3 15.5" stroke={on?C_ON:C_OFF} strokeWidth="1.8" strokeLinecap="round"/>
+        </svg>
+      ),
+    },
+    {
+      id: "badges", label: "Badges",
+      icon: (on) => (
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+          <circle cx="12" cy="9" r="5" stroke={on?C_ON:C_OFF} strokeWidth="1.8"/>
+          <path d="M7.5 14.5L6 20l6-2 6 2-1.5-5.5" stroke={on?C_ON:C_OFF} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
+        </svg>
+      ),
+    },
   ];
   return (
     <nav className="bottom-nav">
-      {tabs.map(t => (
-        <button key={t.id}
-          className={screen===t.id ? "active" : ""}
-          onClick={() => {
-            if (t.id==="library") { loadLibrary(); }
-            setScreen(t.id);
-          }}>
-          <span className="nav-icon" style={{ position:"relative" }}>
-            {t.icon}
-            {t.badge && (
-              <span style={{ position:"absolute", top:-4, right:-6, background:"#c084fc", borderRadius:99, fontSize:9, fontWeight:800, color:"white", padding:"1px 4px", fontFamily:"'Nunito',sans-serif", lineHeight:1.4 }}>{t.badge}</span>
-            )}
-          </span>
-          <span className="nav-label">{t.label}</span>
-        </button>
-      ))}
+      {tabs.map(t => {
+        const on = screen === t.id;
+        return (
+          <button key={t.id} className={on ? "active" : ""}
+            onClick={() => { if (t.id==="library") loadLibrary(); setScreen(t.id); }}>
+            {t.icon(on)}
+            <span className="nav-label" style={{ color: on ? C_ON : "rgba(255,255,255,.45)" }}>{t.label}</span>
+          </button>
+        );
+      })}
     </nav>
   );
 }
@@ -610,6 +671,7 @@ function OpenBook({ pages, imgs, spread, onFlip, title, mobile=false, coverImg=n
   const [flipClass, setFlipClass] = useState("");
   const [enterClass, setEnterClass] = useState("");
   const prevSpread = useRef(spread);
+  const touchStart = useRef(null); // must be here, not inside conditional
 
   useEffect(() => {
     if (spread === displaySpread) return;
@@ -682,12 +744,9 @@ function OpenBook({ pages, imgs, spread, onFlip, title, mobile=false, coverImg=n
 
   // ── COVER — closed book, single page ──────────────────────────────────────
   // (useEffect for auto-skip must be above any conditional return)
-  useEffect(() => {
-    if (isCover && !coverImg) { const t = setTimeout(() => onFlip("forward"), 80); return () => clearTimeout(t); }
-  }, [isCover, coverImg]);
+  // No auto-skip — always show cover (placeholder if image not ready yet)
 
   if (isCover) {
-    if (!coverImg) return null;
     const W = mobile ? "min(92vw,380px)" : "min(52vw,480px)";
     const aspect = "2/3"; // portrait closed book
     return (
@@ -707,7 +766,10 @@ function OpenBook({ pages, imgs, spread, onFlip, title, mobile=false, coverImg=n
         >
           {/* Cover image */}
           <div style={{ position:"absolute", inset:0, borderRadius:"4px 12px 12px 4px", overflow:"hidden" }}>
-            <img src={coverImg} alt="" style={{ width:"100%", height:"100%", objectFit:"cover", display:"block" }} />
+            {coverImg
+              ? <img src={coverImg} alt="" style={{ width:"100%", height:"100%", objectFit:"cover", display:"block" }} />
+              : <div style={{ width:"100%", height:"100%", background:"linear-gradient(160deg,#1e0a4e,#0d0520)", display:"flex", alignItems:"center", justifyContent:"center" }}><div style={{ fontSize:48, opacity:.5, animation:"float 3s ease-in-out infinite" }}>🌙</div></div>
+            }
             {/* Dark gradient for text */}
             <div style={{ position:"absolute", inset:0, background:"linear-gradient(to bottom,rgba(0,0,0,.05) 0%,transparent 30%,rgba(0,0,0,.65) 100%)" }} />
             {/* Title */}
@@ -735,11 +797,11 @@ function OpenBook({ pages, imgs, spread, onFlip, title, mobile=false, coverImg=n
         </div>
         <button
           onClick={()=>!animating&&onFlip("forward")}
-          style={{ marginTop:20, background:"linear-gradient(135deg,#4c2d99,#7c4dcc)", border:"none", borderRadius:999, padding:"clamp(12px,2vw,15px) clamp(28px,5vw,44px)", color:"white", fontFamily:"'Nunito',sans-serif", fontWeight:700, fontSize:"clamp(14px,2vw,16px)", cursor:"pointer", boxShadow:"0 4px 24px rgba(124,77,204,.45)", letterSpacing:".02em" }}
+          onTouchEnd={(e)=>{ e.preventDefault(); if(!animating) onFlip("forward"); }}
+          style={{ marginTop:20, background:"linear-gradient(135deg,#4c2d99,#7c4dcc)", border:"none", borderRadius:999, padding:"clamp(14px,3vw,16px) clamp(36px,6vw,52px)", color:"white", fontFamily:"'Nunito',sans-serif", fontWeight:700, fontSize:"clamp(15px,3vw,17px)", cursor:"pointer", boxShadow:"0 4px 24px rgba(124,77,204,.45)", letterSpacing:".02em", WebkitTapHighlightColor:"transparent", touchAction:"manipulation" }}
         >
           Open Book →
         </button>
-        <p style={{ color:"rgba(255,255,255,.2)", fontSize:12, marginTop:10, fontFamily:"'Nunito',sans-serif" }}>or tap the cover</p>
       </div>
     );
   }
@@ -749,7 +811,6 @@ function OpenBook({ pages, imgs, spread, onFlip, title, mobile=false, coverImg=n
 
   // ── MOBILE: single page view ───────────────────────────────────────────────
   if (mobile) {
-    const touchStart = useRef(null);
     const handleTouchStart = (e) => { touchStart.current = e.touches[0].clientX; };
     const handleTouchEnd = (e) => {
       if (touchStart.current === null) return;
@@ -2034,7 +2095,7 @@ export default function App() {
             STORY
         ══════════════════════════════════════════════════════════════════════ */}
         {screen==="story" && (
-          <div className="fade" style={{ maxWidth:"min(98vw,1320px)", width:"100%", paddingBottom:20 }}>
+          <div className="fade has-bottom-nav" style={{ maxWidth:"min(98vw,1320px)", width:"100%", paddingBottom:20 }}>
             {storyPhase==="text" && <MoonLoader text="Writing your story…" childName={active?.child_name||""} />}
             {storyPhase==="illustrating" && <IllustrationLoader total={pages.length} loaded={imgsLoaded} title={title} imgs={imgs} />}
             {storyPhase==="ready" && pages.length>0 && (
@@ -2264,10 +2325,7 @@ export default function App() {
           );
         })()}
 
-        {/* ── Mobile bottom nav — shown on main app screens ── */}
-        {mobile && ["home","library","badges","story"].includes(screen) && user && (
-          <BottomNav screen={screen} setScreen={setScreen} loadLibrary={loadLibrary} badgeCount={badges.length} totalBadges={BADGE_DEFS.length} />
-        )}
+
 
         {/* ═══════════════════════════════════════════════════════════════════
             SHARED
@@ -2312,6 +2370,11 @@ export default function App() {
             </div>
           </div>
         </div>
+      )}
+
+      {/* ── Mobile bottom nav — fixed to bottom of screen ── */}
+      {mobile && ["home","library","badges","story"].includes(screen) && user && (
+        <BottomNav screen={screen} setScreen={setScreen} loadLibrary={loadLibrary} />
       )}
 
       {/* ── Badge Toast ── */}
