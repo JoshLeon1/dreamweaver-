@@ -4,6 +4,8 @@ import { supabase } from "./supabase.js";
 const ANTHROPIC_KEY = import.meta.env.VITE_ANTHROPIC_KEY;
 const APP_URL = "https://dreamweaverstory.com";
 const TRIAL_DAYS = 7;
+const PRICE_BASE = 5.99;       // first child per month
+const PRICE_PER_EXTRA = 2.99;  // each additional child per month
 const STORY_PAGES = 10;
 
 const MOODS = [
@@ -54,6 +56,7 @@ const MOON_FRAMES = ["🌑","🌒","🌓","🌔","🌕","🌖","🌗","🌘"];
 const todayStr = () => new Date().toISOString().slice(0, 10);
 const getSharedId = () => new URLSearchParams(window.location.search).get("story");
 const isMobile = () => typeof window !== "undefined" && window.innerWidth < 700;
+const isTablet = () => typeof window !== "undefined" && window.innerWidth >= 700 && window.innerWidth < 1024;
 
 // ── API ──────────────────────────────────────────────────────────────────────
 async function callClaude(messages, maxTokens = 1200) {
@@ -296,6 +299,17 @@ input::placeholder{color:rgba(255,255,255,.18)}
 /* ── Orb blobs ── */
 .orb{position:absolute;border-radius:50%;pointer-events:none;filter:blur(80px);animation:orb 12s ease-in-out infinite}
 
+/* ── Tablet (iPad) optimizations ── */
+@media (min-width: 700px) and (max-width: 1023px) {
+  .pill { padding: 11px 18px !important; font-size: 14px !important; }
+  .btn-soft { font-size: 15px !important; padding: 15px 20px !important; }
+  .btn-solid { font-size: 16px !important; padding: 16px 22px !important; }
+  .btn-cta { font-size: 17px !important; padding: 20px 32px !important; }
+  .tab { font-size: 14px !important; padding: 10px 18px !important; }
+  input, select { font-size: 16px !important; padding: 16px 18px !important; }
+  label { font-size: 14px !important; }
+  .section-label { font-size: 12px !important; }
+}
 /* ── Feature strip (horizontal scroll on mobile) ── */
 .features-strip{
   display:flex;gap:12px;
@@ -514,34 +528,34 @@ function OpenBook({ pages, imgs, spread, onFlip, title, mobile=false, coverImg=n
       if (dx > 0 && spread > 0) onFlip("back");
     };
     return (
-      <div style={{ width:"100%", maxWidth:480, margin:"0 auto" }}>
-        {title && <div style={{ textAlign:"center", marginBottom:10 }}><h2 style={{ fontFamily:"'Playfair Display',serif", fontSize:"clamp(15px,4vw,19px)", fontStyle:"italic", color:"var(--gold-light)" }}>{title}</h2></div>}
+      <div style={{ width:"100%", maxWidth: window.innerWidth >= 700 ? 680 : 480, margin:"0 auto" }}>
+        {title && <div style={{ textAlign:"center", marginBottom:12 }}><h2 style={{ fontFamily:"'Playfair Display',serif", fontSize:"clamp(17px,3vw,24px)", fontStyle:"italic", color:"var(--gold-light)" }}>{title}</h2></div>}
         <div
           onTouchStart={handleTouchStart} onTouchEnd={handleTouchEnd}
-          style={{ borderRadius:18, overflow:"hidden", boxShadow:"0 30px 70px rgba(0,0,0,.8),0 0 0 1px rgba(255,255,255,.04)", touchAction:"pan-y" }}>
+          style={{ borderRadius:20, overflow:"hidden", boxShadow:"0 40px 80px rgba(0,0,0,.8),0 0 0 1px rgba(255,255,255,.06)", touchAction:"pan-y" }}>
           <div style={{ display:"flex" }}>
             <div style={{ flex:1, display:"flex", flexDirection:"column", background:"linear-gradient(175deg,#fefcf7,#fdf9f0)", position:"relative", overflow:"hidden" }}>
-              <div style={{ width:"100%", aspectRatio:"16/9", position:"relative", overflow:"hidden" }}>
+              <div style={{ width:"100%", aspectRatio: window.innerWidth >= 700 ? "4/3" : "16/9", position:"relative", overflow:"hidden" }}>
                 {imgs[spread]
                   ? <img src={imgs[spread]} alt="" style={{ width:"100%", height:"100%", objectFit:"cover", display:"block" }} />
                   : <div className="skeleton" style={{ width:"100%", height:"100%" }} />}
-                <div style={{ position:"absolute", bottom:0, left:0, right:0, height:32, background:"linear-gradient(to bottom,transparent,rgba(253,249,240,.9))" }} />
-                <div style={{ position:"absolute", bottom:8, right:12, background:"rgba(255,255,255,.85)", backdropFilter:"blur(4px)", borderRadius:99, padding:"2px 10px", color:"var(--ink)", fontSize:11, fontFamily:"'Nunito',sans-serif", fontWeight:700 }}>{spread+1}</div>
+                <div style={{ position:"absolute", bottom:0, left:0, right:0, height:40, background:"linear-gradient(to bottom,transparent,rgba(253,249,240,.9))" }} />
+                <div style={{ position:"absolute", bottom:10, right:14, background:"rgba(255,255,255,.85)", backdropFilter:"blur(4px)", borderRadius:99, padding:"3px 11px", color:"var(--ink)", fontSize:12, fontFamily:"'Nunito',sans-serif", fontWeight:700 }}>{spread+1}</div>
               </div>
-              <div style={{ padding:"clamp(14px,4vw,20px) clamp(16px,5vw,24px)", minHeight:80 }}>
-                <p style={{ fontFamily:"'Crimson Pro',serif", fontSize:"clamp(15px,4vw,18px)", lineHeight:1.85, color:"var(--ink)", textAlign:"center" }}>{pages[spread]}</p>
+              <div style={{ padding: window.innerWidth >= 700 ? "24px 32px 28px" : "clamp(14px,4vw,20px) clamp(16px,5vw,24px)", minHeight: window.innerWidth >= 700 ? 120 : 80 }}>
+                <p style={{ fontFamily:"'Crimson Pro',serif", fontSize: window.innerWidth >= 700 ? "clamp(18px,2.2vw,22px)" : "clamp(15px,4vw,18px)", lineHeight:1.9, color:"var(--ink)", textAlign:"center" }}>{pages[spread]}</p>
               </div>
             </div>
           </div>
         </div>
-        <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginTop:12, gap:10 }}>
-          <button className="btn-book" disabled={spread===0||animating} onClick={() => onFlip("back")} style={{ flex:1 }}>← Prev</button>
-          <div style={{ display:"flex", gap:5, alignItems:"center", flexShrink:0 }}>
+        <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginTop:14, gap:10 }}>
+          <button className="btn-book" disabled={spread===0||animating} onClick={() => onFlip("back")} style={{ flex:1, fontSize: window.innerWidth >= 700 ? 15 : 13, padding: window.innerWidth >= 700 ? "14px 20px" : undefined }}>← Prev</button>
+          <div style={{ display:"flex", gap:6, alignItems:"center", flexShrink:0 }}>
             {pages.length <= 12
-              ? Array.from({length:pages.length}).map((_,i) => <div key={i} onClick={()=>!animating&&onFlip(i)} style={{ width:i===spread?18:6, height:6, borderRadius:99, background:i===spread?"var(--gold)":"rgba(255,255,255,.2)", transition:"all .3s", cursor:"pointer" }} />)
-              : <span style={{ color:"rgba(255,255,255,.35)", fontSize:13, fontFamily:"'Nunito',sans-serif" }}>{spread+1} / {pages.length}</span>}
+              ? Array.from({length:pages.length}).map((_,i) => <div key={i} onClick={()=>!animating&&onFlip(i)} style={{ width:i===spread?22:7, height:7, borderRadius:99, background:i===spread?"var(--gold)":"rgba(255,255,255,.2)", transition:"all .3s", cursor:"pointer" }} />)
+              : <span style={{ color:"rgba(255,255,255,.35)", fontSize: window.innerWidth >= 700 ? 15 : 13, fontFamily:"'Nunito',sans-serif" }}>{spread+1} / {pages.length}</span>}
           </div>
-          <button className="btn-book" disabled={spread>=pages.length-1||animating} onClick={() => onFlip("forward")} style={{ flex:1 }}>Next →</button>
+          <button className="btn-book" disabled={spread>=pages.length-1||animating} onClick={() => onFlip("forward")} style={{ flex:1, fontSize: window.innerWidth >= 700 ? 15 : 13, padding: window.innerWidth >= 700 ? "14px 20px" : undefined }}>Next →</button>
         </div>
       </div>
     );
@@ -588,6 +602,7 @@ export default function App() {
   const [storyPhase, setStoryPhase] = useState("idle");
   const [extending, setExtending] = useState(false);
   const [mobile, setMobile]       = useState(isMobile());
+  const [tablet, setTablet]       = useState(isTablet());
   const [coverImg, setCoverImg]   = useState(null);
 
   const [mood, setMood]           = useState("magical");
@@ -626,7 +641,7 @@ export default function App() {
     return () => as.unsubscribe();
   }, []);
 
-  useEffect(() => { const h = () => setMobile(window.innerWidth < 700); window.addEventListener("resize",h); return () => window.removeEventListener("resize",h); }, []);
+  useEffect(() => { const h = () => { setMobile(window.innerWidth < 700); setTablet(window.innerWidth >= 700 && window.innerWidth < 1024); }; window.addEventListener("resize",h); return () => window.removeEventListener("resize",h); }, []);
   useEffect(() => { if (screen!=="landing") return; const t = setInterval(() => setDemoSpread(p => (p+1)%2), 5000); return () => clearInterval(t); }, [screen]);
 
   const loadShared = async (id) => { setScreen("shared"); const { data } = await supabase.from("stories").select("*").eq("id",id).single(); if (data) setShared(data); else setScreen("landing"); };
@@ -667,6 +682,17 @@ export default function App() {
   const hasAccess = () => { if (!sub) return true; // allow while loading - server will catch expired
     if (sub.status==="active") return true; if (sub.status==="trial"&&new Date(sub.trial_ends_at)>new Date()) return true; return false; };
   const daysLeft = () => sub ? Math.max(0,Math.ceil((new Date(sub.trial_ends_at)-new Date())/86400000)) : 0;
+
+  // Pricing: $5.99 first child, $2.99 each additional
+  const monthlyPrice = () => profiles.length <= 1 ? PRICE_BASE : PRICE_BASE + (profiles.length - 1) * PRICE_PER_EXTRA;
+  const priceForAdding = () => profiles.length === 0 ? PRICE_BASE : PRICE_BASE + profiles.length * PRICE_PER_EXTRA;
+
+  // During trial: allow up to 1 child profile. Active sub: unlimited.
+  const canAddProfile = () => {
+    if (sub?.status === "active") return true;
+    if (sub?.status === "trial" && new Date(sub.trial_ends_at) > new Date()) return profiles.length < 1;
+    return false;
+  };
 
   const signup = async () => { setErr(""); if (!af.email||!af.password||!af.name) return setErr("All fields required."); const { error:e } = await supabase.auth.signUp({ email:af.email, password:af.password, options:{ data:{ name:af.name } } }); if (e) setErr(e.message); };
   const login  = async () => { setErr(""); if (!af.email||!af.password) return setErr("Email and password required."); const { error:e } = await supabase.auth.signInWithPassword({ email:af.email, password:af.password }); if (e) setErr(e.message); };
@@ -733,6 +759,8 @@ export default function App() {
   const saveProfile = async () => {
     setErr("");
     if (!pf.child_name) return setErr("Child's name is required.");
+    // Block adding new profiles beyond what plan allows (editing existing is always fine)
+    if (!editId && !canAddProfile()) { setScreen("paywall"); return; }
     // Explicitly include photo_url and character_card so they always save
     const payload = {
       child_name: pf.child_name,
@@ -1076,7 +1104,7 @@ export default function App() {
                 <p style={{ fontFamily:"'Crimson Pro',serif", fontStyle:"italic", color:"rgba(255,255,255,.4)", fontSize:15, marginTop:4 }}>Lily's Moonlit Adventure — A Sample Story</p>
               </div>
 
-              {mobile ? (
+              {(mobile||tablet) ? (
                 <div style={{ maxWidth:380, margin:"0 auto" }}>
                   <div style={{ borderRadius:20, overflow:"hidden", boxShadow:"0 40px 80px rgba(0,0,0,.8),0 0 0 1px rgba(255,255,255,.06)" }}>
                     <div style={{ background:"linear-gradient(175deg,#fefcf7,#fdf9f0)" }}>
@@ -1129,7 +1157,7 @@ export default function App() {
                 <span style={{ fontFamily:"'Nunito',sans-serif", fontSize:11, fontWeight:700, letterSpacing:".16em", textTransform:"uppercase", color:"rgba(255,255,255,.2)" }}>How it works</span>
                 <h2 style={{ fontFamily:"'Playfair Display',serif", fontSize:"clamp(26px,5vw,42px)", fontStyle:"italic", marginTop:10, lineHeight:1.2 }}>Three Steps To Bedtime Magic</h2>
               </div>
-              <div style={{ display:"grid", gridTemplateColumns:mobile?"1fr":"repeat(3,1fr)", gap:16 }}>
+              <div style={{ display:"grid", gridTemplateColumns:mobile?"1fr":tablet?"repeat(2,1fr)":"repeat(3,1fr)", gap:16 }}>
                 {[
                   { n:"01", icon:"👧", title:"Tell Us About Your Child", desc:"Name, age, stuffed animal, best friend, favorite things — every detail gets woven into the story.", color:"rgba(192,132,252,.12)", border:"rgba(192,132,252,.2)" },
                   { n:"02", icon:"✨", title:"Add A Photo (Optional)", desc:"Upload a photo and our AI captures their look — hair color, eye color, skin tone — so the characters look just like your child.", color:"rgba(251,191,36,.08)", border:"rgba(251,191,36,.18)" },
@@ -1151,7 +1179,7 @@ export default function App() {
                 <span style={{ fontFamily:"'Nunito',sans-serif", fontSize:11, fontWeight:700, letterSpacing:".16em", textTransform:"uppercase", color:"rgba(255,255,255,.2)" }}>Everything included</span>
                 <h2 style={{ fontFamily:"'Playfair Display',serif", fontSize:"clamp(26px,5vw,42px)", fontStyle:"italic", marginTop:10, lineHeight:1.2 }}>One Subscription. A Lifetime Of Stories.</h2>
               </div>
-              <div style={{ display:"grid", gridTemplateColumns:mobile?"1fr 1fr":"repeat(3,1fr)", gap:12 }}>
+              <div style={{ display:"grid", gridTemplateColumns:mobile?"1fr 1fr":tablet?"repeat(2,1fr)":"repeat(3,1fr)", gap:12 }}>
                 {[
                   { icon:"🎨", title:"AI Watercolor Art",      desc:"Every page gets a unique hand-painted watercolor illustration", big:false },
                   { icon:"📸", title:"Illustrated Like Them",  desc:"Upload a photo and the hero looks just like your child", big:false },
@@ -1217,7 +1245,7 @@ export default function App() {
                 </div>
                 <p style={{ color:"rgba(255,255,255,.3)", fontSize:13, fontFamily:"'Nunito',sans-serif" }}>Loved By Families Everywhere</p>
               </div>
-              <div style={{ display:"grid", gridTemplateColumns:mobile?"1fr":"repeat(3,1fr)", gap:14 }}>
+              <div style={{ display:"grid", gridTemplateColumns:mobile?"1fr":tablet?"repeat(2,1fr)":"repeat(3,1fr)", gap:14 }}>
                 {[
                   { quote:"My daughter asks for her story every single night now. She loves that her stuffed bunny Mr. Hops is always the hero.", name:"Sarah M.", role:"Mom of a 5-year-old" },
                   { quote:"The illustrations are gorgeous. It genuinely looks like a real children's picture book — I'm blown away every time.", name:"James T.", role:"Dad of twins" },
@@ -1246,11 +1274,16 @@ export default function App() {
                     <span style={{ color:"#c084fc", fontSize:10, fontWeight:800, letterSpacing:".14em", textTransform:"uppercase" }}>✨ 7 nights free</span>
                   </div>
                   <div style={{ marginBottom:24 }}>
-                    <span style={{ fontFamily:"'Playfair Display',serif", fontSize:"clamp(44px,8vw,60px)", fontWeight:800, lineHeight:1 }}>$4.99</span>
-                    <span style={{ color:"rgba(255,255,255,.35)", fontSize:16, marginLeft:6 }}>/month</span>
+                    <div style={{ display:"flex", alignItems:"baseline", gap:8, justifyContent:"center", flexWrap:"wrap" }}>
+                      <span style={{ fontFamily:"'Playfair Display',serif", fontSize:"clamp(44px,8vw,60px)", fontWeight:800, lineHeight:1 }}>$5.99</span>
+                      <span style={{ color:"rgba(255,255,255,.35)", fontSize:16 }}>/month</span>
+                    </div>
+                    <p style={{ color:"rgba(255,255,255,.3)", fontSize:13, marginTop:8, fontFamily:"'Nunito',sans-serif" }}>
+                      For 1 child · <span style={{ color:"rgba(192,132,252,.7)" }}>+$2.99/month per additional child</span>
+                    </p>
                   </div>
                   <div style={{ display:"flex", flexDirection:"column", gap:11, marginBottom:28 }}>
-                    {["10-Page Illustrated Story Every Night","AI Watercolor Art On Every Page","Photo-Matched Character Illustrations","Life Lesson Story Mode","Read Aloud Narrator","Story Library Saved Forever","Coloring Book Generator","Milestone Badges For Kids","Multiple Child Profiles","Cancel Anytime"].map(f => (
+                    {["10-Page Illustrated Story Every Night","AI Watercolor Art On Every Page","Photo-Matched Character Illustrations","Life Lesson Story Mode","Read Aloud Narrator","Story Library Saved Forever","Coloring Book Generator","Milestone Badges For Kids","Add More Kids For +$2.99/mo Each","Cancel Anytime"].map(f => (
                       <div key={f} style={{ display:"flex", alignItems:"center", gap:10 }}>
                         <span style={{ color:"#a78bfa", fontSize:14, flexShrink:0 }}>✦</span>
                         <span style={{ color:"rgba(255,255,255,.6)", fontSize:"clamp(13px,1.5vw,14px)", fontFamily:"'Nunito',sans-serif" }}>{f}</span>
@@ -1317,7 +1350,7 @@ export default function App() {
             <div className="form-card" style={{ display:"flex", flexDirection:"column", gap:16 }}>
               <div>
                 <h2 style={{ fontFamily:"'Playfair Display',serif", fontSize:20 }}>Start your free trial</h2>
-                <p style={{ color:"rgba(255,255,255,.3)", fontSize:13, marginTop:5 }}>7 nights free · $4.99/mo · cancel anytime</p>
+                <p style={{ color:"rgba(255,255,255,.3)", fontSize:13, marginTop:5 }}>7 Nights Free · $5.99/mo · +$2.99 per extra child</p>
               </div>
               {err && <p className="err">{err}</p>}
               {[{k:"name",l:"Your Name",t:"text",ph:"Parent's name"},{k:"email",l:"Email",t:"email",ph:"you@example.com"},{k:"password",l:"Password",t:"password",ph:"Create a password"}].map(f => (
@@ -1405,14 +1438,14 @@ export default function App() {
             HOME
         ══════════════════════════════════════════════════════════════════════ */}
         {screen==="home" && active && (
-          <div className="fade" style={{ maxWidth:480, width:"100%" }}>
+          <div className="fade" style={{ maxWidth:tablet?640:480, width:"100%", padding: tablet ? "0 8px" : undefined }}>
             {/* Top bar */}
             <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:16 }}>
               <div style={{ display:"flex", gap:8, alignItems:"center", flexWrap:"wrap" }}>
                 {streak>0 && <div style={{ background:"rgba(255,155,40,.1)", border:"1px solid rgba(255,155,40,.22)", borderRadius:999, padding:"5px 12px", display:"flex", gap:6, alignItems:"center" }}>
                   <span>🔥</span><span style={{ color:"#ffb347", fontSize:13, fontWeight:700 }}>{streak} night{streak!==1?"s":""}</span>
                 </div>}
-                {sub?.status==="trial" && <span style={{ color:"var(--purple-light)", fontSize:12, background:"rgba(180,143,255,.1)", padding:"4px 10px", borderRadius:999, border:"1px solid rgba(180,143,255,.2)" }}>{daysLeft()}d trial</span>}
+                {sub?.status==="trial" && <span style={{ color:"var(--purple-light)", fontSize:12, background:"rgba(180,143,255,.1)", padding:"4px 10px", borderRadius:999, border:"1px solid rgba(180,143,255,.2)" }}>{daysLeft()}d Trial Left</span>}
               </div>
               <button onClick={logout} style={{ background:"none", border:"none", color:"rgba(255,255,255,.2)", cursor:"pointer", fontSize:13, fontFamily:"'Nunito',sans-serif", padding:"8px 0", minHeight:44 }}>Sign out</button>
             </div>
@@ -1420,7 +1453,11 @@ export default function App() {
             {/* Profile tabs */}
             <div style={{ display:"flex", gap:8, marginBottom:20, flexWrap:"wrap" }}>
               {profiles.map(p => <button key={p.id} className={`tab ${active?.id===p.id?"on":""}`} onClick={()=>{setActive(p);setPf(p);}}>🌙 {p.child_name}</button>)}
-              <button className="tab" onClick={()=>{setEditId(null);setPf({child_name:"",age:"",stuffed_animal:"",best_friend:"",favorite_animal:"",scared_of:"",favorite_thing:""});setWizStep(0);setScreen("wizard");}}>+ Add</button>
+              {canAddProfile() ? (
+                <button className="tab" onClick={()=>{setEditId(null);setPf({child_name:"",age:"",stuffed_animal:"",best_friend:"",favorite_animal:"",scared_of:"",favorite_thing:""});setWizStep(0);setScreen("wizard");}}>+ Add Child</button>
+              ) : (
+                <button className="tab" style={{ color:"var(--gold)", borderColor:"rgba(201,168,76,.3)" }} onClick={()=>setScreen("paywall")}>+ Add Child 🔒</button>
+              )}
             </div>
 
             {/* Hero */}
@@ -1509,7 +1546,7 @@ export default function App() {
 
             {/* Actions */}
             <div style={{ display:"flex", flexDirection:"column", gap:10 }}>
-              <button className="btn-cta full" onClick={generateStory}>
+              <button className="btn-cta full" style={{ padding: tablet ? "20px 24px" : undefined, fontSize: tablet ? 17 : undefined }} onClick={generateStory}>
                 {storyMode==="lesson" ? `✨ Story about ${LESSONS.find(l=>l.id===lesson)?.label||"Kindness"}` : "✨ Open Tonight's Story"}
               </button>
               <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:10 }}>
@@ -1568,7 +1605,7 @@ export default function App() {
             {storyPhase==="illustrating" && <IllustrationLoader total={pages.length} loaded={imgsLoaded} title={title} />}
             {storyPhase==="ready" && pages.length>0 && (
               <>
-                <OpenBook pages={pages} imgs={imgs} spread={spread} onFlip={handleFlip} title={title} mobile={mobile} coverImg={coverImg} />
+                <OpenBook pages={pages} imgs={imgs} spread={spread} onFlip={handleFlip} title={title} mobile={mobile||tablet} coverImg={coverImg} />
 
                 {/* Progress indicator */}
                 {imgsLoaded<pages.length && (
@@ -1581,7 +1618,7 @@ export default function App() {
                 )}
 
                 {/* Actions — stacked rows on mobile */}
-                <div style={{ marginTop:18, display:"flex", flexDirection:"column", gap:8, maxWidth:520, margin:"18px auto 0" }}>
+                <div style={{ marginTop:18, display:"flex", flexDirection:"column", gap:10, maxWidth: tablet ? 680 : 520, margin:"18px auto 0" }}>
                   {/* Row 1: main story actions */}
                   <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:8 }}>
                     <button className="btn-book" onClick={continueStory} disabled={extending} style={{ opacity:extending?0.6:1 }}>{extending?"✨ Writing…":"✨ Continue"}</button>
@@ -1681,27 +1718,70 @@ export default function App() {
         {/* ═══════════════════════════════════════════════════════════════════
             PAYWALL
         ══════════════════════════════════════════════════════════════════════ */}
-        {screen==="paywall" && (
-          <div className="fade" style={{ maxWidth:380, width:"100%", textAlign:"center", paddingTop:"clamp(20px,6vw,40px)" }}>
+        {screen==="paywall" && (() => {
+          const isTrialEnd = !sub || (sub.status==="trial" && new Date(sub.trial_ends_at)<=new Date());
+          const isAddingChild = sub?.status==="active" || sub?.status==="trial";
+          const currentKids = profiles.length;
+          const newPrice = PRICE_BASE + currentKids * PRICE_PER_EXTRA;
+          return (
+          <div className="fade" style={{ maxWidth:400, width:"100%", textAlign:"center", paddingTop:"clamp(20px,6vw,40px)" }}>
             <div style={{ fontSize:"clamp(44px,12vw,60px)", marginBottom:16, animation:"float 4s ease-in-out infinite" }}>🌙</div>
-            <h2 style={{ fontFamily:"'Playfair Display',serif", fontSize:"clamp(22px,6vw,28px)", marginBottom:8, lineHeight:1.2 }}>Your free trial has ended</h2>
-            <p style={{ color:"rgba(255,255,255,.35)", marginBottom:24, lineHeight:1.8, fontFamily:"'Crimson Pro',serif", fontSize:"clamp(14px,3.5vw,16px)" }}>
-              Keep the magic going for just <strong style={{ color:"white" }}>$4.99/month</strong>.<br/>Cancel anytime.
-            </p>
-            <div style={{ marginBottom:22, textAlign:"left" }}>
-              {["10-page personalized story every night","Beautiful AI watercolor illustrations","Real picture book experience","Story Library Saved Forever","Read Aloud Narrator","Multiple Child Profiles"].map(f => (
-                <div key={f} style={{ display:"flex", gap:12, alignItems:"center", padding:"12px 0", borderBottom:"1px solid rgba(255,255,255,.05)", minHeight:44 }}>
-                  <span style={{ color:"var(--gold)", flexShrink:0 }}>✦</span>
-                  <span style={{ color:"rgba(255,255,255,.6)", fontSize:"clamp(13px,3.2vw,14px)" }}>{f}</span>
+
+            {isTrialEnd ? (
+              <>
+                <h2 style={{ fontFamily:"'Playfair Display',serif", fontSize:"clamp(22px,6vw,28px)", marginBottom:8, lineHeight:1.2 }}>Your Free Trial Has Ended</h2>
+                <p style={{ color:"rgba(255,255,255,.35)", marginBottom:28, lineHeight:1.8, fontFamily:"'Crimson Pro',serif", fontSize:"clamp(14px,3.5vw,16px)" }}>
+                  Keep the magic going — subscribe to continue<br/>generating stories for your family.
+                </p>
+              </>
+            ) : (
+              <>
+                <h2 style={{ fontFamily:"'Playfair Display',serif", fontSize:"clamp(22px,6vw,28px)", marginBottom:8, lineHeight:1.2 }}>Add Another Child</h2>
+                <p style={{ color:"rgba(255,255,255,.35)", marginBottom:28, lineHeight:1.8, fontFamily:"'Crimson Pro',serif", fontSize:"clamp(14px,3.5vw,16px)" }}>
+                  Your plan would update to <strong style={{ color:"white" }}>${newPrice.toFixed(2)}/month</strong><br/>
+                  to cover {currentKids + 1} children.
+                </p>
+              </>
+            )}
+
+            {/* Pricing breakdown */}
+            <div style={{ background:"rgba(255,255,255,.03)", border:"1px solid rgba(255,255,255,.08)", borderRadius:18, padding:"clamp(18px,3vw,24px)", marginBottom:24, textAlign:"left" }}>
+              <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", paddingBottom:12, marginBottom:12, borderBottom:"1px solid rgba(255,255,255,.06)" }}>
+                <span style={{ color:"rgba(255,255,255,.6)", fontSize:14, fontFamily:"'Nunito',sans-serif" }}>First Child</span>
+                <span style={{ color:"white", fontWeight:700, fontSize:14 }}>${PRICE_BASE.toFixed(2)}/mo</span>
+              </div>
+              <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", paddingBottom:12, marginBottom:12, borderBottom:"1px solid rgba(255,255,255,.06)" }}>
+                <span style={{ color:"rgba(255,255,255,.6)", fontSize:14, fontFamily:"'Nunito',sans-serif" }}>Each Additional Child</span>
+                <span style={{ color:"white", fontWeight:700, fontSize:14 }}>+${PRICE_PER_EXTRA.toFixed(2)}/mo</span>
+              </div>
+              {[
+                "10-Page Illustrated Story Every Night",
+                "AI Watercolor Art On Every Page",
+                "Photo-Matched Character Illustrations",
+                "Life Lesson Story Mode",
+                "Read Aloud Narrator",
+                "Story Library Saved Forever",
+                "Coloring Book Generator",
+                "Milestone Badges",
+                "Cancel Anytime",
+              ].map(f => (
+                <div key={f} style={{ display:"flex", gap:10, alignItems:"center", padding:"8px 0", minHeight:36 }}>
+                  <span style={{ color:"var(--gold)", flexShrink:0, fontSize:12 }}>✦</span>
+                  <span style={{ color:"rgba(255,255,255,.55)", fontSize:"clamp(12px,3vw,13px)", fontFamily:"'Nunito',sans-serif" }}>{f}</span>
                 </div>
               ))}
             </div>
+
             <div style={{ display:"flex", flexDirection:"column", gap:10 }}>
-              <button className="btn-cta full">Subscribe — $4.99/month</button>
-              <button className="btn-soft" onClick={()=>setScreen("home")}>Maybe later</button>
+              <button className="btn-cta full">
+                {isTrialEnd ? `Subscribe — $${PRICE_BASE.toFixed(2)}/Month` : `Update Plan — $${newPrice.toFixed(2)}/Month`}
+              </button>
+              <button className="btn-soft" onClick={()=>setScreen("home")}>Maybe Later</button>
             </div>
+            <p style={{ color:"rgba(255,255,255,.18)", fontSize:11, marginTop:12 }}>No Commitment · Cancel Anytime</p>
           </div>
-        )}
+          );
+        })()}
 
         {/* ═══════════════════════════════════════════════════════════════════
             SHARED
@@ -1713,7 +1793,7 @@ export default function App() {
               const si=shared.page_images||[];
               return (
                 <>
-                  <OpenBook pages={sp} imgs={si} spread={0} onFlip={()=>{}} title={shared.title} mobile={mobile} coverImg={shared.cover_image||null} />
+                  <OpenBook pages={sp} imgs={si} spread={0} onFlip={()=>{}} title={shared.title} mobile={mobile||tablet} coverImg={shared.cover_image||null} />
                   <div style={{ textAlign:"center", marginTop:24, padding:"28px 20px", background:"rgba(255,255,255,.04)", border:"1px solid rgba(255,255,255,.07)", borderRadius:20 }}>
                     <p style={{ color:"rgba(255,255,255,.38)", marginBottom:16, fontFamily:"'Crimson Pro',serif", fontSize:16, fontStyle:"italic" }}>Make personalized 10-page picture books for your child every night</p>
                     <button className="btn-cta" onClick={()=>setScreen("signup")}>Try DreamWeaver free ✨</button>
