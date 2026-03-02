@@ -743,7 +743,7 @@ export default function App() {
       const generated=new Array(ps.length).fill(null); let loaded=0;
       // Fire ALL images in parallel - each polls independently
       await Promise.all(ps.map(async (pageText, i) => {
-        await new Promise(r => setTimeout(r, i * 300)); // 300ms stagger
+        await new Promise(r => setTimeout(r, i * 1200)); // 1.2s stagger to avoid rate limit
         const url = await generateImage(imgPromptFor(pageText, m, charCard));
         if (url) { generated[i]=url; loaded++; setImgsLoaded(loaded); setImgs(prev=>{const n=[...prev];n[i]=url;return n;}); }
         if (i===1) setStoryPhase("ready");
