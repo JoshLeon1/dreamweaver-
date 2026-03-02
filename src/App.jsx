@@ -1044,27 +1044,27 @@ export default function App() {
               {/* Pill badge */}
               <div style={{ display:"inline-flex", alignItems:"center", gap:8, background:"rgba(255,255,255,.04)", border:"1px solid rgba(255,255,255,.1)", borderRadius:999, padding:"7px 18px", marginBottom:28 }}>
                 <span style={{ width:6, height:6, borderRadius:"50%", background:"#c084fc", display:"inline-block", boxShadow:"0 0 8px #c084fc", flexShrink:0, animation:"pulse 2.5s ease-in-out infinite" }} />
-                <span style={{ color:"rgba(255,255,255,.55)", fontSize:12, fontWeight:600, letterSpacing:".08em", fontFamily:"'Nunito',sans-serif" }}>7 nights free · no credit card</span>
+                <span style={{ color:"rgba(255,255,255,.55)", fontSize:12, fontWeight:600, letterSpacing:".08em", fontFamily:"'Nunito',sans-serif" }}>7 Nights Free · No Credit Card</span>
               </div>
 
               {/* Headline */}
               <h1 style={{ fontFamily:"'Playfair Display',serif", fontSize:"clamp(36px,8vw,78px)", lineHeight:1.1, marginBottom:22, letterSpacing:"-.02em" }}>
-                Bedtime stories<br/>
+                Your Child Is
                 <em style={{ background:"linear-gradient(120deg,#e879f9 0%,#a78bfa 35%,#67e8f9 65%,#a3e635 100%)", WebkitBackgroundClip:"text", WebkitTextFillColor:"transparent", backgroundClip:"text", fontStyle:"italic" }}>
-                  written just for them
+                  The Hero. Every Night.
                 </em>
               </h1>
 
               <p style={{ fontFamily:"'Crimson Pro',serif", fontSize:"clamp(17px,2.8vw,22px)", color:"rgba(255,255,255,.45)", lineHeight:1.75, maxWidth:520, margin:"0 auto 38px", fontStyle:"italic" }}>
-                Every night, a 10-page illustrated picture book — starring your child's name, stuffed animal, best friend, and dreams.
+                Every night, a brand new 10-page illustrated picture book — starring your child's name, stuffed animal, best friend, and the things they love most.
               </p>
 
               <div style={{ display:"flex", flexDirection:"column", alignItems:"center", gap:12 }}>
                 <button className="btn-cta" style={{ fontSize:"clamp(15px,2.5vw,17px)", padding:"clamp(16px,3vw,20px) clamp(32px,6vw,52px)", borderRadius:999 }} onClick={()=>setScreen("signup")}>
-                  Start free tonight ✨
+                  Start Free Tonight ✨
                 </button>
                 <button onClick={()=>setScreen("login")} style={{ background:"none", border:"none", color:"rgba(255,255,255,.28)", fontSize:13, cursor:"pointer", fontFamily:"'Nunito',sans-serif", padding:"8px 16px" }}>
-                  Already have an account →
+                  Already Have An Account →
                 </button>
               </div>
             </div>
@@ -1072,8 +1072,8 @@ export default function App() {
             {/* ── DEMO BOOK ── */}
             <div style={{ marginBottom:"clamp(64px,10vw,100px)" }}>
               <div style={{ textAlign:"center", marginBottom:20 }}>
-                <span style={{ fontFamily:"'Nunito',sans-serif", fontSize:11, fontWeight:700, letterSpacing:".16em", textTransform:"uppercase", color:"rgba(255,255,255,.2)" }}>Live preview</span>
-                <p style={{ fontFamily:"'Crimson Pro',serif", fontStyle:"italic", color:"rgba(255,255,255,.4)", fontSize:15, marginTop:4 }}>Lily's Moonlit Adventure — a sample story</p>
+                <span style={{ fontFamily:"'Nunito',sans-serif", fontSize:11, fontWeight:700, letterSpacing:".16em", textTransform:"uppercase", color:"rgba(255,255,255,.2)" }}>Live Preview</span>
+                <p style={{ fontFamily:"'Crimson Pro',serif", fontStyle:"italic", color:"rgba(255,255,255,.4)", fontSize:15, marginTop:4 }}>Lily's Moonlit Adventure — A Sample Story</p>
               </div>
 
               {mobile ? (
@@ -1127,13 +1127,13 @@ export default function App() {
             <div style={{ marginBottom:"clamp(64px,10vw,100px)" }}>
               <div style={{ textAlign:"center", marginBottom:36 }}>
                 <span style={{ fontFamily:"'Nunito',sans-serif", fontSize:11, fontWeight:700, letterSpacing:".16em", textTransform:"uppercase", color:"rgba(255,255,255,.2)" }}>How it works</span>
-                <h2 style={{ fontFamily:"'Playfair Display',serif", fontSize:"clamp(26px,5vw,42px)", fontStyle:"italic", marginTop:10, lineHeight:1.2 }}>Three steps to bedtime magic</h2>
+                <h2 style={{ fontFamily:"'Playfair Display',serif", fontSize:"clamp(26px,5vw,42px)", fontStyle:"italic", marginTop:10, lineHeight:1.2 }}>Three Steps To Bedtime Magic</h2>
               </div>
               <div style={{ display:"grid", gridTemplateColumns:mobile?"1fr":"repeat(3,1fr)", gap:16 }}>
                 {[
-                  { n:"01", icon:"👧", title:"Tell us about your child", desc:"Name, age, stuffed animal, best friend, favorite things — the details that make it personal.", color:"rgba(192,132,252,.12)", border:"rgba(192,132,252,.2)" },
-                  { n:"02", icon:"✨", title:"Add a photo (optional)", desc:"Upload a photo and our AI captures their look — curly hair, bright eyes, rosy cheeks — woven into every illustration.", color:"rgba(251,191,36,.08)", border:"rgba(251,191,36,.18)" },
-                  { n:"03", icon:"🌙", title:"Open tonight's book", desc:"A fully illustrated 10-page picture book generates in about 40 seconds. Read together, then drift off to sleep.", color:"rgba(103,232,249,.08)", border:"rgba(103,232,249,.18)" },
+                  { n:"01", icon:"👧", title:"Tell Us About Your Child", desc:"Name, age, stuffed animal, best friend, favorite things — every detail gets woven into the story.", color:"rgba(192,132,252,.12)", border:"rgba(192,132,252,.2)" },
+                  { n:"02", icon:"✨", title:"Add A Photo (Optional)", desc:"Upload a photo and our AI captures their look — hair color, eye color, skin tone — so the characters look just like your child.", color:"rgba(251,191,36,.08)", border:"rgba(251,191,36,.18)" },
+                  { n:"03", icon:"🌙", title:"Open Tonight's Book", desc:"In about 40 seconds, a fully illustrated 10-page picture book is ready. Read it together and drift off to sleep.", color:"rgba(103,232,249,.08)", border:"rgba(103,232,249,.18)" },
                 ].map(({n,icon,title,desc,color,border}) => (
                   <div key={n} style={{ padding:"clamp(20px,3vw,28px)", borderRadius:20, background:color, border:`1px solid ${border}`, position:"relative", overflow:"hidden" }}>
                     <div style={{ position:"absolute", top:16, right:18, fontFamily:"'Playfair Display',serif", fontSize:48, fontStyle:"italic", color:"rgba(255,255,255,.04)", lineHeight:1, fontWeight:800 }}>{n}</div>
@@ -1149,19 +1149,19 @@ export default function App() {
             <div style={{ marginBottom:"clamp(64px,10vw,100px)" }}>
               <div style={{ textAlign:"center", marginBottom:36 }}>
                 <span style={{ fontFamily:"'Nunito',sans-serif", fontSize:11, fontWeight:700, letterSpacing:".16em", textTransform:"uppercase", color:"rgba(255,255,255,.2)" }}>Everything included</span>
-                <h2 style={{ fontFamily:"'Playfair Display',serif", fontSize:"clamp(26px,5vw,42px)", fontStyle:"italic", marginTop:10, lineHeight:1.2 }}>One subscription. A lifetime of stories.</h2>
+                <h2 style={{ fontFamily:"'Playfair Display',serif", fontSize:"clamp(26px,5vw,42px)", fontStyle:"italic", marginTop:10, lineHeight:1.2 }}>One Subscription. A Lifetime Of Stories.</h2>
               </div>
               <div style={{ display:"grid", gridTemplateColumns:mobile?"1fr 1fr":"repeat(3,1fr)", gap:12 }}>
                 {[
-                  { icon:"🎨", title:"AI Watercolor Art",      desc:"Every page gets a unique soft watercolor illustration", big:false },
-                  { icon:"📸", title:"Illustrated Like Them",  desc:"Upload a photo and the characters look like your child", big:false },
-                  { icon:"🧸", title:"Deeply Personalized",    desc:"Name, stuffed animal, friends, fears — all woven in naturally", big:true },
-                  { icon:"✨", title:"Life Lesson Stories",    desc:"Pick a value — kindness, bravery, patience — taught through adventure not lecture", big:true },
-                  { icon:"📖", title:"10 Pages Every Night",   desc:"A complete picture book, not just a paragraph", big:false },
-                  { icon:"🔊", title:"Read Aloud Voice",       desc:"Calm soothing narration reads it to them", big:false },
-                  { icon:"🎨", title:"Coloring Book Mode",     desc:"Turn any story into a printable coloring page", big:false },
-                  { icon:"📚", title:"Story Library",          desc:"Every book saved forever — revisit favorites anytime", big:false },
-                  { icon:"🏅", title:"Milestone Badges",       desc:"Kids earn stars for reading streaks and adventures", big:false },
+                  { icon:"🎨", title:"AI Watercolor Art",      desc:"Every page gets a unique hand-painted watercolor illustration", big:false },
+                  { icon:"📸", title:"Illustrated Like Them",  desc:"Upload a photo and the hero looks just like your child", big:false },
+                  { icon:"🧸", title:"Deeply Personalized",    desc:"Name, stuffed animal, best friend, fears — woven into every page naturally", big:true },
+                  { icon:"✨", title:"Life Lesson Stories",    desc:"Pick a value — kindness, bravery, patience — your child discovers it through adventure, never a lecture", big:true },
+                  { icon:"📖", title:"10 Pages Every Night",   desc:"A complete illustrated picture book every single night", big:false },
+                  { icon:"🔊", title:"Read Aloud Voice",       desc:"Calm, soothing narration reads the story aloud at bedtime", big:false },
+                  { icon:"🎨", title:"Coloring Book Mode",     desc:"Turn any story into a printable coloring page your child can color in", big:false },
+                  { icon:"📚", title:"Story Library",          desc:"Every story saved forever — revisit old favorites anytime", big:false },
+                  { icon:"🏅", title:"Milestone Badges",       desc:"Kids earn badges for reading streaks, adventures, and milestones", big:false },
                 ].map(({icon,title,desc,big}) => (
                   <div key={title} style={{ padding:"clamp(16px,2.5vw,24px)", borderRadius:18, background:"rgba(255,255,255,.03)", border:"1px solid rgba(255,255,255,.07)", gridColumn:big&&!mobile?"span 1":"span 1", transition:"border-color .2s" }}>
                     <div style={{ fontSize:"clamp(22px,3vw,28px)", marginBottom:10 }}>{icon}</div>
@@ -1183,10 +1183,10 @@ export default function App() {
                     <span style={{ color:"#4ade80", fontSize:10, fontWeight:800, letterSpacing:".14em", textTransform:"uppercase" }}>Life Lesson Stories</span>
                   </div>
                   <h3 style={{ fontFamily:"'Playfair Display',serif", fontSize:"clamp(24px,4.5vw,38px)", fontStyle:"italic", marginBottom:14, lineHeight:1.2, color:"white" }}>
-                    Stories that teach<br/>without preaching
+                    Stories That Teach,<br/>Not Preach
                   </h3>
                   <p style={{ color:"rgba(255,255,255,.4)", fontSize:"clamp(14px,1.7vw,16px)", lineHeight:1.85, fontFamily:"'Crimson Pro',serif", marginBottom:28, maxWidth:480 }}>
-                    Choose a value and DreamWeaver weaves it naturally into your child's adventure. They discover the lesson through the story — never through a lecture.
+                    Choose a value and DreamWeaver weaves it naturally into your child's adventure. No moralizing — they discover the lesson themselves through the magic of the story.
                   </p>
                   <div style={{ display:"flex", gap:8, flexWrap:"wrap", marginBottom:28 }}>
                     {[{e:"🤝",l:"Sharing"},{e:"💛",l:"Kindness"},{e:"🦁",l:"Bravery"},{e:"🌟",l:"Honesty"},{e:"🌱",l:"Patience"},{e:"💪",l:"Keep Trying"},{e:"🌈",l:"Big Feelings"},{e:"👫",l:"Friendship"},{e:"🙏",l:"Gratitude"},{e:"🌍",l:"Nature"}].map(({e,l})=>(
@@ -1215,7 +1215,7 @@ export default function App() {
                 <div style={{ display:"flex", justifyContent:"center", gap:2, marginBottom:10 }}>
                   {"★★★★★".split("").map((s,i) => <span key={i} style={{ color:"#fbbf24", fontSize:20 }}>{s}</span>)}
                 </div>
-                <p style={{ color:"rgba(255,255,255,.3)", fontSize:13, fontFamily:"'Nunito',sans-serif" }}>Loved by families everywhere</p>
+                <p style={{ color:"rgba(255,255,255,.3)", fontSize:13, fontFamily:"'Nunito',sans-serif" }}>Loved By Families Everywhere</p>
               </div>
               <div style={{ display:"grid", gridTemplateColumns:mobile?"1fr":"repeat(3,1fr)", gap:14 }}>
                 {[
@@ -1237,7 +1237,7 @@ export default function App() {
             <div style={{ marginBottom:"clamp(64px,10vw,100px)" }}>
               <div style={{ textAlign:"center", marginBottom:32 }}>
                 <span style={{ fontFamily:"'Nunito',sans-serif", fontSize:11, fontWeight:700, letterSpacing:".16em", textTransform:"uppercase", color:"rgba(255,255,255,.2)" }}>Pricing</span>
-                <h2 style={{ fontFamily:"'Playfair Display',serif", fontSize:"clamp(26px,5vw,42px)", fontStyle:"italic", marginTop:10, lineHeight:1.2 }}>Less than a coffee a month</h2>
+                <h2 style={{ fontFamily:"'Playfair Display',serif", fontSize:"clamp(26px,5vw,42px)", fontStyle:"italic", marginTop:10, lineHeight:1.2 }}>Less Than A Coffee A Month</h2>
               </div>
               <div style={{ maxWidth:360, margin:"0 auto", borderRadius:24, overflow:"hidden", background:"linear-gradient(150deg,rgba(60,20,120,.4),rgba(30,10,80,.5))", border:"1px solid rgba(160,100,255,.2)", position:"relative" }}>
                 <div style={{ height:2, background:"linear-gradient(90deg,#7c3aed,#a78bfa,#c084fc,#a78bfa,#7c3aed)", backgroundSize:"220% 100%", animation:"gradFlow 3s linear infinite" }} />
@@ -1250,15 +1250,15 @@ export default function App() {
                     <span style={{ color:"rgba(255,255,255,.35)", fontSize:16, marginLeft:6 }}>/month</span>
                   </div>
                   <div style={{ display:"flex", flexDirection:"column", gap:11, marginBottom:28 }}>
-                    {["10-page illustrated story every night","AI watercolor art on every page","Photo-matched character illustrations","Life lesson story mode","Read aloud narrator","Story library saved forever","Coloring book generator","Milestone badges for kids","Multiple child profiles","Cancel anytime"].map(f => (
+                    {["10-Page Illustrated Story Every Night","AI Watercolor Art On Every Page","Photo-Matched Character Illustrations","Life Lesson Story Mode","Read Aloud Narrator","Story Library Saved Forever","Coloring Book Generator","Milestone Badges For Kids","Multiple Child Profiles","Cancel Anytime"].map(f => (
                       <div key={f} style={{ display:"flex", alignItems:"center", gap:10 }}>
                         <span style={{ color:"#a78bfa", fontSize:14, flexShrink:0 }}>✦</span>
                         <span style={{ color:"rgba(255,255,255,.6)", fontSize:"clamp(13px,1.5vw,14px)", fontFamily:"'Nunito',sans-serif" }}>{f}</span>
                       </div>
                     ))}
                   </div>
-                  <button className="btn-cta full" style={{ borderRadius:14 }} onClick={()=>setScreen("signup")}>Start free — 7 nights free ✨</button>
-                  <p style={{ color:"rgba(255,255,255,.2)", fontSize:11, textAlign:"center", marginTop:12 }}>No credit card required · Cancel anytime</p>
+                  <button className="btn-cta full" style={{ borderRadius:14 }} onClick={()=>setScreen("signup")}>Start Free — 7 Nights Free ✨</button>
+                  <p style={{ color:"rgba(255,255,255,.2)", fontSize:11, textAlign:"center", marginTop:12 }}>No Credit Card Required · Cancel Anytime</p>
                 </div>
               </div>
             </div>
@@ -1268,14 +1268,14 @@ export default function App() {
               <div style={{ position:"absolute", top:"-20%", left:"50%", transform:"translateX(-50%)", width:"80%", height:"140%", background:"radial-gradient(ellipse,rgba(110,60,200,.1) 0%,transparent 65%)", pointerEvents:"none" }} />
               <div style={{ fontSize:"clamp(44px,8vw,64px)", marginBottom:16, filter:"drop-shadow(0 0 28px rgba(200,170,80,.45))", animation:"float 5s ease-in-out infinite", position:"relative" }}>🌙</div>
               <h3 style={{ fontFamily:"'Playfair Display',serif", fontSize:"clamp(26px,5vw,44px)", fontStyle:"italic", marginBottom:12, position:"relative", lineHeight:1.2 }}>
-                Tonight's story<br/>is waiting
+                Tonight's Story<br/>Is Waiting
               </h3>
               <p style={{ color:"rgba(255,255,255,.32)", marginBottom:32, fontFamily:"'Crimson Pro',serif", fontSize:"clamp(15px,2vw,18px)", lineHeight:1.8, position:"relative" }}>
-                Join thousands of families making bedtime<br/>the best part of their child's day.
+                Join families everywhere who've made bedtime<br/>the most magical part of their child's day.
               </p>
               <div style={{ maxWidth:320, margin:"0 auto", position:"relative", display:"flex", flexDirection:"column", gap:12 }}>
-                <button className="btn-cta full" style={{ fontSize:"clamp(15px,2.5vw,17px)", padding:"clamp(17px,3vw,22px)" }} onClick={()=>setScreen("signup")}>Create free account ✨</button>
-                <button onClick={()=>setScreen("login")} style={{ background:"none", border:"none", color:"rgba(255,255,255,.25)", fontSize:13, cursor:"pointer", fontFamily:"'Nunito',sans-serif" }}>Already have an account →</button>
+                <button className="btn-cta full" style={{ fontSize:"clamp(15px,2.5vw,17px)", padding:"clamp(17px,3vw,22px)" }} onClick={()=>setScreen("signup")}>Create Free Account ✨</button>
+                <button onClick={()=>setScreen("login")} style={{ background:"none", border:"none", color:"rgba(255,255,255,.25)", fontSize:13, cursor:"pointer", fontFamily:"'Nunito',sans-serif" }}>Already Have An Account →</button>
               </div>
             </div>
 
@@ -1689,7 +1689,7 @@ export default function App() {
               Keep the magic going for just <strong style={{ color:"white" }}>$4.99/month</strong>.<br/>Cancel anytime.
             </p>
             <div style={{ marginBottom:22, textAlign:"left" }}>
-              {["10-page personalized story every night","Beautiful AI watercolor illustrations","Real picture book experience","Story library saved forever","Read aloud narrator","Multiple child profiles"].map(f => (
+              {["10-page personalized story every night","Beautiful AI watercolor illustrations","Real picture book experience","Story Library Saved Forever","Read Aloud Narrator","Multiple Child Profiles"].map(f => (
                 <div key={f} style={{ display:"flex", gap:12, alignItems:"center", padding:"12px 0", borderBottom:"1px solid rgba(255,255,255,.05)", minHeight:44 }}>
                   <span style={{ color:"var(--gold)", flexShrink:0 }}>✦</span>
                   <span style={{ color:"rgba(255,255,255,.6)", fontSize:"clamp(13px,3.2vw,14px)" }}>{f}</span>
