@@ -138,10 +138,42 @@ body{background:var(--night);min-height:100vh;font-family:'Nunito',sans-serif;co
 @keyframes gradFlow{0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}}
 @keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
 @keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
-@keyframes flipRight{0%{transform:rotateY(0deg)}100%{transform:rotateY(-180deg)}}
-@keyframes flipLeft{0%{transform:rotateY(0deg)}100%{transform:rotateY(180deg)}}
-@keyframes unflipRight{0%{transform:rotateY(-180deg);opacity:0}1%{opacity:1}100%{transform:rotateY(0deg);opacity:1}}
-@keyframes unflipLeft{0%{transform:rotateY(180deg);opacity:0}1%{opacity:1}100%{transform:rotateY(0deg);opacity:1}}
+/* Page turn — right page flips forward (slides left with curl) */
+@keyframes flipRight{
+  0%   { transform:perspective(1400px) rotateY(0deg) translateZ(0px); box-shadow: 0 0 0 rgba(0,0,0,0); z-index:10; }
+  30%  { transform:perspective(1400px) rotateY(-25deg) translateZ(30px); box-shadow:-12px 0 40px rgba(0,0,0,.35); z-index:10; }
+  70%  { transform:perspective(1400px) rotateY(-145deg) translateZ(30px); box-shadow:-18px 0 50px rgba(0,0,0,.4); z-index:10; }
+  100% { transform:perspective(1400px) rotateY(-180deg) translateZ(0px); z-index:10; }
+}
+/* Left page flips backward */
+@keyframes flipLeft{
+  0%   { transform:perspective(1400px) rotateY(0deg) translateZ(0px); }
+  30%  { transform:perspective(1400px) rotateY(25deg) translateZ(30px); box-shadow:12px 0 40px rgba(0,0,0,.35); }
+  70%  { transform:perspective(1400px) rotateY(145deg) translateZ(30px); box-shadow:18px 0 50px rgba(0,0,0,.4); }
+  100% { transform:perspective(1400px) rotateY(180deg) translateZ(0px); }
+}
+/* New right page enters from left */
+@keyframes unflipRight{
+  0%   { transform:perspective(1400px) rotateY(-180deg) translateZ(0px); opacity:0; }
+  1%   { opacity:1; }
+  30%  { transform:perspective(1400px) rotateY(-140deg) translateZ(30px); }
+  70%  { transform:perspective(1400px) rotateY(-20deg) translateZ(30px); }
+  100% { transform:perspective(1400px) rotateY(0deg) translateZ(0px); }
+}
+/* New left page enters from right */
+@keyframes unflipLeft{
+  0%   { transform:perspective(1400px) rotateY(180deg) translateZ(0px); opacity:0; }
+  1%   { opacity:1; }
+  30%  { transform:perspective(1400px) rotateY(140deg) translateZ(30px); }
+  70%  { transform:perspective(1400px) rotateY(20deg) translateZ(30px); }
+  100% { transform:perspective(1400px) rotateY(0deg) translateZ(0px); }
+}
+/* Cover opening — swings open from left spine */
+@keyframes coverOpen{
+  0%   { transform:perspective(1400px) rotateY(0deg) translateZ(0px); }
+  40%  { transform:perspective(1400px) rotateY(-60deg) translateZ(40px); }
+  100% { transform:perspective(1400px) rotateY(-180deg) translateZ(0px); opacity:0; }
+}
 @keyframes pulse{0%,100%{opacity:.6;transform:scale(1)}50%{opacity:1;transform:scale(1.05)}}
 @keyframes orb{0%,100%{transform:translate(0,0) scale(1)}33%{transform:translate(20px,-15px) scale(1.05)}66%{transform:translate(-10px,20px) scale(.97)}}
 
@@ -149,10 +181,11 @@ body{background:var(--night);min-height:100vh;font-family:'Nunito',sans-serif;co
 .fadein{animation:fadeIn .3s ease both}
 .float{animation:float 4s ease-in-out infinite}
 
-.page-flip-forward{animation:flipRight .55s cubic-bezier(.4,0,.2,1) forwards}
-.page-flip-back{animation:flipLeft .55s cubic-bezier(.4,0,.2,1) forwards}
-.page-enter-forward{animation:unflipRight .55s cubic-bezier(.4,0,.2,1) forwards}
-.page-enter-back{animation:unflipLeft .55s cubic-bezier(.4,0,.2,1) forwards}
+.page-flip-forward{animation:flipRight .62s cubic-bezier(.25,.46,.45,.94) forwards; transform-style:preserve-3d; backface-visibility:hidden;}
+.page-flip-back{animation:flipLeft .62s cubic-bezier(.25,.46,.45,.94) forwards; transform-style:preserve-3d; backface-visibility:hidden;}
+.page-enter-forward{animation:unflipRight .62s cubic-bezier(.25,.46,.45,.94) forwards; transform-style:preserve-3d; backface-visibility:hidden;}
+.page-enter-back{animation:unflipLeft .62s cubic-bezier(.25,.46,.45,.94) forwards; transform-style:preserve-3d; backface-visibility:hidden;}
+.cover-opening{animation:coverOpen .75s cubic-bezier(.25,.46,.45,.94) forwards; transform-style:preserve-3d; backface-visibility:hidden; transform-origin:left center;}
 
 /* ── Wrap ── */
 .wrap{
@@ -591,8 +624,8 @@ function OpenBook({ pages, imgs, spread, onFlip, title, mobile=false, coverImg=n
         setOpeningCover(false);
         setDisplaySpread(0);
         setEnterClass("page-enter-forward");
-        setTimeout(() => { setEnterClass(""); setAnimating(false); }, 650);
-      }, 750);
+        setTimeout(() => { setEnterClass(""); setAnimating(false); }, 680);
+      }, 780);
       return;
     }
 
@@ -648,12 +681,13 @@ function OpenBook({ pages, imgs, spread, onFlip, title, mobile=false, coverImg=n
   };
 
   // ── COVER — closed book, single page ──────────────────────────────────────
+  // (useEffect for auto-skip must be above any conditional return)
+  useEffect(() => {
+    if (isCover && !coverImg) { const t = setTimeout(() => onFlip("forward"), 80); return () => clearTimeout(t); }
+  }, [isCover, coverImg]);
+
   if (isCover) {
-    if (!coverImg) {
-      // No cover yet, skip to page 1 automatically
-      useEffect(() => { onFlip("forward"); }, []);
-      return null;
-    }
+    if (!coverImg) return null;
     const W = mobile ? "min(92vw,380px)" : "min(52vw,480px)";
     const aspect = "2/3"; // portrait closed book
     return (
@@ -662,10 +696,11 @@ function OpenBook({ pages, imgs, spread, onFlip, title, mobile=false, coverImg=n
         {/* Closed book */}
         <div
           onClick={()=>!animating&&onFlip("forward")}
-          style={{ width:W, aspectRatio:aspect, position:"relative", cursor:"pointer",
+          className={openingCover ? "cover-opening" : ""}
+          style={{ width:W, aspectRatio:aspect, position:"relative", cursor:openingCover?"default":"pointer",
             boxShadow:"8px 8px 0 rgba(0,0,0,.15), 0 60px 120px rgba(0,0,0,.85), 0 20px 60px rgba(0,0,0,.6), 0 0 0 1px rgba(255,255,255,.06)",
             borderRadius:"4px 12px 12px 4px",
-            transition:"transform .2s ease, box-shadow .2s ease",
+            transition: openingCover ? "none" : "transform .2s ease, box-shadow .2s ease",
           }}
           onMouseEnter={e=>{e.currentTarget.style.transform="translateY(-4px) scale(1.01)"; e.currentTarget.style.boxShadow="8px 12px 0 rgba(0,0,0,.15), 0 70px 140px rgba(0,0,0,.9), 0 24px 70px rgba(0,0,0,.65), 0 0 0 1px rgba(255,255,255,.08)";}}
           onMouseLeave={e=>{e.currentTarget.style.transform=""; e.currentTarget.style.boxShadow="8px 8px 0 rgba(0,0,0,.15), 0 60px 120px rgba(0,0,0,.85), 0 20px 60px rgba(0,0,0,.6), 0 0 0 1px rgba(255,255,255,.06)";}}
