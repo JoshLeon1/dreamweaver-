@@ -1216,10 +1216,11 @@ export default function App() {
   };
 
   const imgPromptFor = (pt, m, charCard) => {
+    const scene = pt.slice(0, 120);
     const base = charCard
-      ? `Children's book watercolor illustration. Character: ${charCard} Scene: ${pt.slice(0,130)}.`
-      : `${active.child_name} age ${active.age||5} with ${active.stuffed_animal||"stuffed bear"}, scene: ${pt.slice(0,130)}.`;
-    return `${base} Style: ${m.prompt}, soft pastel watercolor, dreamy storybook art. No text.`;
+      ? `Children's book watercolor illustration. Character: ${charCard} Scene: ${scene}.`
+      : `${active.child_name} age ${active.age||5} with ${active.stuffed_animal||"stuffed bear"}, scene: ${scene}.`;
+    return `${base} Style: ${m.prompt}, soft pastel watercolor, dreamy storybook art. NO letters, NO words, NO text, NO captions, NO signs, NO writing of any kind anywhere in the image.`;
   };
 
   // Persist page position
@@ -1242,6 +1243,21 @@ export default function App() {
   const generateStory = async () => {
     if (!hasAccess()) return setScreen("paywall");
     if (!active) return;
+    // One story per child per day
+    const { data: todayStory } = await supabase.from("stories")
+      .select("id").eq("user_id", user.id).eq("child_profile_id", active.id).eq("story_date", todayStr()).maybeSingle();
+    if (todayStory) {
+      // Already have one today — load it instead of generating a new one
+      const { data: full } = await supabase.from("stories").select("*").eq("id", todayStory.id).single();
+      if (full) {
+        const ps = full.text.split("\n\n✦\n\n");
+        setPages(ps); setTitle(full.title||""); setImgs(full.page_images||[]);
+        setCoverImg(full.cover_image||null); setSpread(full.cover_image?-1:0);
+        setStory(full); setStoryPhase("ready"); setScreen("story");
+        try { localStorage.setItem("dw_last_story",full.id); localStorage.setItem("dw_last_screen","story"); } catch {}
+      }
+      return;
+    }
     setStoryPhase("text"); setScreen("story"); try { localStorage.setItem("dw_last_screen","story"); } catch {}
     setStory(null); setTitle(""); setPages([]); setImgs([]); setSpread(-1); setImgsLoaded(0); setCoverImg(null);
 
@@ -1272,8 +1288,8 @@ export default function App() {
     const charCard = await getCharacterCard(active);
 
     const storyPrompt=isLesson
-      ?`Write a warm personalized bedtime picture book that gently teaches a lesson for:\n${profileText(active)}\nTone: ${m.prompt}.\nLesson to teach: ${lessonData?.prompt||"being kind to others"}.\n\nWrite EXACTLY 14 pages, separated by [PAGE].\nEach page = 1-2 SHORT sentences. Pure picture book style — brief, lyrical, beautiful.\nPage 1: introduce child and stuffed animal in a cozy relatable situation that sets up the lesson.\nPages 2-4: adventure begins, a challenge appears that relates to the lesson. Weave in best friend and favorite animal.\nPages 5-8: the heart of the story — child faces the lesson challenge. Show the struggle gently. Let it feel real.\nPages 9-11: child discovers the lesson naturally, feels proud and changed.\nPages 12-13: resolution — warmth, joy, love from the people around them.\nPage 14: child drifts peacefully to sleep, a smile on their face, the lesson in their heart. A complete, satisfying ending.\nThe lesson should feel discovered, never lectured. NO title. Start immediately.`
-      :`Write a warm personalized bedtime picture book for:\n${profileText(active)}\nTone: ${m.prompt}.\nWrite EXACTLY 14 pages, separated by [PAGE].\nEach page = 1-2 SHORT sentences. Pure picture book style — brief, lyrical, beautiful.\nPage 1: introduce child and stuffed animal in a cozy setting.\nPages 2-4: adventure begins, weave in best friend and favorite animal.\nPages 5-8: heart of story, gently face their fear, build to the climax.\nPages 9-11: resolution — magic, wonder, the problem is solved.\nPages 12-13: warmth and celebration with the people they love.\nPage 14: child drifts peacefully to sleep. A complete, happy, satisfying ending.\nNO title. Start immediately.`;
+      ?`Write a warm personalized bedtime picture book for a child.\nChild details (use what feels natural — don't force every detail into every story):\n${profileText(active)}\nTone: ${m.prompt}.\nLesson to weave in naturally: ${lessonData?.prompt||"being kind to others"}.\n\nWrite EXACTLY 14 pages, separated by [PAGE].\nEach page = 1-2 SHORT sentences. Pure picture book style — lyrical, beautiful, surprising.\nChoose whichever details from the child's profile serve THIS particular story best. Not every detail needs to appear — pick the ones that make the story feel magical and personal.\nPage 1: ground the child in a specific cozy moment that sets up what comes next.\nPages 2-5: adventure unfolds naturally, building curiosity and wonder.\nPages 6-9: the heart — the challenge, the feeling, the discovery.\nPages 10-12: things come together, warmth, a moment of pride or joy.\nPages 13-14: a gentle landing into sleep. Complete, satisfying, hopeful.\nThe lesson should feel discovered, never stated. NO title. Start on page 1.`
+      :`Write a warm personalized bedtime picture book.\nChild details (use what feels natural — weave in only what serves the story):\n${profileText(active)}\nTone: ${m.prompt}.\n\nWrite EXACTLY 14 pages, separated by [PAGE].\nEach page = 1-2 SHORT sentences. Pure picture book style — lyrical, vivid, surprising.\nDon't try to mention every detail — choose whichever elements from the child's profile make this particular story feel personal and alive. Let the story lead.\nPage 1: open on a specific, vivid moment. Immediate and grounding.\nPages 2-5: the adventure takes shape — curiosity, wonder, something unexpected.\nPages 6-9: the heart of the story — a challenge, a feeling, a choice.\nPages 10-12: resolution — things click into place, warmth, a small triumph.\nPages 13-14: a gentle drift toward sleep. Complete, happy, peaceful.\nNO title. Start on page 1.`;
 
     try {
       const [rawText,rawTitle] = await Promise.all([
@@ -1301,7 +1317,7 @@ export default function App() {
       }
       setStory(saved);
 
-      const coverPrompt=`${active.child_name} age ${active.age||5} with ${active.stuffed_animal||"stuffed bear"}, ${m.prompt} bedtime children's book COVER illustration, dramatic and beautiful, soft watercolor pastel art, dreamy storybook style, bold composition, the title scene. No text.`;
+      const coverPrompt=`${active.child_name} age ${active.age||5} with ${active.stuffed_animal||"stuffed bear"}, ${m.prompt} bedtime children's book COVER illustration, dramatic and beautiful, soft watercolor pastel art, dreamy storybook style, bold composition, the title scene. NO letters, NO words, NO text, NO title, NO writing anywhere in the image.`;
 
       const generated=new Array(ps.length).fill(null); let loaded=0;
       // Fire cover + all page images in parallel — cover gets a head start (no stagger)
@@ -1421,7 +1437,7 @@ NO title. Start immediately.`;
       const { data:saved } = await supabase.from("stories").insert(payload).select().single();
       setTitle(sequelTitle); setPages(ps); setImgs([]); setImgsLoaded(0); setCoverImg(null); setSpread(-1); setStory(saved); setStoryPhase("ready");
       // Generate cover + images
-      const coverPrompt = `${active.child_name} age ${active.age||5} with ${active.stuffed_animal||"stuffed bear"}, ${m.prompt} bedtime children's book COVER illustration, sequel adventure, soft watercolor pastel art, dreamy storybook style. No text.`;
+      const coverPrompt = `${active.child_name} age ${active.age||5} with ${active.stuffed_animal||"stuffed bear"}, ${m.prompt} bedtime children's book COVER illustration, sequel adventure, soft watercolor pastel art, dreamy storybook style. NO letters, NO words, NO text, NO writing anywhere in the image.`;
       const generated = new Array(ps.length).fill(null);
       const coverP = (async () => {
         const url = await generateImage(coverPrompt); if (!url) return;
@@ -2188,7 +2204,7 @@ NO title. Start immediately.`;
             {/* Actions */}
             <div style={{ display:"flex", flexDirection:"column", gap:10 }}>
               <button className="btn-cta full" style={{ padding: tablet ? "20px 24px" : undefined, fontSize: tablet ? 17 : undefined }} onClick={generateStory}>
-                {storyMode==="lesson" ? `✨ Story about ${LESSONS.find(l=>l.id===lesson)?.label||"Kindness"}` : "✨ Open Tonight's Story"}
+                {storyMode==="lesson" ? `✨ Story about ${LESSONS.find(l=>l.id===lesson)?.label||"Kindness"}` : library.some(s=>s.story_date===todayStr()&&s.child_profile_id===active?.id) ? "📖 Read Tonight's Story" : "✨ Generate Tonight's Story"}
               </button>
               <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:10 }}>
                 <button className="btn-soft" onClick={()=>{setEditId(active.id);setPf(active);setScreen("profile");}}>✏️ Edit Profile</button>
@@ -2260,15 +2276,10 @@ NO title. Start immediately.`;
 
                 {/* Actions — stacked rows on mobile */}
                 <div style={{ marginTop:18, display:"flex", flexDirection:"column", gap:10, maxWidth: tablet ? 680 : 520, margin:"18px auto 0" }}>
-                  {/* Row 1: sequel + favorite */}
-                  <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:8 }}>
-                    <button className="btn-book" onClick={toggleFavorite} style={{ background:story?.is_favorite?"linear-gradient(135deg,rgba(201,168,76,.2),rgba(201,168,76,.1))":"", borderColor:story?.is_favorite?"rgba(201,168,76,.5)":"", color:story?.is_favorite?"var(--gold-light)":"" }}>
-                      {story?.is_favorite ? "★ Favorited" : "☆ Favorite"}
-                    </button>
-                    <button className="btn-book" onClick={generateSequel} disabled={extending} style={{ opacity:extending?0.6:1, background:"linear-gradient(135deg,#132018,#1f3828)", borderColor:"rgba(80,200,120,.3)", color:"#7de8a0" }}>
-                      {extending ? "✨ Writing…" : "📖 Sequel"}
-                    </button>
-                  </div>
+                  {/* Row 1: favorite */}
+                  <button className="btn-book" onClick={toggleFavorite} style={{ background:story?.is_favorite?"linear-gradient(135deg,rgba(201,168,76,.2),rgba(201,168,76,.1))":"", borderColor:story?.is_favorite?"rgba(201,168,76,.5)":"", color:story?.is_favorite?"var(--gold-light)":"" }}>
+                    {story?.is_favorite ? "★ Saved to Favorites" : "☆ Save to Favorites"}
+                  </button>
                   {/* Row 2: coloring book */}
                   <button className="btn-book" onClick={generateColoringPage} disabled={coloringLoading} style={{ background:"linear-gradient(135deg,#0d0a1e,#1a1040)", borderColor:"rgba(192,132,252,.3)", color:"#d8b4fe", opacity:coloringLoading?0.6:1 }}>
                     {coloringLoading?"🎨 Generating…":"🖍️ Make a Coloring Page"}
@@ -2420,7 +2431,16 @@ NO title. Start immediately.`;
                           <div style={{ color:"rgba(255,255,255,.85)", fontFamily:"'Crimson Pro',serif", fontStyle:"italic", fontSize:"clamp(13px,3.5vw,15px)", overflow:"hidden", textOverflow:"ellipsis", whiteSpace:"nowrap" }}>{s.title||s.text?.slice(0,60)+"…"}</div>
                         </div>
                       </div>
-                      <span style={{ color:"rgba(201,168,76,.4)", fontSize:16, flexShrink:0 }}>›</span>
+                      <div style={{ display:"flex", flexDirection:"column", alignItems:"flex-end", gap:6, flexShrink:0 }}>
+                        <span style={{ color:"rgba(201,168,76,.4)", fontSize:16 }}>›</span>
+                        {s.is_favorite && (
+                          <button
+                            onClick={(e)=>{ e.stopPropagation(); const ps=s.text.split("\n\n✦\n\n"); setPages(ps); setTitle(s.title||""); setImgs(s.page_images||[]); setCoverImg(s.cover_image||null); setSpread(s.cover_image?-1:0); setStory(s); setStoryPhase("ready"); setScreen("story"); setTimeout(()=>generateSequel(),150); }}
+                            style={{ background:"rgba(74,222,128,.08)", border:"1px solid rgba(74,222,128,.25)", borderRadius:99, padding:"3px 10px", fontSize:11, color:"#6ee7a0", fontFamily:"'Nunito',sans-serif", fontWeight:700, cursor:"pointer", whiteSpace:"nowrap" }}>
+                            📖 Sequel
+                          </button>
+                        )}
+                      </div>
                     </div>
                   );
                 })}
