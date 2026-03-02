@@ -2069,150 +2069,201 @@ NO title. Start immediately.`;
             HOME
         ══════════════════════════════════════════════════════════════════════ */}
         {screen==="home" && active && (
-          <div className="fade has-bottom-nav" style={{ maxWidth:tablet?640:480, width:"100%", padding: tablet ? "0 8px" : undefined }}>
-            {/* Top bar */}
-            <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:16 }}>
-              <div style={{ display:"flex", gap:8, alignItems:"center", flexWrap:"wrap" }}>
+          <div className="fade has-bottom-nav" style={{ maxWidth:520, width:"100%", padding:"0 2px" }}>
+
+            {/* ── Top bar: streak + trial + signout ── */}
+            <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:20 }}>
+              <div style={{ display:"flex", gap:8, alignItems:"center" }}>
                 {streak>0 && (
-                  <div style={{ background:streakCelebrate?"rgba(255,155,40,.2)":"rgba(255,155,40,.1)", border:`1px solid ${streakCelebrate?"rgba(255,155,40,.6)":"rgba(255,155,40,.22)"}`, borderRadius:999, padding:"5px 12px", display:"flex", gap:6, alignItems:"center", transition:"all .4s", transform:streakCelebrate?"scale(1.12)":"scale(1)", boxShadow:streakCelebrate?"0 0 20px rgba(255,155,40,.4)":"none" }}>
-                    <span style={{ animation:streakCelebrate?"wiggle .4s ease-in-out 3":"none", display:"inline-block" }}>🔥</span>
-                    <span style={{ color:"#ffb347", fontSize:13, fontWeight:700 }}>{streak} night{streak!==1?"s":""}</span>
-                    {streakCelebrate && <span style={{ color:"#ffd700", fontSize:11, fontWeight:800 }}>🎉</span>}
+                  <div style={{ background:streakCelebrate?"rgba(255,155,40,.22)":"rgba(255,155,40,.08)", border:`1px solid ${streakCelebrate?"rgba(255,155,40,.55)":"rgba(255,155,40,.18)"}`, borderRadius:999, padding:"6px 14px", display:"flex", gap:6, alignItems:"center", transition:"all .4s", transform:streakCelebrate?"scale(1.1)":"scale(1)", boxShadow:streakCelebrate?"0 0 20px rgba(255,155,40,.35)":"none" }}>
+                    <span style={{ animation:streakCelebrate?"wiggle .4s ease-in-out 3":"none", display:"inline-block", fontSize:15 }}>🔥</span>
+                    <span style={{ color:"#ffb347", fontSize:13, fontWeight:800, fontFamily:"'Nunito',sans-serif" }}>{streak} night{streak!==1?"s":""}</span>
                   </div>
                 )}
-                {/* Milestone celebration overlay */}
-                {streakCelebrate && streakMilestone && (
-                  <div style={{ position:"fixed", top:0, left:0, right:0, bottom:0, display:"flex", alignItems:"center", justifyContent:"center", zIndex:9999, pointerEvents:"none" }}>
-                    <div style={{ textAlign:"center", animation:"popIn .4s cubic-bezier(.34,1.56,.64,1)", background:"linear-gradient(155deg,rgba(30,10,80,.96),rgba(20,5,50,.98))", border:"1px solid rgba(255,155,40,.4)", borderRadius:28, padding:"clamp(28px,5vw,44px) clamp(24px,5vw,52px)", boxShadow:"0 0 80px rgba(255,155,40,.3),0 30px 80px rgba(0,0,0,.8)", pointerEvents:"auto" }}>
-                      <div style={{ fontSize:"clamp(52px,12vw,72px)", marginBottom:14, animation:"float 2s ease-in-out infinite" }}>🔥</div>
-                      <h2 style={{ fontFamily:"'Playfair Display',serif", fontSize:"clamp(24px,6vw,34px)", marginBottom:8, lineHeight:1.2, background:"linear-gradient(120deg,#ffd700,#ffb347)", WebkitBackgroundClip:"text", WebkitTextFillColor:"transparent", backgroundClip:"text" }}>
-                        {streakMilestone}-Night Streak!
-                      </h2>
-                      <p style={{ color:"rgba(255,255,255,.5)", fontFamily:"'Crimson Pro',serif", fontStyle:"italic", fontSize:"clamp(14px,3vw,17px)", lineHeight:1.7 }}>
-                        {streakMilestone===3 && "Three nights of magic in a row ✨"}
-                        {streakMilestone===7 && "A whole week of bedtime stories 🌙"}
-                        {streakMilestone===30 && "Thirty nights — you're a DreamWeaver legend ⭐"}
-                      </p>
-                      <div style={{ marginTop:16, display:"flex", gap:4, justifyContent:"center" }}>
-                        {Array.from({length:Math.min(streakMilestone,7)}).map((_,i)=>(
-                          <span key={i} style={{ fontSize:18, animation:`popIn .3s ${i*0.08}s both` }}>🔥</span>
-                        ))}
-                        {streakMilestone>7 && <span style={{ color:"rgba(255,215,0,.6)", fontSize:13, marginLeft:4 }}>+{streakMilestone-7} more</span>}
-                      </div>
-                    </div>
-                  </div>
+                {sub?.status==="trial" && (
+                  <span style={{ color:"rgba(180,143,255,.7)", fontSize:12, fontWeight:600, background:"rgba(180,143,255,.08)", padding:"5px 11px", borderRadius:999, border:"1px solid rgba(180,143,255,.15)", fontFamily:"'Nunito',sans-serif" }}>{daysLeft()}d Trial</span>
                 )}
-                {sub?.status==="trial" && <span style={{ color:"var(--purple-light)", fontSize:12, background:"rgba(180,143,255,.1)", padding:"4px 10px", borderRadius:999, border:"1px solid rgba(180,143,255,.2)" }}>{daysLeft()}d Trial Left</span>}
               </div>
-              <button onClick={logout} style={{ background:"none", border:"none", color:"rgba(255,255,255,.2)", cursor:"pointer", fontSize:13, fontFamily:"'Nunito',sans-serif", padding:"8px 0", minHeight:44 }}>Sign out</button>
+              <button onClick={logout} style={{ background:"none", border:"none", color:"rgba(255,255,255,.18)", cursor:"pointer", fontSize:12, fontFamily:"'Nunito',sans-serif", padding:"8px 4px", letterSpacing:".02em" }}>Sign out</button>
             </div>
 
-            {/* Profile tabs */}
-            <div style={{ display:"flex", gap:8, marginBottom:20, flexWrap:"wrap" }}>
-              {profiles.map(p => <button key={p.id} className={`tab ${active?.id===p.id?"on":""}`} onClick={()=>{setActive(p);setPf(p);}}>🌙 {p.child_name}</button>)}
+            {/* ── Milestone celebration overlay ── */}
+            {streakCelebrate && streakMilestone && (
+              <div style={{ position:"fixed", top:0, left:0, right:0, bottom:0, display:"flex", alignItems:"center", justifyContent:"center", zIndex:9999, background:"rgba(0,0,0,.5)", backdropFilter:"blur(8px)" }}>
+                <div style={{ textAlign:"center", animation:"popIn .4s cubic-bezier(.34,1.56,.64,1)", background:"linear-gradient(155deg,rgba(30,10,80,.97),rgba(20,5,50,.99))", border:"1px solid rgba(255,155,40,.35)", borderRadius:28, padding:"44px 52px", boxShadow:"0 0 80px rgba(255,155,40,.25),0 40px 80px rgba(0,0,0,.9)", maxWidth:320, margin:"0 20px" }}>
+                  <div style={{ fontSize:64, marginBottom:16, animation:"float 2s ease-in-out infinite" }}>🔥</div>
+                  <h2 style={{ fontFamily:"'Playfair Display',serif", fontSize:30, marginBottom:8, lineHeight:1.2, background:"linear-gradient(120deg,#ffd700,#ffb347)", WebkitBackgroundClip:"text", WebkitTextFillColor:"transparent", backgroundClip:"text" }}>
+                    {streakMilestone}-Night Streak!
+                  </h2>
+                  <p style={{ color:"rgba(255,255,255,.45)", fontFamily:"'Crimson Pro',serif", fontStyle:"italic", fontSize:16, lineHeight:1.7, marginBottom:20 }}>
+                    {streakMilestone===3 && "Three nights of magic in a row ✨"}
+                    {streakMilestone===7 && "A whole week of bedtime stories 🌙"}
+                    {streakMilestone===30 && "Thirty nights — you're a DreamWeaver legend ⭐"}
+                  </p>
+                  <button onClick={()=>setStreakCelebrate(false)} style={{ background:"rgba(255,155,40,.15)", border:"1px solid rgba(255,155,40,.3)", borderRadius:999, padding:"10px 28px", color:"#ffb347", fontSize:14, fontWeight:700, fontFamily:"'Nunito',sans-serif", cursor:"pointer" }}>
+                    Let's read! 🎉
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* ── Profile tabs ── */}
+            <div style={{ display:"flex", gap:7, marginBottom:28, flexWrap:"wrap" }}>
+              {profiles.map(p => (
+                <button key={p.id}
+                  onClick={()=>{setActive(p);setPf(p);}}
+                  style={{ padding:"7px 16px", borderRadius:999, fontSize:14, fontFamily:"'Nunito',sans-serif", fontWeight:700, cursor:"pointer", transition:"all .2s", WebkitTapHighlightColor:"transparent",
+                    background:active?.id===p.id?"rgba(192,132,252,.18)":"transparent",
+                    border:`1.5px solid ${active?.id===p.id?"rgba(192,132,252,.55)":"rgba(255,255,255,.1)"}`,
+                    color:active?.id===p.id?"#e9d5ff":"rgba(255,255,255,.45)",
+                  }}>
+                  🌙 {p.child_name}
+                </button>
+              ))}
               {canAddProfile() ? (
-                <button className="tab" onClick={()=>{setEditId(null);setPf({child_name:"",age:"",stuffed_animal:"",best_friend:"",favorite_animal:"",scared_of:"",favorite_thing:""});setWizStep(0);setScreen("wizard");}}>+ Add Child</button>
+                <button style={{ padding:"7px 16px", borderRadius:999, fontSize:13, fontFamily:"'Nunito',sans-serif", fontWeight:600, cursor:"pointer", background:"transparent", border:"1.5px solid rgba(255,255,255,.1)", color:"rgba(255,255,255,.35)", transition:"all .2s" }}
+                  onClick={()=>{setEditId(null);setPf({child_name:"",age:"",stuffed_animal:"",best_friend:"",favorite_animal:"",scared_of:"",favorite_thing:""});setWizStep(0);setScreen("wizard");}}>
+                  + Add Child
+                </button>
               ) : (
-                <button className="tab" style={{ color:"var(--gold)", borderColor:"rgba(201,168,76,.3)" }} onClick={()=>setScreen("paywall")}>+ Add Child 🔒</button>
+                <button style={{ padding:"7px 16px", borderRadius:999, fontSize:13, fontFamily:"'Nunito',sans-serif", fontWeight:600, cursor:"pointer", background:"transparent", border:"1.5px solid rgba(201,168,76,.2)", color:"rgba(201,168,76,.5)", transition:"all .2s" }}
+                  onClick={()=>setScreen("paywall")}>
+                  + Add Child 🔒
+                </button>
               )}
             </div>
 
-            {/* Hero */}
-            <div style={{ textAlign:"center", marginBottom:22 }}>
-              <div style={{ fontSize:"clamp(44px,11vw,58px)", marginBottom:10, animation:"float 4s ease-in-out infinite", filter:"drop-shadow(0 0 28px rgba(200,170,80,.4))" }}>🌙</div>
-              <h1 style={{ fontFamily:"'Playfair Display',serif", fontSize:"clamp(20px,5.5vw,28px)", lineHeight:1.25, marginBottom:6 }}>
-                Tonight's story for <em style={{ color:"var(--gold-light)" }}>{active.child_name}</em>
+            {/* ── Hero section ── */}
+            <div style={{ textAlign:"center", marginBottom:32, position:"relative" }}>
+              <div style={{ fontSize:"clamp(52px,13vw,68px)", marginBottom:12, animation:"float 4s ease-in-out infinite", filter:"drop-shadow(0 0 32px rgba(200,170,80,.45))", lineHeight:1 }}>🌙</div>
+              <h1 style={{ fontFamily:"'Playfair Display',serif", fontSize:"clamp(24px,6.5vw,34px)", lineHeight:1.2, marginBottom:8, letterSpacing:"-.01em" }}>
+                Tonight's story for
               </h1>
-              <p style={{ color:"rgba(255,255,255,.28)", fontFamily:"'Crimson Pro',serif", fontStyle:"italic", fontSize:"clamp(13px,3vw,15px)" }}>14 pages · personalized · fully illustrated</p>
+              <h1 style={{ fontFamily:"'Playfair Display',serif", fontSize:"clamp(28px,7.5vw,40px)", lineHeight:1.1, marginBottom:10, fontStyle:"italic", color:"var(--gold-light)", filter:"drop-shadow(0 2px 24px rgba(232,200,100,.3))" }}>
+                {active.child_name}
+              </h1>
+              <p style={{ color:"rgba(255,255,255,.22)", fontFamily:"'Crimson Pro',serif", fontStyle:"italic", fontSize:"clamp(13px,3vw,15px)", letterSpacing:".04em" }}>
+                14 pages · illustrated · personalized
+              </p>
             </div>
 
-            {/* Photo prompt - show if no photo-based character card yet */}
+            {/* ── Photo nudge ── */}
             {!active.character_card && (
               <div onClick={()=>{setEditId(active.id);setPf(active);setScreen("profile");}}
-                style={{ marginBottom:16, padding:"14px 16px", borderRadius:16, cursor:"pointer",
-                  background:"rgba(201,168,76,.07)", border:"1.5px dashed rgba(201,168,76,.25)",
-                  display:"flex", alignItems:"center", gap:12, transition:"all .2s" }}>
-                <div style={{ fontSize:28, flexShrink:0 }}>📸</div>
-                <div>
-                  <div style={{ fontSize:13, fontWeight:700, color:"var(--gold-light)", marginBottom:2 }}>
-                    Add {active.child_name}'s photo
-                  </div>
-                  <div style={{ fontSize:12, color:"rgba(255,255,255,.35)", lineHeight:1.4 }}>
-                    We'll make the illustrations look just like them ✨
-                  </div>
+                style={{ marginBottom:20, padding:"14px 18px", borderRadius:18, cursor:"pointer",
+                  background:"rgba(201,168,76,.06)", border:"1px dashed rgba(201,168,76,.22)",
+                  display:"flex", alignItems:"center", gap:14, transition:"background .2s",
+                  WebkitTapHighlightColor:"transparent" }}>
+                <div style={{ width:44, height:44, borderRadius:"50%", background:"rgba(201,168,76,.1)", display:"flex", alignItems:"center", justifyContent:"center", fontSize:22, flexShrink:0 }}>📸</div>
+                <div style={{ flex:1 }}>
+                  <div style={{ fontSize:13, fontWeight:700, color:"var(--gold-light)", marginBottom:3, fontFamily:"'Nunito',sans-serif" }}>Add {active.child_name}'s photo</div>
+                  <div style={{ fontSize:12, color:"rgba(255,255,255,.3)", lineHeight:1.4, fontFamily:"'Nunito',sans-serif" }}>Illustrations will look just like them</div>
                 </div>
-                <div style={{ marginLeft:"auto", color:"rgba(255,255,255,.2)", fontSize:18 }}>→</div>
+                <div style={{ color:"rgba(255,255,255,.15)", fontSize:16 }}>›</div>
               </div>
             )}
-
-            {/* Show photo avatar if they have one */}
             {active.photo_url && (
-              <div style={{ display:"flex", alignItems:"center", gap:12, marginBottom:16,
-                padding:"10px 14px", borderRadius:14, background:"rgba(255,255,255,.04)", border:"1px solid rgba(255,255,255,.08)" }}>
-                <img src={active.photo_url} alt="" style={{ width:40, height:40, borderRadius:"50%", objectFit:"cover", border:"2px solid rgba(201,168,76,.4)", flexShrink:0 }} />
-                <div style={{ fontSize:13, color:"rgba(255,255,255,.5)" }}>
-                  Illustrations styled like <strong style={{ color:"rgba(255,255,255,.75)" }}>{active.child_name}</strong> ✨
+              <div style={{ display:"flex", alignItems:"center", gap:12, marginBottom:20,
+                padding:"10px 16px", borderRadius:16, background:"rgba(255,255,255,.03)", border:"1px solid rgba(255,255,255,.07)" }}>
+                <img src={active.photo_url} alt="" style={{ width:38, height:38, borderRadius:"50%", objectFit:"cover", border:"2px solid rgba(201,168,76,.35)", flexShrink:0 }} />
+                <div style={{ fontSize:13, color:"rgba(255,255,255,.4)", fontFamily:"'Nunito',sans-serif" }}>
+                  Illustrated like <strong style={{ color:"rgba(255,255,255,.7)" }}>{active.child_name}</strong>
                 </div>
                 <button onClick={(e)=>{e.stopPropagation();setEditId(active.id);setPf(active);setScreen("profile");}}
-                  style={{ marginLeft:"auto", background:"none", border:"none", color:"rgba(255,255,255,.2)", fontSize:12, cursor:"pointer", padding:"4px 8px" }}>Edit</button>
+                  style={{ marginLeft:"auto", background:"none", border:"none", color:"rgba(255,255,255,.2)", fontSize:12, cursor:"pointer", padding:"4px 8px", fontFamily:"'Nunito',sans-serif" }}>Edit</button>
               </div>
             )}
 
-            {/* Story type toggle */}
-            <div style={{ marginBottom:16 }}>
-              <span className="section-label">Story type</span>
-              <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:10 }}>
+            {/* ── Story config card ── */}
+            <div style={{ background:"rgba(255,255,255,.03)", border:"1px solid rgba(255,255,255,.07)", borderRadius:22, padding:"20px 18px", marginBottom:16 }}>
+
+              {/* Story type */}
+              <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:8, marginBottom:storyMode==="lesson"?14:0 }}>
                 {[
-                  { id:"adventure", icon:"🌙", title:"Adventure",   desc:"Magical personalized bedtime story", activeColor:"rgba(124,77,204,.22)", activeBorder:"rgba(180,145,255,.65)" },
-                  { id:"lesson",    icon:"✨", title:"Life Lesson", desc:"Teaches a value through the story",  activeColor:"rgba(34,160,100,.18)", activeBorder:"rgba(74,222,128,.5)" },
+                  { id:"adventure", icon:"🌙", title:"Adventure",   desc:"Magical bedtime story" },
+                  { id:"lesson",    icon:"✨", title:"Life Lesson", desc:"Weaves in a value" },
                 ].map(t => (
                   <button key={t.id} onClick={()=>setStoryMode(t.id)} style={{
-                    padding:"clamp(12px,3vw,16px) clamp(10px,2.5vw,14px)",
-                    borderRadius:16, cursor:"pointer", transition:"all .2s", textAlign:"left",
-                    minHeight:82, WebkitTapHighlightColor:"transparent", touchAction:"manipulation",
-                    background:storyMode===t.id?t.activeColor:"rgba(255,255,255,.04)",
-                    border:`1.5px solid ${storyMode===t.id?t.activeBorder:"rgba(255,255,255,.08)"}`,
+                    padding:"14px 12px", borderRadius:14, cursor:"pointer", transition:"all .2s",
+                    textAlign:"left", WebkitTapHighlightColor:"transparent", touchAction:"manipulation",
+                    background:storyMode===t.id
+                      ? (t.id==="adventure"?"rgba(124,77,204,.2)":"rgba(34,160,100,.15)")
+                      : "rgba(255,255,255,.03)",
+                    border:`1.5px solid ${storyMode===t.id
+                      ? (t.id==="adventure"?"rgba(180,145,255,.5)":"rgba(74,222,128,.4)")
+                      : "rgba(255,255,255,.07)"}`,
                   }}>
-                    <div style={{ fontSize:"clamp(18px,4vw,22px)", marginBottom:5 }}>{t.icon}</div>
-                    <div style={{ fontWeight:700, fontSize:"clamp(13px,3.2vw,14px)", color:"white", marginBottom:3 }}>{t.title}</div>
-                    <div style={{ fontSize:"clamp(11px,2.5vw,12px)", color:"rgba(255,255,255,.38)", lineHeight:1.4 }}>{t.desc}</div>
+                    <div style={{ fontSize:20, marginBottom:5 }}>{t.icon}</div>
+                    <div style={{ fontWeight:700, fontSize:13, color:"white", marginBottom:2, fontFamily:"'Nunito',sans-serif" }}>{t.title}</div>
+                    <div style={{ fontSize:11, color:"rgba(255,255,255,.32)", lineHeight:1.3, fontFamily:"'Nunito',sans-serif" }}>{t.desc}</div>
+                  </button>
+                ))}
+              </div>
+
+              {/* Lesson picker */}
+              {storyMode==="lesson" && (
+                <div style={{ marginBottom:14, paddingTop:4 }}>
+                  <div style={{ display:"flex", gap:6, flexWrap:"wrap" }}>
+                    {LESSONS.map(l => (
+                      <button key={l.id}
+                        onClick={()=>setLesson(l.id)}
+                        style={{ padding:"6px 13px", borderRadius:999, fontSize:12, fontFamily:"'Nunito',sans-serif", fontWeight:700, cursor:"pointer", transition:"all .2s",
+                          background:lesson===l.id?"rgba(74,222,128,.15)":"transparent",
+                          border:`1px solid ${lesson===l.id?"rgba(74,222,128,.4)":"rgba(255,255,255,.1)"}`,
+                          color:lesson===l.id?"#86efac":"rgba(255,255,255,.4)" }}>
+                        {l.emoji} {l.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Divider */}
+              <div style={{ height:1, background:"rgba(255,255,255,.06)", margin:"14px 0" }} />
+
+              {/* Mood */}
+              <div style={{ display:"flex", gap:6, flexWrap:"wrap" }}>
+                {MOODS.map(m => (
+                  <button key={m.id}
+                    onClick={()=>setMood(m.id)}
+                    style={{ padding:"7px 14px", borderRadius:999, fontSize:12, fontFamily:"'Nunito',sans-serif", fontWeight:700, cursor:"pointer", transition:"all .15s", WebkitTapHighlightColor:"transparent",
+                      background:mood===m.id?"rgba(192,132,252,.18)":"transparent",
+                      border:`1px solid ${mood===m.id?"rgba(192,132,252,.5)":"rgba(255,255,255,.1)"}`,
+                      color:mood===m.id?"#e9d5ff":"rgba(255,255,255,.4)" }}>
+                    {m.emoji} {m.label}
                   </button>
                 ))}
               </div>
             </div>
 
-            {/* Lesson picker */}
-            {storyMode==="lesson" && (
-              <div style={{ marginBottom:16 }}>
-                <span className="section-label">Choose the lesson</span>
-                <div style={{ display:"flex", gap:7, flexWrap:"wrap" }}>
-                  {LESSONS.map(l => (
-                    <button key={l.id} className={`pill ${lesson===l.id?"on-green":""}`} onClick={()=>setLesson(l.id)}>{l.emoji} {l.label}</button>
-                  ))}
-                </div>
-              </div>
-            )}
+            {/* ── Main CTA ── */}
+            <button
+              onClick={generateStory}
+              style={{ width:"100%", padding:"clamp(18px,4vw,22px) 24px", borderRadius:999, border:"none", cursor:"pointer",
+                background:"linear-gradient(135deg,#6d28d9,#7c3aed,#8b5cf6,#a78bfa)",
+                backgroundSize:"200% 200%", animation:"gradFlow 4s ease infinite",
+                color:"white", fontFamily:"'Nunito',sans-serif", fontWeight:800,
+                fontSize:"clamp(15px,4vw,17px)", letterSpacing:".01em",
+                boxShadow:"0 8px 32px rgba(109,40,217,.5), 0 2px 8px rgba(0,0,0,.3)",
+                transition:"transform .15s, box-shadow .15s",
+                WebkitTapHighlightColor:"transparent", touchAction:"manipulation",
+              }}
+              onMouseEnter={e=>{e.currentTarget.style.transform="translateY(-2px)";e.currentTarget.style.boxShadow="0 12px 40px rgba(109,40,217,.6), 0 4px 12px rgba(0,0,0,.3)";}}
+              onMouseLeave={e=>{e.currentTarget.style.transform="";e.currentTarget.style.boxShadow="0 8px 32px rgba(109,40,217,.5), 0 2px 8px rgba(0,0,0,.3)";}}
+            >
+              {library.some(s=>s.story_date===todayStr()&&s.child_profile_id===active?.id)
+                ? "📖 Read Tonight's Story"
+                : storyMode==="lesson"
+                  ? `✨ Write a story about ${LESSONS.find(l=>l.id===lesson)?.label||"Kindness"}`
+                  : "✨ Generate Tonight's Story"
+              }
+            </button>
 
-            {/* Mood */}
-            <div style={{ marginBottom:20 }}>
-              <span className="section-label">Tonight's mood</span>
-              <div style={{ display:"flex", gap:7, flexWrap:"wrap" }}>
-                {MOODS.map(m => <button key={m.id} className={`pill ${mood===m.id?"on":""}`} onClick={()=>setMood(m.id)}>{m.emoji} {m.label}</button>)}
-              </div>
-            </div>
-
-            {/* Actions */}
-            <div style={{ display:"flex", flexDirection:"column", gap:10 }}>
-              <button className="btn-cta full" style={{ padding: tablet ? "20px 24px" : undefined, fontSize: tablet ? 17 : undefined }} onClick={generateStory}>
-                {storyMode==="lesson" ? `✨ Story about ${LESSONS.find(l=>l.id===lesson)?.label||"Kindness"}` : library.some(s=>s.story_date===todayStr()&&s.child_profile_id===active?.id) ? "📖 Read Tonight's Story" : "✨ Generate Tonight's Story"}
-              </button>
-              <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:10 }}>
-                <button className="btn-soft" onClick={()=>{setEditId(active.id);setPf(active);setScreen("profile");}}>✏️ Edit Profile</button>
-                {!mobile && <button className="btn-soft" onClick={()=>{loadLibrary();setScreen("library");}}>📚 Library</button>}
-              </div>
-              {!mobile && <button className="btn-soft" onClick={()=>setScreen("badges")} style={{ display:"flex", alignItems:"center", justifyContent:"center", gap:8 }}>
-                🏅 Badges <span style={{ color:"var(--gold)", fontSize:12 }}>{badges.length}/{BADGE_DEFS.length}</span>
-              </button>}
+            {/* ── Secondary actions ── */}
+            <div style={{ display:"flex", gap:10, marginTop:10 }}>
+              <button className="btn-soft" style={{ flex:1, fontSize:13 }} onClick={()=>{setEditId(active.id);setPf(active);setScreen("profile");}}>✏️ Edit Profile</button>
+              {!mobile && <button className="btn-soft" style={{ flex:1, fontSize:13 }} onClick={()=>{loadLibrary();setScreen("library");}}>📚 Library</button>}
+              {!mobile && <button className="btn-soft" style={{ flex:1, fontSize:13 }} onClick={()=>setScreen("badges")}>🏅 {badges.length}/{BADGE_DEFS.length}</button>}
             </div>
           </div>
         )}
