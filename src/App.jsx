@@ -602,7 +602,10 @@ export default function App() {
   const [shared, setShared]       = useState(null);
 
   const [af, setAf] = useState({ email:"", password:"", name:"" });
-  const [pf, setPf] = useState({ child_name:"", age:"", stuffed_animal:"", best_friend:"", favorite_animal:"", scared_of:"", favorite_thing:"" });
+  const [pf, setPf] = useState({ child_name:"", age:"", stuffed_animal:"", best_friend:"", favorite_animal:"", scared_of:"", favorite_thing:"", photo_url:"" });
+  const [photoFile, setPhotoFile] = useState(null);
+  const [photoPreview, setPhotoPreview] = useState(null);
+  const [photoAnalyzing, setPhotoAnalyzing] = useState(false);
   const [editId, setEditId] = useState(null);
 
   const [coloringUrl, setColoringUrl]     = useState(null);
@@ -669,11 +672,55 @@ export default function App() {
   const login  = async () => { setErr(""); if (!af.email||!af.password) return setErr("Email and password required."); const { error:e } = await supabase.auth.signInWithPassword({ email:af.email, password:af.password }); if (e) setErr(e.message); };
   const logout = async () => { await supabase.auth.signOut(); setUser(null); setProfiles([]); setActive(null); setStory(null); setSub(null); setScreen("landing"); };
 
+  const handlePhotoUpload = async (file) => {
+    if (!file) return;
+    setPhotoFile(file);
+    const reader = new FileReader();
+    reader.onload = (e) => setPhotoPreview(e.target.result);
+    reader.readAsDataURL(file);
+
+    // Analyze photo with Claude Vision to generate character card
+    setPhotoAnalyzing(true);
+    try {
+      const base64 = await new Promise((res, rej) => {
+        const r = new FileReader();
+        r.onload = () => res(r.result.split(",")[1]);
+        r.onerror = rej;
+        r.readAsDataURL(file);
+      });
+      const mediaType = file.type || "image/jpeg";
+      const response = await fetch("https://api.anthropic.com/v1/messages", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "x-api-key": ANTHROPIC_KEY, "anthropic-version": "2023-06-01", "anthropic-dangerous-direct-browser-access": "true" },
+        body: JSON.stringify({
+          model: "claude-sonnet-4-5",
+          max_tokens: 150,
+          messages: [{
+            role: "user",
+            content: [
+              { type: "image", source: { type: "base64", media_type: mediaType, data: base64 } },
+              { type: "text", text: `Describe this child's appearance for a children's book illustrator in 2 short sentences. Cover: hair color and style, eye color, skin tone, and any distinctive features. Be specific and warm so an illustrator can draw the same child consistently. Example: "A cheerful girl with long curly red hair, bright green eyes, and fair freckled skin. She has a big smile and rosy cheeks." Just the description, nothing else.` }
+            ]
+          }]
+        })
+      });
+      const data = await response.json();
+      const description = data.content?.[0]?.text?.trim();
+      if (description) {
+        setPf(prev => ({ ...prev, character_card: description }));
+        console.log("Character card from photo:", description);
+      }
+    } catch(e) {
+      console.error("Photo analysis failed:", e);
+    }
+    setPhotoAnalyzing(false);
+  };
+
   const wizNext = () => { if (wizStep<WIZARD_STEPS.length-1) setWizStep(wizStep+1); else saveProfile(); };
   const saveProfile = async () => {
     setErr("");
     if (!pf.child_name) return setErr("Child's name is required.");
-    const payload = { ...pf, user_id:user.id, age:parseInt(pf.age)||5 };
+    const payload = { ...pf, user_id:user.id, age:parseInt(pf.age)||5, character_card:pf.character_card||undefined };
     if (editId) { const { data:u } = await supabase.from("child_profiles").update(payload).eq("id",editId).select().single(); if (u) { setProfiles(profiles.map(p => p.id===editId?u:p)); if (active?.id===editId) setActive(u); } }
     else { const { data:c, error:e } = await supabase.from("child_profiles").insert(payload).select().single(); if (e) { setErr(e.message); return; } if (c) { setProfiles([...profiles,c]); setActive(c); } }
     setEditId(null); setWizStep(0); setScreen("home");
@@ -1206,11 +1253,50 @@ export default function App() {
                 <p style={{ color:"rgba(255,255,255,.28)", fontSize:13 }}>{WIZARD_STEPS[wizStep].hint}</p>
               </div>
               {err && <p className="err" style={{ marginBottom:12 }}>{err}</p>}
-              <input style={{ marginBottom:18 }} type={WIZARD_STEPS[wizStep].type||"text"} placeholder={WIZARD_STEPS[wizStep].placeholder} value={pf[WIZARD_STEPS[wizStep].key]||""} onChange={e=>setPf({...pf,[WIZARD_STEPS[wizStep].key]:e.target.value})} onKeyDown={e=>e.key==="Enter"&&wizNext()} autoFocus />
-              <div style={{ display:"flex", gap:10 }}>
-                {wizStep>0 && <button className="btn-soft" style={{ flexShrink:0, width:"auto", padding:"14px 18px" }} onClick={()=>setWizStep(wizStep-1)}>← Back</button>}
-                <button className="btn-solid" style={{ flex:1 }} onClick={wizNext}>{wizStep===WIZARD_STEPS.length-1?"Start telling stories ✨":"Next →"}</button>
-              </div>
+              {wizStep < WIZARD_STEPS.length ? (
+                <>
+                  <input style={{ marginBottom:18 }} type={WIZARD_STEPS[wizStep].type||"text"} placeholder={WIZARD_STEPS[wizStep].placeholder} value={pf[WIZARD_STEPS[wizStep].key]||""} onChange={e=>setPf({...pf,[WIZARD_STEPS[wizStep].key]:e.target.value})} onKeyDown={e=>e.key==="Enter"&&wizNext()} autoFocus />
+                  <div style={{ display:"flex", gap:10 }}>
+                    {wizStep>0 && <button className="btn-soft" style={{ flexShrink:0, width:"auto", padding:"14px 18px" }} onClick={()=>setWizStep(wizStep-1)}>← Back</button>}
+                    <button className="btn-solid" style={{ flex:1 }} onClick={wizNext}>Next →</button>
+                  </div>
+                </>
+              ) : (
+                /* Photo step - final step */
+                <div style={{ textAlign:"center" }}>
+                  <div style={{ fontSize:48, marginBottom:12 }}>📸</div>
+                  <h2 style={{ fontFamily:"'Playfair Display',serif", fontSize:"clamp(18px,4.5vw,22px)", marginBottom:6 }}>Add a photo of {pf.child_name||"your child"}</h2>
+                  <p style={{ color:"rgba(255,255,255,.35)", fontSize:13, marginBottom:20 }}>We'll use it to make the illustrations look like them ✨</p>
+
+                  {photoPreview ? (
+                    <div style={{ marginBottom:20 }}>
+                      <img src={photoPreview} alt="child" style={{ width:120, height:120, borderRadius:"50%", objectFit:"cover", border:"3px solid rgba(201,168,76,.5)", boxShadow:"0 0 24px rgba(201,168,76,.2)" }} />
+                      {photoAnalyzing && <p style={{ color:"rgba(180,143,255,.8)", fontSize:13, marginTop:10 }}>✨ Capturing their look…</p>}
+                      {!photoAnalyzing && pf.character_card && <p style={{ color:"rgba(255,255,255,.4)", fontSize:12, marginTop:10, fontStyle:"italic" }}>"{pf.character_card.slice(0,80)}…"</p>}
+                      <button className="btn-soft" style={{ marginTop:12, fontSize:12 }} onClick={()=>{setPhotoPreview(null);setPhotoFile(null);setPf(p=>({...p,character_card:""}));}}>Remove photo</button>
+                    </div>
+                  ) : (
+                    <label style={{ display:"block", marginBottom:16, cursor:"pointer" }}>
+                      <div style={{ border:"2px dashed rgba(255,255,255,.15)", borderRadius:16, padding:"28px 20px", background:"rgba(255,255,255,.03)", transition:"all .2s" }}
+                        onDragOver={e=>e.preventDefault()}
+                        onDrop={e=>{e.preventDefault();const f=e.dataTransfer.files[0];if(f&&f.type.startsWith("image/"))handlePhotoUpload(f);}}>
+                        <div style={{ fontSize:32, marginBottom:8 }}>🖼️</div>
+                        <p style={{ color:"rgba(255,255,255,.4)", fontSize:14 }}>Tap to upload or drag a photo</p>
+                        <p style={{ color:"rgba(255,255,255,.2)", fontSize:12, marginTop:4 }}>Works best with a clear face photo</p>
+                      </div>
+                      <input type="file" accept="image/*" capture="user" style={{ display:"none" }} onChange={e=>{const f=e.target.files?.[0];if(f)handlePhotoUpload(f);}} />
+                    </label>
+                  )}
+
+                  <div style={{ display:"flex", gap:10 }}>
+                    <button className="btn-soft" style={{ flexShrink:0, width:"auto", padding:"14px 18px" }} onClick={()=>setWizStep(WIZARD_STEPS.length-1)}>← Back</button>
+                    <button className="btn-solid" style={{ flex:1 }} onClick={saveProfile} disabled={photoAnalyzing}>
+                      {photoAnalyzing ? "Analyzing photo…" : "Start telling stories ✨"}
+                    </button>
+                  </div>
+                  <button style={{ background:"none", border:"none", color:"rgba(255,255,255,.25)", fontSize:12, marginTop:14, cursor:"pointer" }} onClick={saveProfile}>Skip — add photo later</button>
+                </div>
+              )}
             </div>
           </div>
         )}
@@ -1319,6 +1405,23 @@ export default function App() {
               {WIZARD_STEPS.map(f => (
                 <div key={f.key}><label style={LBL}>{f.label}</label><input type={f.type||"text"} placeholder={f.placeholder} value={pf[f.key]||""} onChange={e=>setPf({...pf,[f.key]:e.target.value})} /></div>
               ))}
+              <div style={{ marginTop:8 }}>
+                <label style={LBL}>📸 Child's photo (for illustration style)</label>
+                <div style={{ display:"flex", alignItems:"center", gap:14 }}>
+                  {photoPreview || pf.photo_url ? (
+                    <img src={photoPreview||pf.photo_url} alt="" style={{ width:56, height:56, borderRadius:"50%", objectFit:"cover", border:"2px solid rgba(201,168,76,.4)" }} />
+                  ) : (
+                    <div style={{ width:56, height:56, borderRadius:"50%", background:"rgba(255,255,255,.06)", display:"flex", alignItems:"center", justifyContent:"center", fontSize:24 }}>👧</div>
+                  )}
+                  <label style={{ cursor:"pointer" }}>
+                    <div style={{ color:"rgba(180,143,255,.8)", fontSize:13, textDecoration:"underline" }}>
+                      {photoAnalyzing ? "Analyzing…" : (photoPreview || pf.photo_url) ? "Change photo" : "Upload photo"}
+                    </div>
+                    <input type="file" accept="image/*" capture="user" style={{ display:"none" }} onChange={e=>{const f=e.target.files?.[0];if(f)handlePhotoUpload(f);}} />
+                  </label>
+                  {pf.character_card && <span style={{ color:"rgba(255,255,255,.25)", fontSize:11 }}>✓ Character captured</span>}
+                </div>
+              </div>
               <button className="btn-solid" style={{ marginTop:4 }} onClick={saveProfile}>Save Changes</button>
             </div>
           </div>
