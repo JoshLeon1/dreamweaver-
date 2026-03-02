@@ -138,42 +138,31 @@ body{background:var(--night);min-height:100vh;font-family:'Nunito',sans-serif;co
 @keyframes gradFlow{0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}}
 @keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
 @keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
-/* Page turn — right page flips forward (slides left with curl) */
-@keyframes flipRight{
-  0%   { transform:perspective(2000px) rotateY(0deg) translateZ(0px); }
-  25%  { transform:perspective(2000px) rotateY(-30deg) translateZ(50px); box-shadow:-20px 0 60px rgba(0,0,0,.5); }
-  50%  { transform:perspective(2000px) rotateY(-90deg) translateZ(60px); box-shadow:-30px 0 80px rgba(0,0,0,.6); }
-  75%  { transform:perspective(2000px) rotateY(-150deg) translateZ(50px); box-shadow:-20px 0 60px rgba(0,0,0,.5); }
-  100% { transform:perspective(2000px) rotateY(-180deg) translateZ(0px); }
+/* Page turn — perspective slide that doesn't clip */
+@keyframes pageExitForward{
+  0%   { transform:perspective(1200px) translateX(0%) rotateY(0deg) scaleX(1); opacity:1; }
+  40%  { transform:perspective(1200px) translateX(-8%) rotateY(-25deg) scaleX(0.92); opacity:1; }
+  100% { transform:perspective(1200px) translateX(-100%) rotateY(-35deg) scaleX(0.85); opacity:0; }
 }
-@keyframes flipLeft{
-  0%   { transform:perspective(2000px) rotateY(0deg) translateZ(0px); }
-  25%  { transform:perspective(2000px) rotateY(30deg) translateZ(50px); box-shadow:20px 0 60px rgba(0,0,0,.5); }
-  50%  { transform:perspective(2000px) rotateY(90deg) translateZ(60px); box-shadow:30px 0 80px rgba(0,0,0,.6); }
-  75%  { transform:perspective(2000px) rotateY(150deg) translateZ(50px); box-shadow:20px 0 60px rgba(0,0,0,.5); }
-  100% { transform:perspective(2000px) rotateY(180deg) translateZ(0px); }
+@keyframes pageEnterForward{
+  0%   { transform:perspective(1200px) translateX(100%) rotateY(35deg) scaleX(0.85); opacity:0; }
+  60%  { transform:perspective(1200px) translateX(8%) rotateY(25deg) scaleX(0.92); opacity:1; }
+  100% { transform:perspective(1200px) translateX(0%) rotateY(0deg) scaleX(1); opacity:1; }
 }
-@keyframes unflipRight{
-  0%   { transform:perspective(2000px) rotateY(-180deg) translateZ(0px); opacity:0; }
-  5%   { opacity:1; }
-  25%  { transform:perspective(2000px) rotateY(-150deg) translateZ(50px); }
-  50%  { transform:perspective(2000px) rotateY(-90deg) translateZ(60px); }
-  75%  { transform:perspective(2000px) rotateY(-30deg) translateZ(50px); }
-  100% { transform:perspective(2000px) rotateY(0deg) translateZ(0px); }
+@keyframes pageExitBack{
+  0%   { transform:perspective(1200px) translateX(0%) rotateY(0deg) scaleX(1); opacity:1; }
+  40%  { transform:perspective(1200px) translateX(8%) rotateY(25deg) scaleX(0.92); opacity:1; }
+  100% { transform:perspective(1200px) translateX(100%) rotateY(35deg) scaleX(0.85); opacity:0; }
 }
-@keyframes unflipLeft{
-  0%   { transform:perspective(2000px) rotateY(180deg) translateZ(0px); opacity:0; }
-  5%   { opacity:1; }
-  25%  { transform:perspective(2000px) rotateY(150deg) translateZ(50px); }
-  50%  { transform:perspective(2000px) rotateY(90deg) translateZ(60px); }
-  75%  { transform:perspective(2000px) rotateY(30deg) translateZ(50px); }
-  100% { transform:perspective(2000px) rotateY(0deg) translateZ(0px); }
+@keyframes pageEnterBack{
+  0%   { transform:perspective(1200px) translateX(-100%) rotateY(-35deg) scaleX(0.85); opacity:0; }
+  60%  { transform:perspective(1200px) translateX(-8%) rotateY(-25deg) scaleX(0.92); opacity:1; }
+  100% { transform:perspective(1200px) translateX(0%) rotateY(0deg) scaleX(1); opacity:1; }
 }
 @keyframes coverOpen{
-  0%   { transform:perspective(2000px) rotateY(0deg) translateZ(0px); }
-  30%  { transform:perspective(2000px) rotateY(-45deg) translateZ(60px); }
-  60%  { transform:perspective(2000px) rotateY(-120deg) translateZ(60px); }
-  100% { transform:perspective(2000px) rotateY(-180deg) translateZ(0px); opacity:0; }
+  0%   { transform:perspective(1200px) rotateY(0deg) scaleX(1); opacity:1; }
+  50%  { transform:perspective(1200px) rotateY(-20deg) scaleX(0.9); opacity:0.8; }
+  100% { transform:perspective(1200px) rotateY(-40deg) scaleX(0.75); opacity:0; }
 }
 @keyframes pulse{0%,100%{opacity:.6;transform:scale(1)}50%{opacity:1;transform:scale(1.05)}}
 @keyframes orb{0%,100%{transform:translate(0,0) scale(1)}33%{transform:translate(20px,-15px) scale(1.05)}66%{transform:translate(-10px,20px) scale(.97)}}
@@ -182,11 +171,11 @@ body{background:var(--night);min-height:100vh;font-family:'Nunito',sans-serif;co
 .fadein{animation:fadeIn .3s ease both}
 .float{animation:float 4s ease-in-out infinite}
 
-.page-flip-forward{animation:flipRight 1.0s cubic-bezier(.3,0,.2,1) forwards; transform-style:preserve-3d; backface-visibility:hidden; will-change:transform;}
-.page-flip-back{animation:flipLeft 1.0s cubic-bezier(.3,0,.2,1) forwards; transform-style:preserve-3d; backface-visibility:hidden; will-change:transform;}
-.page-enter-forward{animation:unflipRight 1.0s cubic-bezier(.3,0,.2,1) forwards; transform-style:preserve-3d; backface-visibility:hidden; will-change:transform;}
-.page-enter-back{animation:unflipLeft 1.0s cubic-bezier(.3,0,.2,1) forwards; transform-style:preserve-3d; backface-visibility:hidden; will-change:transform;}
-.cover-opening{animation:coverOpen 1.0s cubic-bezier(.3,0,.2,1) forwards; transform-style:preserve-3d; backface-visibility:hidden; transform-origin:left center; will-change:transform;}
+.page-flip-forward  { animation: pageExitForward  0.55s cubic-bezier(.4,0,.2,1) forwards; will-change:transform; }
+.page-flip-back     { animation: pageExitBack    0.55s cubic-bezier(.4,0,.2,1) forwards; will-change:transform; }
+.page-enter-forward { animation: pageEnterForward 0.55s cubic-bezier(.4,0,.2,1) forwards; will-change:transform; }
+.page-enter-back    { animation: pageEnterBack   0.55s cubic-bezier(.4,0,.2,1) forwards; will-change:transform; }
+.cover-opening      { animation: coverOpen       0.6s  cubic-bezier(.4,0,.2,1) forwards; will-change:transform; }
 
 /* ── Wrap ── */
 .wrap{
@@ -701,8 +690,8 @@ function OpenBook({ pages, imgs, spread, onFlip, title, mobile=false, coverImg=n
         setOpeningCover(false);
         setDisplaySpread(0);
         setEnterClass("page-enter-forward");
-        setTimeout(() => { setEnterClass(""); setAnimating(false); }, 1050);
-      }, 1000);
+        setTimeout(() => { setEnterClass(""); setAnimating(false); }, 580);
+      }, 560);
       return;
     }
 
@@ -713,8 +702,8 @@ function OpenBook({ pages, imgs, spread, onFlip, title, mobile=false, coverImg=n
       setDisplaySpread(spread);
       setFlipClass("");
       setEnterClass(forward ? "page-enter-forward" : "page-enter-back");
-      setTimeout(() => { setEnterClass(""); setAnimating(false); }, 650);
-    }, 650);
+      setTimeout(() => { setEnterClass(""); setAnimating(false); }, 580);
+    }, 560);
   }, [spread]);
 
   // ── Page content component ─────────────────────────────────────────────────
@@ -844,7 +833,6 @@ function OpenBook({ pages, imgs, spread, onFlip, title, mobile=false, coverImg=n
           className={flipClass || enterClass}
           style={{ borderRadius:16, overflow:"hidden", touchAction:"pan-y",
             boxShadow:"0 40px 80px rgba(0,0,0,.8), 0 0 0 1px rgba(255,255,255,.06)",
-            transformOrigin: flipClass==="page-flip-back"||enterClass==="page-enter-back" ? "right center" : "left center",
           }}>
           <div style={{ display:"flex", flexDirection:"column", background:"linear-gradient(175deg,#fefcf7,#fdf9f0)", position:"relative" }}>
             <div style={{ width:"100%", aspectRatio:"4/3", position:"relative", overflow:"hidden" }}>
@@ -883,7 +871,6 @@ function OpenBook({ pages, imgs, spread, onFlip, title, mobile=false, coverImg=n
       <div style={{ perspective:"2800px", perspectiveOrigin:"50% 42%" }}>
         <div style={{ display:"flex", position:"relative", borderRadius:16,
           boxShadow:"0 80px 160px rgba(0,0,0,.85), 0 30px 80px rgba(0,0,0,.6), 0 0 0 1px rgba(255,255,255,.04)",
-          overflow:"hidden",
         }}>
           {/* LEFT PAGE */}
           <div
@@ -1023,8 +1010,25 @@ export default function App() {
       }
     }
     await calcStreak(u.id);
-    setScreen(profs?.length ? "home" : "welcome");
     if (profs?.length) { const { data:b } = await supabase.from("badges").select("badge_id").eq("user_id",u.id); if (b) setBadges(b.map(x=>x.badge_id)); }
+    if (!profs?.length) { setScreen("welcome"); return; }
+    // Try to restore last reading session
+    try {
+      const lastStoryId = localStorage.getItem("dw_last_story");
+      if (lastStoryId) {
+        const { data: ls } = await supabase.from("stories").select("*").eq("id", lastStoryId).single();
+        if (ls && ls.user_id === u.id) {
+          const ps = ls.text.split("\n\n✦\n\n");
+          const savedSpread = parseInt(localStorage.getItem("dw_spread_" + lastStoryId) ?? "-1");
+          setPages(ps); setTitle(ls.title || ""); setImgs(ls.page_images || []);
+          setCoverImg(ls.cover_image || null);
+          setSpread(ls.cover_image ? -1 : 0);
+          setStory(ls); setStoryPhase("ready"); setScreen("story");
+          return;
+        }
+      }
+    } catch {}
+    setScreen("home");
   };
   const calcStreak = async (uid, prevStreak=0) => {
     const { data } = await supabase.from("stories").select("story_date").eq("user_id",uid).order("story_date",{ ascending:false });
@@ -1171,7 +1175,11 @@ export default function App() {
   // Persist page position
   useEffect(() => {
     if (story?.id) {
-      try { localStorage.setItem("dw_spread_" + story.id, spread); } catch {}
+      try {
+        localStorage.setItem("dw_spread_" + story.id, spread);
+        if (story?.id) localStorage.setItem("dw_last_story", story.id);
+        localStorage.setItem("dw_last_screen", screen);
+      } catch {}
     }
   }, [spread, story]);
 
@@ -1184,7 +1192,7 @@ export default function App() {
   const generateStory = async () => {
     if (!hasAccess()) return setScreen("paywall");
     if (!active) return;
-    setStoryPhase("text"); setScreen("story");
+    setStoryPhase("text"); setScreen("story"); try { localStorage.setItem("dw_last_screen","story"); } catch {}
     setStory(null); setTitle(""); setPages([]); setImgs([]); setSpread(-1); setImgsLoaded(0); setCoverImg(null);
 
     const { data:ex } = await supabase.from("stories").select("*").eq("user_id",user.id).eq("story_date",todayStr()).eq("child_profile_id",active.id).maybeSingle();
@@ -1587,11 +1595,13 @@ NO title. Start immediately.`;
               </div>
 
               {/* Headline */}
-              <h1 style={{ fontFamily:"'Playfair Display',serif", fontSize:"clamp(36px,8vw,78px)", lineHeight:1.1, marginBottom:22, letterSpacing:"-.02em" }}>
-                Your Child Is
+              <h1 style={{ fontFamily:"'Playfair Display',serif", fontSize:"clamp(34px,7.5vw,78px)", lineHeight:1.15, marginBottom:22, letterSpacing:"-.02em" }}>
+                Your Child Is{" "}
+                <br />
                 <em style={{ background:"linear-gradient(120deg,#f6d98a 0%,#e8b84b 45%,#c9a030 100%)", WebkitBackgroundClip:"text", WebkitTextFillColor:"transparent", backgroundClip:"text", fontStyle:"italic" }}>
-                  The Hero. Every Night.
+                  The Hero.
                 </em>
+                <span style={{ color:"rgba(255,255,255,.55)", display:"block", fontSize:"clamp(22px,5vw,46px)", fontWeight:400, fontStyle:"italic", marginTop:4 }}>Every single night.</span>
               </h1>
 
               <p style={{ fontFamily:"'Crimson Pro',serif", fontSize:"clamp(17px,2.8vw,22px)", color:"rgba(255,255,255,.45)", lineHeight:1.75, maxWidth:520, margin:"0 auto 38px", fontStyle:"italic" }}>
@@ -2221,7 +2231,7 @@ NO title. Start immediately.`;
                     </div>
                   ) : (
                     <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr 1fr", gap:8 }}>
-                      <button className="btn-soft" style={{ fontSize:13 }} onClick={()=>setScreen("home")}>← Home</button>
+                      <button className="btn-soft" style={{ fontSize:13 }} onClick={()=>{ try{localStorage.removeItem("dw_last_story");}catch{}setScreen("home"); }}>← Home</button>
                       <button className="btn-soft" style={{ fontSize:13 }} onClick={shareStory}>{copied?"✅ Copied!":"🔗 Share"}</button>
                       <button className="btn-soft" style={{ fontSize:13 }} onClick={readAloud}>{speaking?"⏹️ Stop":"🔊 Read"}</button>
                     </div>
@@ -2343,7 +2353,7 @@ NO title. Start immediately.`;
                   const label=isToday?"Tonight":d.toLocaleDateString("en-US",{weekday:"short",month:"short",day:"numeric"});
                   return (
                     <div key={s.id}
-                      onClick={()=>{const ps=s.text.split("\n\n✦\n\n");setPages(ps);setTitle(s.title||"");setImgs(s.page_images||[]);setCoverImg(s.cover_image||null);setSpread(s.cover_image?-1:0);setStory(s);setStoryPhase("ready");setScreen("story");}}
+                      onClick={()=>{const ps=s.text.split("\n\n✦\n\n");setPages(ps);setTitle(s.title||"");setImgs(s.page_images||[]);setCoverImg(s.cover_image||null);setSpread(s.cover_image?-1:0);setStory(s);setStoryPhase("ready");setScreen("story");try{localStorage.setItem("dw_last_story",s.id);localStorage.setItem("dw_last_screen","story");}catch{}}}
                       style={{ display:"flex", gap:12, alignItems:"center", padding:"14px", cursor:"pointer", borderRadius:18, background:"rgba(255,255,255,.04)", border:`1px solid ${isToday?"rgba(201,168,76,.2)":"rgba(255,255,255,.07)"}`, transition:"all .2s", WebkitTapHighlightColor:"transparent" }}
                       onMouseEnter={e=>{e.currentTarget.style.background="rgba(255,255,255,.08)"}}
                       onMouseLeave={e=>{e.currentTarget.style.background="rgba(255,255,255,.04)"}}>
