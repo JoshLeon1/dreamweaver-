@@ -312,6 +312,43 @@ input::placeholder{color:rgba(255,255,255,.18)}
 /* ── Snippet cards ── */
 .snip{padding:13px 15px;border-radius:14px;backdrop-filter:blur(8px)}
 
+/* ── Coloring book modal ── */
+.coloring-modal{
+  position:fixed;inset:0;z-index:100;
+  background:rgba(0,0,0,.85);backdrop-filter:blur(6px);
+  display:flex;align-items:center;justify-content:center;
+  padding:20px;animation:fadeIn .2s ease
+}
+.coloring-modal-inner{
+  background:#fff;border-radius:20px;padding:0;
+  max-width:520px;width:100%;overflow:hidden;
+  box-shadow:0 40px 80px rgba(0,0,0,.8)
+}
+
+/* ── Badge toast ── */
+.badge-toast{
+  position:fixed;bottom:calc(24px + env(safe-area-inset-bottom));left:50%;
+  transform:translateX(-50%);z-index:200;
+  background:linear-gradient(135deg,#1a0a38,#2d1060);
+  border:1px solid rgba(201,168,76,.4);border-radius:16px;
+  padding:14px 20px;display:flex;gap:12px;align-items:center;
+  box-shadow:0 8px 32px rgba(0,0,0,.6),0 0 0 1px rgba(255,255,255,.06);
+  animation:fadeUp .4s ease both;white-space:nowrap
+}
+
+/* ── Badge grid ── */
+.badge-grid{display:flex;gap:10px;flex-wrap:wrap}
+.badge-item{
+  display:flex;flex-direction:column;align-items:center;gap:5px;
+  padding:14px 10px;border-radius:16px;width:80px;text-align:center;
+  background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);
+  transition:all .2s
+}
+.badge-item.earned{
+  background:rgba(201,168,76,.1);border-color:rgba(201,168,76,.3);
+}
+.badge-item.earned:hover{background:rgba(201,168,76,.18);transform:translateY(-2px)}
+
 /* ── Mobile-first layout ── */
 @media(max-width:640px){
   .wrap{padding-top:14px;padding-bottom:max(72px,calc(56px + env(safe-area-inset-bottom)))}
@@ -549,6 +586,11 @@ export default function App() {
   const [pf, setPf] = useState({ child_name:"", age:"", stuffed_animal:"", best_friend:"", favorite_animal:"", scared_of:"", favorite_thing:"" });
   const [editId, setEditId] = useState(null);
 
+  const [coloringUrl, setColoringUrl]     = useState(null);
+  const [coloringLoading, setColoringLoading] = useState(false);
+  const [badges, setBadges]               = useState([]);
+  const [newBadge, setNewBadge]           = useState(null);
+
   useEffect(() => {
     const sharedId = getSharedId();
     if (sharedId) { loadShared(sharedId); return; }
@@ -576,6 +618,7 @@ export default function App() {
     else { const { data: ns } = await supabase.from("subscriptions").insert({ user_id:u.id, status:"trial", trial_ends_at:new Date(Date.now()+TRIAL_DAYS*86400000).toISOString() }).select().single(); if (ns) setSub(ns); }
     await calcStreak(u.id);
     setScreen(profs?.length ? "home" : "wizard");
+    if (profs?.length) { const { data:b } = await supabase.from("badges").select("badge_id").eq("user_id",u.id); if (b) setBadges(b.map(x=>x.badge_id)); }
   };
   const calcStreak = async (uid) => {
     const { data } = await supabase.from("stories").select("story_date").eq("user_id",uid).order("story_date",{ ascending:false });
@@ -603,7 +646,24 @@ export default function App() {
   };
 
   const profileText = (p) => `Child: ${p.child_name}, Age: ${p.age||5}, Stuffed animal: ${p.stuffed_animal||"a stuffed bear"}, Best friend: ${p.best_friend||"a friend"}, Favorite animal: ${p.favorite_animal||"dogs"}, Scared of: ${p.scared_of||"the dark"}, Favorite thing: ${p.favorite_thing||"playing"}.`;
-  const imgPromptFor = (pt,m) => `${active.child_name} age ${active.age||5} with ${active.stuffed_animal||"stuffed bear"}, ${m.prompt} bedtime children's book watercolor illustration, soft pastel colors, dreamy storybook art, consistent character design: ${pt.slice(0,110)}. No text.`;
+
+  // Build a consistent character description — stored once per profile
+  const getCharacterCard = async (p) => {
+    if (p.character_card) return p.character_card;
+    const card = await callClaude([{role:"user",content:`Describe the appearance of a ${p.age||5}-year-old child named ${p.child_name} for a children's book illustrator. Keep it to 2 short sentences covering hair, eyes, skin tone, and typical outfit. Be specific and consistent so an illustrator can draw the same child every time. Also describe their stuffed animal "${p.stuffed_animal||"a stuffed bear"}" in one sentence.`}], 120);
+    const trimmed = card.trim();
+    await supabase.from("child_profiles").update({ character_card: trimmed }).eq("id", p.id);
+    setProfiles(prev => prev.map(pr => pr.id===p.id ? {...pr, character_card:trimmed} : pr));
+    setActive(prev => prev?.id===p.id ? {...prev, character_card:trimmed} : prev);
+    return trimmed;
+  };
+
+  const imgPromptFor = (pt, m, charCard) => {
+    const base = charCard
+      ? `Children's book watercolor illustration. Character: ${charCard} Scene: ${pt.slice(0,130)}.`
+      : `${active.child_name} age ${active.age||5} with ${active.stuffed_animal||"stuffed bear"}, scene: ${pt.slice(0,130)}.`;
+    return `${base} Style: ${m.prompt}, soft pastel watercolor, dreamy storybook art. No text.`;
+  };
 
   const handleFlip = (dir) => {
     if (mobile) { if (dir==="forward"&&spread<pages.length-1) setSpread(s=>s+1); else if (dir==="back"&&spread>0) setSpread(s=>s-1); else if (typeof dir==="number") setSpread(dir); }
@@ -640,6 +700,7 @@ export default function App() {
     const m=MOODS.find(x=>x.id===mood)||MOODS[0];
     const lessonData=LESSONS.find(l=>l.id===lesson);
     const isLesson=storyMode==="lesson";
+    const charCard = await getCharacterCard(active);
 
     const storyPrompt=isLesson
       ?`Write a warm personalized bedtime picture book that gently teaches a lesson for:\n${profileText(active)}\nTone: ${m.prompt}.\nLesson to teach: ${lessonData?.prompt||"being kind to others"}.\n\nWrite EXACTLY ${STORY_PAGES} pages, separated by [PAGE].\nEach page = 1-2 SHORT sentences. Pure picture book style — brief, lyrical, beautiful.\nPage 1: introduce child and stuffed animal in a cozy relatable situation that sets up the lesson.\nPages 2-4: adventure begins, a challenge appears that relates to the lesson. Weave in best friend and favorite animal.\nPages 5-7: the heart of the story — child faces the lesson challenge. Show the struggle gently. Let it feel real.\nPages 8-9: child discovers the lesson naturally through the story, feels proud and changed.\nPage 10: child drifts peacefully to sleep, carrying the lesson in their heart.\nThe lesson should feel discovered, never lectured. NO title. Start immediately.`
@@ -662,19 +723,21 @@ export default function App() {
 
       const generated=new Array(ps.length).fill(null); let loaded=0;
       for (let i=0;i<ps.length;i++) {
-        const url=await generateImage(imgPromptFor(ps[i],m));
+        const url=await generateImage(imgPromptFor(ps[i],m,charCard));
         if (url) { const cached=saved?.id?await cacheImage(url,saved.id,i):url; generated[i]=cached; loaded++; setImgsLoaded(loaded); setImgs(prev=>{const n=[...prev];n[i]=cached;return n;}); }
         if (i===1) setStoryPhase("ready");
       }
       if (loaded<=1) setStoryPhase("ready");
       if (saved?.id) await supabase.from("stories").update({ page_images:generated }).eq("id",saved.id);
-      await calcStreak(user.id);
+    await calcStreak(user.id);
+    await calcBadges(user.id, streak);
     } catch(e) { console.error(e); setPages(["The story stars are cloudy tonight. Please try again!"]); setStoryPhase("ready"); }
   };
 
   const continueStory = async () => {
     if (extending) return; setExtending(true);
     const m=MOODS.find(x=>x.id===mood)||MOODS[0];
+    const charCard=active?.character_card||null;
     const hist=story?.history||[{role:"user",content:`Write bedtime story for: ${profileText(active)}`},{role:"assistant",content:pages.join("\n\n")}];
     try {
       const raw=await callClaude([...hist,{role:"user",content:`Continue this bedtime story with 4 more short picture book pages, separated by [PAGE]. Each page = 1-2 sentences. Same warm tone and characters. Don't end the story yet.`}],500);
@@ -684,7 +747,7 @@ export default function App() {
       if (story?.id) await supabase.from("stories").update({ text:allPages.join("\n\n✦\n\n") }).eq("id",story.id);
       const startIdx=pages.length;
       await Promise.all(newPages.map(async (pt,j) => {
-        const i=startIdx+j; const url=await generateImage(imgPromptFor(pt,m)); if (!url) return;
+        const i=startIdx+j; const url=await generateImage(imgPromptFor(pt,m,charCard)); if (!url) return;
         const cached=story?.id?await cacheImage(url,story.id,i):url;
         setImgs(prev=>{const n=[...prev];n[i]=cached; supabase.from("stories").update({page_images:n}).eq("id",story.id); return n;});
       }));
@@ -695,6 +758,7 @@ export default function App() {
   const happyEnding = async () => {
     if (extending) return; setExtending(true);
     const m=MOODS.find(x=>x.id===mood)||MOODS[0];
+    const charCard=active?.character_card||null;
     const hist=story?.history||[{role:"user",content:`Write bedtime story for: ${profileText(active)}`},{role:"assistant",content:pages.join("\n\n")}];
     try {
       const raw=await callClaude([...hist,{role:"user",content:`Write a beautiful, warm happy ending for this story in exactly 2 short pages, separated by [PAGE]. Each page = 1-2 sentences. Make it magical, safe, and complete. End with the child drifting happily to sleep.`}],250);
@@ -704,7 +768,7 @@ export default function App() {
       if (story?.id) await supabase.from("stories").update({ text:allPages.join("\n\n✦\n\n") }).eq("id",story.id);
       const startIdx=pages.length;
       await Promise.all(endPages.map(async (pt,j) => {
-        const i=startIdx+j; const url=await generateImage(imgPromptFor(pt,m)); if (!url) return;
+        const i=startIdx+j; const url=await generateImage(imgPromptFor(pt,m,charCard)); if (!url) return;
         const cached=story?.id?await cacheImage(url,story.id,i):url;
         setImgs(prev=>{const n=[...prev];n[i]=cached; supabase.from("stories").update({page_images:n}).eq("id",story.id); return n;});
       }));
@@ -726,6 +790,49 @@ export default function App() {
 
   const shareStory = async () => { try { await navigator.clipboard.writeText(`${APP_URL}?story=${story?.id}`); } catch {} setCopied(true); setTimeout(()=>setCopied(false),2500); };
   const loadLibrary = async () => { if (!active) return; const { data } = await supabase.from("stories").select("*").eq("user_id",user.id).eq("child_profile_id",active.id).order("story_date",{ ascending:false }); setLibrary(data||[]); };
+
+  // ── Coloring book ──────────────────────────────────────────────────────────
+  const generateColoringPage = async () => {
+    if (coloringLoading || !pages.length) return;
+    setColoringLoading(true); setColoringUrl(null);
+    // Pick the most vivid page (middle of story)
+    const bestPage = pages[Math.floor(pages.length / 2)] || pages[0];
+    const charCard = active?.character_card || `${active.child_name} age ${active.age||5} with ${active.stuffed_animal||"stuffed bear"}`;
+    const prompt = `Black and white children's coloring book page. Clean thick outlines only, no shading, no gray fills, pure white background. Character: ${charCard.slice(0,120)} Scene: ${bestPage.slice(0,120)}. Simple, bold shapes perfect for a child to color in. No text.`;
+    const url = await generateImage(prompt);
+    setColoringUrl(url);
+    setColoringLoading(false);
+  };
+
+  // ── Badges ─────────────────────────────────────────────────────────────────
+  const BADGE_DEFS = [
+    { id:"first_story",   emoji:"🌟", label:"First Story",      desc:"Read your very first story",        check:(count,_lib)=>count>=1 },
+    { id:"streak_3",      emoji:"🔥", label:"3-Night Streak",   desc:"Read 3 nights in a row",            check:(_,__,s)=>s>=3 },
+    { id:"streak_7",      emoji:"🌙", label:"Week of Dreams",   desc:"Read 7 nights in a row",            check:(_,__,s)=>s>=7 },
+    { id:"stories_5",     emoji:"📚", label:"Bookworm",         desc:"Completed 5 stories",               check:(count)=>count>=5 },
+    { id:"stories_10",    emoji:"🦉", label:"Night Owl",        desc:"Completed 10 stories",              check:(count)=>count>=10 },
+    { id:"stories_30",    emoji:"🌠", label:"Stargazer",        desc:"Completed 30 stories",              check:(count)=>count>=30 },
+    { id:"first_lesson",  emoji:"✨", label:"Life Learner",     desc:"Read your first Life Lesson story", check:(_,lib)=>lib.some(s=>s.lesson_type) },
+    { id:"all_lessons",   emoji:"🎓", label:"Wise One",         desc:"Read all 10 different lessons",     check:(_,lib)=>new Set(lib.filter(s=>s.lesson_type).map(s=>s.lesson_type)).size>=10 },
+    { id:"all_moods",     emoji:"🌈", label:"Mood Master",      desc:"Tried all 5 story moods",           check:(_,lib)=>new Set(lib.map(s=>s.mood).filter(Boolean)).size>=5 },
+    { id:"sharer",        emoji:"🔗", label:"Storyteller",      desc:"Shared a story with someone",       check:(_,lib)=>lib.some(s=>s.shared) },
+  ];
+
+  const calcBadges = async (uid, currentStreak) => {
+    const { data: lib } = await supabase.from("stories").select("*").eq("user_id", uid);
+    if (!lib) return;
+    const count = lib.length;
+    const earned = BADGE_DEFS.filter(b => b.check(count, lib, currentStreak)).map(b => b.id);
+    const { data: existing } = await supabase.from("badges").select("badge_id").eq("user_id", uid);
+    const existingIds = new Set((existing||[]).map(b => b.badge_id));
+    const brandNew = earned.filter(id => !existingIds.has(id));
+    if (brandNew.length) {
+      await supabase.from("badges").insert(brandNew.map(badge_id => ({ user_id:uid, badge_id })));
+      const def = BADGE_DEFS.find(b => b.id === brandNew[0]);
+      if (def) { setNewBadge(def); setTimeout(() => setNewBadge(null), 4000); }
+    }
+    setBadges(earned);
+  };
 
   const W = { maxWidth:460, width:"100%", padding:"0 2px" };
 
@@ -1093,6 +1200,9 @@ export default function App() {
                 <button className="btn-soft" onClick={()=>{setEditId(active.id);setPf(active);setScreen("profile");}}>✏️ Edit Profile</button>
                 <button className="btn-soft" onClick={()=>{loadLibrary();setScreen("library");}}>📚 Library</button>
               </div>
+              <button className="btn-soft" onClick={()=>setScreen("badges")} style={{ display:"flex", alignItems:"center", justifyContent:"center", gap:8 }}>
+                🏅 Badges <span style={{ color:"var(--gold)", fontSize:12 }}>{badges.length}/{BADGE_DEFS.length}</span>
+              </button>
             </div>
           </div>
         )}
@@ -1144,7 +1254,11 @@ export default function App() {
                     <button className="btn-book" onClick={continueStory} disabled={extending} style={{ opacity:extending?0.6:1 }}>{extending?"✨ Writing…":"✨ Continue"}</button>
                     <button className="btn-book" onClick={happyEnding} disabled={extending} style={{ opacity:extending?0.6:1, background:"linear-gradient(135deg,#132018,#1f3828)", borderColor:"rgba(80,200,120,.3)", color:"#7de8a0" }}>{extending?"✨ Writing…":"🌟 Happy Ending"}</button>
                   </div>
-                  {/* Row 2: nav + utilities */}
+                  {/* Row 2: coloring book */}
+                  <button className="btn-book" onClick={generateColoringPage} disabled={coloringLoading} style={{ background:"linear-gradient(135deg,#0d0a1e,#1a1040)", borderColor:"rgba(192,132,252,.3)", color:"#d8b4fe", opacity:coloringLoading?0.6:1 }}>
+                    {coloringLoading?"🎨 Generating…":"🖍️ Make a Coloring Page"}
+                  </button>
+                  {/* Row 3: nav + utilities */}
                   <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr 1fr", gap:8 }}>
                     <button className="btn-soft" style={{ fontSize:13 }} onClick={()=>setScreen("home")}>← Home</button>
                     <button className="btn-soft" style={{ fontSize:13 }} onClick={shareStory}>{copied?"✅ Copied!":"🔗 Share"}</button>
@@ -1152,6 +1266,36 @@ export default function App() {
                   </div>
                 </div>
               </>
+            )}
+          </div>
+        )}
+
+        {/* ═══════════════════════════════════════════════════════════════════
+            BADGES SCREEN
+        ══════════════════════════════════════════════════════════════════════ */}
+        {screen==="badges" && (
+          <div className="fade" style={{ maxWidth:480, width:"100%" }}>
+            <div style={{ display:"flex", alignItems:"center", gap:12, marginBottom:22 }}>
+              <button className="btn-soft" style={{ flexShrink:0, width:"auto", padding:"12px 16px" }} onClick={()=>setScreen("home")}>← Home</button>
+              <h2 style={{ fontFamily:"'Playfair Display',serif", fontSize:"clamp(17px,4vw,21px)", fontStyle:"italic" }}>🏅 {active?.child_name}'s Badges</h2>
+            </div>
+            <p style={{ color:"rgba(255,255,255,.3)", fontSize:13, marginBottom:20, fontFamily:"'Crimson Pro',serif", fontStyle:"italic" }}>{badges.length} of {BADGE_DEFS.length} earned</p>
+            <div className="badge-grid">
+              {BADGE_DEFS.map(b => {
+                const earned = badges.includes(b.id);
+                return (
+                  <div key={b.id} className={`badge-item ${earned?"earned":""}`} title={b.desc}>
+                    <span style={{ fontSize:28, filter:earned?"none":"grayscale(1) opacity(.25)" }}>{b.emoji}</span>
+                    <span style={{ fontSize:10, fontWeight:700, color:earned?"rgba(255,255,255,.85)":"rgba(255,255,255,.2)", lineHeight:1.3, fontFamily:"'Nunito',sans-serif" }}>{b.label}</span>
+                    {earned && <span style={{ fontSize:9, color:"var(--gold)", fontFamily:"'Nunito',sans-serif" }}>✦ earned</span>}
+                  </div>
+                );
+              })}
+            </div>
+            {badges.length===0 && (
+              <div style={{ textAlign:"center", padding:"32px 20px", color:"rgba(255,255,255,.25)", fontFamily:"'Crimson Pro',serif", fontStyle:"italic", fontSize:15 }}>
+                Read your first story tonight to start earning badges ✨
+              </div>
             )}
           </div>
         )}
@@ -1248,6 +1392,40 @@ export default function App() {
         )}
 
       </div>
+
+      {/* ── Coloring Book Modal ── */}
+      {coloringUrl && (
+        <div className="coloring-modal" onClick={()=>setColoringUrl(null)}>
+          <div className="coloring-modal-inner" onClick={e=>e.stopPropagation()}>
+            <div style={{ background:"linear-gradient(135deg,#1a0a38,#2d1060)", padding:"16px 20px", display:"flex", justifyContent:"space-between", alignItems:"center" }}>
+              <div>
+                <h3 style={{ fontFamily:"'Playfair Display',serif", fontSize:18, color:"var(--gold-light)", fontStyle:"italic" }}>🖍️ {active?.child_name}'s Coloring Page</h3>
+                <p style={{ color:"rgba(255,255,255,.35)", fontSize:12, marginTop:3 }}>Print it out and color it in!</p>
+              </div>
+              <button onClick={()=>setColoringUrl(null)} style={{ background:"none", border:"none", color:"rgba(255,255,255,.4)", fontSize:22, cursor:"pointer", lineHeight:1, padding:4 }}>×</button>
+            </div>
+            <img src={coloringUrl} alt="Coloring page" style={{ width:"100%", display:"block" }} />
+            <div style={{ padding:"14px 16px", display:"flex", gap:10 }}>
+              <a href={coloringUrl} download="coloring-page.png" target="_blank" rel="noreferrer" style={{ flex:1, display:"block", textDecoration:"none" }}>
+                <button className="btn-solid" style={{ width:"100%" }}>⬇️ Download & Print</button>
+              </a>
+              <button className="btn-soft" style={{ flexShrink:0, width:"auto", padding:"14px 18px" }} onClick={()=>setColoringUrl(null)}>Close</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── Badge Toast ── */}
+      {newBadge && (
+        <div className="badge-toast">
+          <span style={{ fontSize:28 }}>{newBadge.emoji}</span>
+          <div>
+            <div style={{ fontWeight:800, fontSize:13, color:"var(--gold-light)", fontFamily:"'Nunito',sans-serif" }}>Badge Unlocked!</div>
+            <div style={{ fontWeight:700, fontSize:14, color:"white", fontFamily:"'Nunito',sans-serif" }}>{newBadge.label}</div>
+            <div style={{ fontSize:11, color:"rgba(255,255,255,.45)", fontFamily:"'Nunito',sans-serif" }}>{newBadge.desc}</div>
+          </div>
+        </div>
+      )}
     </>
   );
 }
