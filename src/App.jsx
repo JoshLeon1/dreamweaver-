@@ -415,39 +415,124 @@ function StarField() {
 }
 
 // ── Loaders ──────────────────────────────────────────────────────────────────
-function MoonLoader({ text = "Weaving your story…" }) {
+function MoonLoader({ text = "Weaving your story…", childName = "" }) {
   const [i, setI] = useState(0);
+  const [msgIdx, setMsgIdx] = useState(0);
+  const messages = childName ? [
+    `Writing ${childName}'s story…`,
+    "Choosing the perfect words…",
+    "Crafting each magical page…",
+    "Almost there…",
+  ] : [
+    "Weaving your story…",
+    "Choosing the perfect words…",
+    "Adding a sprinkle of magic…",
+    "Almost there…",
+  ];
   useEffect(() => { const t = setInterval(() => setI(x => (x+1) % MOON_FRAMES.length), 260); return () => clearInterval(t); }, []);
+  useEffect(() => { const t = setInterval(() => setMsgIdx(x => (x+1) % messages.length), 2800); return () => clearInterval(t); }, []);
   return (
-    <div style={{ textAlign:"center", padding:"80px 20px" }}>
-      <div style={{ fontSize:64, marginBottom:20, animation:"float 3s ease-in-out infinite" }}>{MOON_FRAMES[i]}</div>
-      <p style={{ color:"rgba(255,255,255,.4)", fontFamily:"'Crimson Pro',serif", fontStyle:"italic", fontSize:19 }}>{text}</p>
+    <div style={{ textAlign:"center", padding:"clamp(60px,12vw,100px) 20px" }}>
+      <div style={{ marginBottom:24 }}><DreamweaverLogo size={36} showText={true} /></div>
+      <div style={{ fontSize:64, marginBottom:24, animation:"float 3s ease-in-out infinite", filter:"drop-shadow(0 0 28px rgba(200,170,80,.4))" }}>{MOON_FRAMES[i]}</div>
+      <p style={{ color:"rgba(255,255,255,.55)", fontFamily:"'Crimson Pro',serif", fontStyle:"italic", fontSize:"clamp(17px,4vw,21px)", marginBottom:10, transition:"opacity .4s" }}>{messages[msgIdx]}</p>
+      <p style={{ color:"rgba(255,255,255,.2)", fontSize:12, fontFamily:"'Nunito',sans-serif" }}>This takes about 10 seconds ☕</p>
     </div>
   );
 }
 
-function IllustrationLoader({ total, loaded, title }) {
+function IllustrationLoader({ total, loaded, title, imgs=[] }) {
   const pct = Math.round((loaded / total) * 100);
+  const [paintMsg, setPaintMsg] = useState(0);
+  const paintMessages = [
+    "Mixing the watercolors…",
+    "Painting each scene by hand…",
+    "Adding magic to every page…",
+    "Bringing the story to life…",
+    "Almost ready to read…",
+  ];
+  useEffect(() => { const t = setInterval(() => setPaintMsg(x => (x+1) % paintMessages.length), 3000); return () => clearInterval(t); }, []);
   return (
-    <div style={{ textAlign:"center", padding:"clamp(40px,8vw,60px) 20px", maxWidth:440, margin:"0 auto" }}>
-      <div style={{ fontSize:"clamp(44px,11vw,56px)", marginBottom:20, animation:"float 3s ease-in-out infinite", filter:"drop-shadow(0 0 24px rgba(200,170,80,.4))" }}>🎨</div>
-      <h3 style={{ fontFamily:"'Playfair Display',serif", fontSize:"clamp(18px,4.5vw,22px)", fontStyle:"italic", marginBottom:8, color:"var(--gold-light)", lineHeight:1.3 }}>
-        {title ? `Illustrating "${title}"` : "Painting your story…"}
+    <div style={{ textAlign:"center", padding:"clamp(32px,6vw,52px) 20px", maxWidth:500, margin:"0 auto" }}>
+      <div style={{ marginBottom:22 }}><DreamweaverLogo size={32} showText={true} /></div>
+      <h3 style={{ fontFamily:"'Playfair Display',serif", fontSize:"clamp(18px,4vw,24px)", fontStyle:"italic", marginBottom:8, color:"var(--gold-light)", lineHeight:1.3 }}>
+        {title ? `"${title}"` : "Painting your story…"}
       </h3>
-      <p style={{ color:"rgba(255,255,255,.4)", fontFamily:"'Crimson Pro',serif", fontStyle:"italic", fontSize:"clamp(14px,3.5vw,16px)", marginBottom:24 }}>
-        {loaded < total ? `Painting illustration ${loaded+1} of ${total}…` : "Almost ready…"}
+      <p style={{ color:"rgba(255,255,255,.38)", fontFamily:"'Crimson Pro',serif", fontStyle:"italic", fontSize:"clamp(14px,3vw,16px)", marginBottom:22, height:24 }}>
+        {loaded < total ? paintMessages[paintMsg] : "✨ Ready to read!"}
       </p>
-      <div style={{ background:"rgba(255,255,255,.07)", borderRadius:99, height:6, marginBottom:18, overflow:"hidden" }}>
-        <div style={{ height:"100%", borderRadius:99, background:"linear-gradient(90deg,#7c4dcc,#c084fc)", width:`${pct}%`, transition:"width .5s ease", boxShadow:"0 0 12px rgba(192,132,252,.5)" }} />
+
+      {/* Progress bar */}
+      <div style={{ background:"rgba(255,255,255,.07)", borderRadius:99, height:5, marginBottom:20, overflow:"hidden", maxWidth:320, margin:"0 auto 20px" }}>
+        <div style={{ height:"100%", borderRadius:99, background:"linear-gradient(90deg,#7c4dcc,#c084fc,#67e8f9)", width:`${pct}%`, transition:"width .6s ease", boxShadow:"0 0 10px rgba(192,132,252,.5)" }} />
       </div>
-      <div style={{ display:"flex", gap:"clamp(4px,1.5vw,6px)", justifyContent:"center", flexWrap:"wrap" }}>
+
+      {/* Page thumbnails — show actual image previews as they come in */}
+      <div style={{ display:"flex", gap:"clamp(5px,1.5vw,8px)", justifyContent:"center", flexWrap:"wrap", marginBottom:18 }}>
         {Array.from({ length: total }).map((_,i) => (
-          <div key={i} style={{ width:"clamp(34px,8vw,44px)", height:"clamp(34px,8vw,44px)", borderRadius:10, overflow:"hidden", border:`2px solid ${i<loaded?"rgba(201,168,76,.6)":"rgba(255,255,255,.08)"}`, transition:"all .4s", background:"rgba(255,255,255,.04)", display:"flex", alignItems:"center", justifyContent:"center" }}>
-            {i < loaded ? <span style={{ fontSize:"clamp(14px,3vw,18px)" }}>✦</span> : i===loaded ? <div style={{ width:"clamp(12px,3vw,16px)", height:"clamp(12px,3vw,16px)", borderRadius:"50%", border:"2px solid rgba(192,132,252,.7)", borderTopColor:"transparent", animation:"spin .8s linear infinite" }} /> : <span style={{ color:"rgba(255,255,255,.12)", fontSize:"clamp(12px,3vw,16px)" }}>○</span>}
+          <div key={i} style={{ width:"clamp(38px,9vw,52px)", height:"clamp(38px,9vw,52px)", borderRadius:10, overflow:"hidden", border:`2px solid ${i<loaded?"rgba(201,168,76,.5)":"rgba(255,255,255,.08)"}`, transition:"all .5s", background:"rgba(255,255,255,.04)", display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0, position:"relative" }}>
+            {imgs[i]
+              ? <img src={imgs[i]} alt="" style={{ width:"100%", height:"100%", objectFit:"cover", display:"block" }} />
+              : i===loaded
+                ? <div style={{ width:14, height:14, borderRadius:"50%", border:"2px solid rgba(192,132,252,.7)", borderTopColor:"transparent", animation:"spin .8s linear infinite" }} />
+                : i < loaded
+                  ? <span style={{ fontSize:16, color:"var(--gold)" }}>✦</span>
+                  : <span style={{ color:"rgba(255,255,255,.1)", fontSize:14 }}>○</span>
+            }
+            {i < loaded && imgs[i] && (
+              <div style={{ position:"absolute", inset:0, background:"linear-gradient(to bottom,transparent 50%,rgba(0,0,0,.3))", pointerEvents:"none" }} />
+            )}
           </div>
         ))}
       </div>
-      <p style={{ color:"rgba(255,255,255,.18)", fontSize:12, marginTop:20 }}>About 30–60 seconds ☕</p>
+
+      <p style={{ color:"rgba(255,255,255,.2)", fontSize:12, fontFamily:"'Nunito',sans-serif" }}>
+        {loaded}/{total} illustrations complete · about 30–45 seconds total
+      </p>
+    </div>
+  );
+}
+
+
+// ── DreamWeaver Logo ──────────────────────────────────────────────────────────
+function DreamweaverLogo({ size = 32, showText = true }) {
+  return (
+    <div style={{ display:"inline-flex", alignItems:"center", gap:10 }}>
+      <svg width={size} height={size} viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <radialGradient id="moonGlow" cx="50%" cy="35%" r="55%">
+            <stop offset="0%" stopColor="#f6e27a" stopOpacity="1"/>
+            <stop offset="60%" stopColor="#c9a030" stopOpacity="1"/>
+            <stop offset="100%" stopColor="#7c4dcc" stopOpacity="1"/>
+          </radialGradient>
+          <radialGradient id="starGrad" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stopColor="#ffffff" stopOpacity="1"/>
+            <stop offset="100%" stopColor="#c084fc" stopOpacity="0.8"/>
+          </radialGradient>
+        </defs>
+        {/* Moon crescent */}
+        <path d="M26 8C18.268 8 12 14.268 12 22C12 29.732 18.268 36 26 36C28.2 36 30.28 35.46 32.1 34.5C28.5 33.1 26 29.34 26 25C26 18.924 30.04 13.78 35.6 11.9C33.16 9.48 29.76 8 26 8Z" fill="url(#moonGlow)" opacity="0.95"/>
+        {/* Stars */}
+        <circle cx="10" cy="12" r="1.5" fill="url(#starGrad)" opacity="0.9"/>
+        <circle cx="6" cy="22" r="1" fill="url(#starGrad)" opacity="0.7"/>
+        <circle cx="14" cy="6" r="1" fill="url(#starGrad)" opacity="0.6"/>
+        <circle cx="34" cy="20" r="1.2" fill="url(#starGrad)" opacity="0.5"/>
+        <circle cx="30" cy="6" r="0.8" fill="#c084fc" opacity="0.7"/>
+      </svg>
+      {showText && (
+        <span style={{
+          fontFamily:"'Playfair Display',serif",
+          fontSize: size * 0.72,
+          fontWeight:700,
+          fontStyle:"italic",
+          background:"linear-gradient(120deg,#f6d98a 0%,#e8b84b 45%,#c9a030 100%)",
+          WebkitBackgroundClip:"text",
+          WebkitTextFillColor:"transparent",
+          backgroundClip:"text",
+          letterSpacing:"-.01em",
+          lineHeight:1,
+        }}>DreamWeaver</span>
+      )}
     </div>
   );
 }
@@ -455,6 +540,7 @@ function IllustrationLoader({ total, loaded, title }) {
 // ── Open Book ─────────────────────────────────────────────────────────────────
 function OpenBook({ pages, imgs, spread, onFlip, title, mobile=false, coverImg=null }) {
   const totalSpreads = Math.ceil(pages.length / 2);
+  const isCover = spread === -1;
   const [animating, setAnimating] = useState(false);
   const [displaySpread, setDisplaySpread] = useState(spread);
   const [flipClass, setFlipClass] = useState("");
@@ -474,6 +560,33 @@ function OpenBook({ pages, imgs, spread, onFlip, title, mobile=false, coverImg=n
   const li = displaySpread * 2, ri = displaySpread * 2 + 1;
 
   const Page = ({ idx, side }) => {
+    // Cover page rendering
+    if (isCover && coverImg) {
+      return (
+        <div style={{ position:"relative" }}>
+          <div style={{ borderRadius:"clamp(12px,2vw,18px)", overflow:"hidden", boxShadow:"0 40px 80px rgba(0,0,0,.8),0 0 0 1px rgba(255,255,255,.05)", maxWidth: mobile ? 380 : 700, margin:"0 auto", aspectRatio: mobile ? "3/4" : "16/9", position:"relative" }}>
+            <img src={coverImg} alt="" style={{ width:"100%", height:"100%", objectFit:"cover", display:"block" }} />
+            {/* Title overlay */}
+            <div style={{ position:"absolute", inset:0, background:"linear-gradient(to bottom,transparent 30%,rgba(0,0,0,.75))", display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"flex-end", padding:"clamp(20px,4vw,36px)" }}>
+              <h2 style={{ fontFamily:"'Playfair Display',serif", fontSize:"clamp(20px,4vw,34px)", fontStyle:"italic", color:"white", textAlign:"center", lineHeight:1.2, marginBottom:8, textShadow:"0 2px 16px rgba(0,0,0,.8)" }}>{title}</h2>
+              <p style={{ color:"rgba(255,255,255,.55)", fontFamily:"'Crimson Pro',serif", fontStyle:"italic", fontSize:"clamp(12px,2vw,15px)", textShadow:"0 1px 8px rgba(0,0,0,.8)" }}>A DreamWeaver Story ✦</p>
+            </div>
+          </div>
+          {/* Nav */}
+          <div style={{ display:"flex", justifyContent:"center", marginTop:16 }}>
+            <button onClick={()=>onFlip("forward")} style={{ background:"linear-gradient(135deg,#4c2d99,#7c4dcc)", border:"none", borderRadius:999, padding:"14px 32px", color:"white", fontFamily:"'Nunito',sans-serif", fontWeight:700, fontSize:15, cursor:"pointer", boxShadow:"0 4px 20px rgba(124,77,204,.4)" }}>
+              Open Book →
+            </button>
+          </div>
+        </div>
+      );
+    }
+    // No cover image yet — skip cover, go straight to page 1
+    if (isCover && !coverImg) {
+      setTimeout(() => onFlip("forward"), 100);
+      return null;
+    }
+
     const text = pages[idx], img = imgs[idx];
     if (!text) return (
       <div style={{ flex:1, position:"relative", overflow:"hidden", background:"linear-gradient(160deg,#180a38,#0e0520)" }}>
@@ -549,7 +662,7 @@ function OpenBook({ pages, imgs, spread, onFlip, title, mobile=false, coverImg=n
           </div>
         </div>
         <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginTop:14, gap:10 }}>
-          <button className="btn-book" disabled={spread===0||animating} onClick={() => onFlip("back")} style={{ flex:1, fontSize: window.innerWidth >= 700 ? 15 : 13, padding: window.innerWidth >= 700 ? "14px 20px" : undefined }}>← Prev</button>
+          <button className="btn-book" disabled={(coverImg?spread===-1:spread===0)||animating} onClick={() => onFlip("back")} style={{ flex:1, fontSize: window.innerWidth >= 700 ? 15 : 13, padding: window.innerWidth >= 700 ? "14px 20px" : undefined }}>← Prev</button>
           <div style={{ display:"flex", gap:6, alignItems:"center", flexShrink:0 }}>
             {pages.length <= 12
               ? Array.from({length:pages.length}).map((_,i) => <div key={i} onClick={()=>!animating&&onFlip(i)} style={{ width:i===spread?22:7, height:7, borderRadius:99, background:i===spread?"var(--gold)":"rgba(255,255,255,.2)", transition:"all .3s", cursor:"pointer" }} />)
@@ -574,7 +687,7 @@ function OpenBook({ pages, imgs, spread, onFlip, title, mobile=false, coverImg=n
         </div>
       </div>
       <div style={{ display:"flex", alignItems:"center", justifyContent:"center", gap:16, marginTop:20 }}>
-        <button className="btn-book" disabled={spread===0||animating} onClick={() => onFlip("back")}>← Prev</button>
+        <button className="btn-book" disabled={(coverImg?spread===-1:spread===0)||animating} onClick={() => onFlip("back")}>← Prev</button>
         <div style={{ display:"flex", gap:6, alignItems:"center" }}>
           {Array.from({ length: totalSpreads }).map((_,i) => <div key={i} onClick={() => !animating&&onFlip(i)} style={{ width:i===spread?22:7, height:7, borderRadius:99, cursor:animating?"default":"pointer", background:i===spread?"var(--gold)":"rgba(255,255,255,.18)", transition:"all .3s", boxShadow:i===spread?"0 0 10px rgba(201,168,76,.6)":"none" }} />)}
         </div>
@@ -668,7 +781,7 @@ export default function App() {
       }
     }
     await calcStreak(u.id);
-    setScreen(profs?.length ? "home" : "wizard");
+    setScreen(profs?.length ? "home" : "welcome");
     if (profs?.length) { const { data:b } = await supabase.from("badges").select("badge_id").eq("user_id",u.id); if (b) setBadges(b.map(x=>x.badge_id)); }
   };
   const calcStreak = async (uid) => {
@@ -817,15 +930,16 @@ export default function App() {
   }, [spread, story]);
 
   const handleFlip = (dir) => {
-    if (mobile) { if (dir==="forward"&&spread<pages.length-1) setSpread(s=>s+1); else if (dir==="back"&&spread>0) setSpread(s=>s-1); else if (typeof dir==="number") setSpread(dir); }
-    else { const ts=Math.ceil(pages.length/2); if (dir==="forward"&&spread<ts-1) setSpread(s=>s+1); else if (dir==="back"&&spread>0) setSpread(s=>s-1); else if (typeof dir==="number") setSpread(dir); }
+    const minSpread = coverImg ? -1 : 0;
+    if (mobile) { if (dir==="forward"&&spread<pages.length-1) setSpread(s=>s+1); else if (dir==="back"&&spread>minSpread) setSpread(s=>s-1); else if (typeof dir==="number") setSpread(dir); }
+    else { const ts=Math.ceil(pages.length/2); if (dir==="forward"&&spread<ts-1) setSpread(s=>s+1); else if (dir==="back"&&spread>minSpread) setSpread(s=>s-1); else if (typeof dir==="number") setSpread(dir); }
   };
 
   const generateStory = async () => {
     if (!hasAccess()) return setScreen("paywall");
     if (!active) return;
     setScreen("story"); setStoryPhase("text");
-    setStory(null); setTitle(""); setPages([]); setImgs([]); setSpread(0); setImgsLoaded(0); setCoverImg(null);
+    setStory(null); setTitle(""); setPages([]); setImgs([]); setSpread(-1); setImgsLoaded(0); setCoverImg(null);
 
     const { data:ex } = await supabase.from("stories").select("*").eq("user_id",user.id).eq("story_date",todayStr()).eq("child_profile_id",active.id).maybeSingle();
     if (ex) {
@@ -1054,7 +1168,7 @@ export default function App() {
         {/* SPLASH */}
         {screen==="splash" && (
           <div style={{ display:"flex", alignItems:"center", justifyContent:"center", height:"80vh" }}>
-            <div style={{ fontSize:72, animation:"float 3s ease-in-out infinite", filter:"drop-shadow(0 0 30px rgba(200,170,80,.4))" }}>🌙</div>
+            <div style={{ animation:"float 3s ease-in-out infinite" }}><DreamweaverLogo size={52} showText={true} /></div>
           </div>
         )}
 
@@ -1068,6 +1182,11 @@ export default function App() {
             <div style={{ textAlign:"center", paddingTop:"clamp(32px,7vw,72px)", paddingBottom:"clamp(48px,8vw,80px)", position:"relative" }}>
               {/* Deep halo */}
               <div style={{ position:"absolute", top:"-10%", left:"50%", transform:"translateX(-50%)", width:"100vw", maxWidth:700, height:"60vw", maxHeight:420, background:"radial-gradient(ellipse at 50% 0%,rgba(130,70,255,.13) 0%,rgba(80,40,180,.07) 40%,transparent 70%)", pointerEvents:"none" }} />
+
+              {/* Logo */}
+              <div style={{ marginBottom:24 }}>
+                <DreamweaverLogo size={36} showText={true} />
+              </div>
 
               {/* Pill badge */}
               <div style={{ display:"inline-flex", alignItems:"center", gap:8, background:"rgba(255,255,255,.04)", border:"1px solid rgba(255,255,255,.1)", borderRadius:999, padding:"7px 18px", marginBottom:28 }}>
@@ -1321,10 +1440,9 @@ export default function App() {
         ══════════════════════════════════════════════════════════════════════ */}
         {screen==="login" && (
           <div className="fade" style={{ maxWidth:420, width:"100%", display:"flex", flexDirection:"column", justifyContent:"center", minHeight:"75vh", gap:0 }}>
-            <div style={{ textAlign:"center", marginBottom:24 }}>
-              <div style={{ fontSize:"clamp(44px,10vw,56px)", marginBottom:10, animation:"float 4s ease-in-out infinite" }}>🌙</div>
-              <h1 style={{ fontFamily:"'Playfair Display',serif", fontSize:"clamp(26px,6vw,32px)" }}>DreamWeaver</h1>
-              <p style={{ color:"rgba(255,255,255,.3)", fontFamily:"'Crimson Pro',serif", fontStyle:"italic", marginTop:6, fontSize:15 }}>Bedtime stories, reimagined</p>
+            <div style={{ textAlign:"center", marginBottom:28 }}>
+              <DreamweaverLogo size={42} showText={true} />
+              <p style={{ color:"rgba(255,255,255,.3)", fontFamily:"'Crimson Pro',serif", fontStyle:"italic", marginTop:12, fontSize:15 }}>Bedtime stories, reimagined</p>
             </div>
             <div className="form-card" style={{ display:"flex", flexDirection:"column", gap:16 }}>
               <h2 style={{ fontFamily:"'Playfair Display',serif", fontSize:20 }}>Welcome back</h2>
@@ -1365,6 +1483,51 @@ export default function App() {
         {/* ═══════════════════════════════════════════════════════════════════
             WIZARD
         ══════════════════════════════════════════════════════════════════════ */}
+        {/* ═══════════════════════════════════════════════════════════════════
+            WELCOME — shown to new users before wizard
+        ══════════════════════════════════════════════════════════════════════ */}
+        {screen==="welcome" && (
+          <div className="fade" style={{ maxWidth:440, width:"100%", textAlign:"center", paddingTop:"clamp(32px,8vw,60px)", paddingBottom:40 }}>
+            {/* Logo */}
+            <div style={{ marginBottom:28 }}>
+              <DreamweaverLogo size={44} showText={true} />
+            </div>
+
+            <h1 style={{ fontFamily:"'Playfair Display',serif", fontSize:"clamp(26px,6vw,36px)", lineHeight:1.2, marginBottom:14 }}>
+              Welcome to<br/>
+              <em style={{ background:"linear-gradient(120deg,#c084fc 0%,#a78bfa 40%,#67e8f9 100%)", WebkitBackgroundClip:"text", WebkitTextFillColor:"transparent", backgroundClip:"text" }}>
+                your child's story world
+              </em>
+            </h1>
+            <p style={{ fontFamily:"'Crimson Pro',serif", fontStyle:"italic", color:"rgba(255,255,255,.4)", fontSize:"clamp(15px,3.5vw,18px)", lineHeight:1.8, marginBottom:36, maxWidth:360, margin:"0 auto 36px" }}>
+              Every night, a brand new illustrated picture book — starring your child as the hero.
+            </p>
+
+            {/* Steps preview */}
+            <div style={{ display:"flex", flexDirection:"column", gap:14, marginBottom:36, textAlign:"left" }}>
+              {[
+                { n:"1", icon:"👧", title:"Tell us about your child", desc:"Name, stuffed animal, best friend — takes 2 minutes." },
+                { n:"2", icon:"🌙", title:"Open tonight's story", desc:"A 10-page illustrated book generates in ~40 seconds." },
+                { n:"3", icon:"📸", title:"Add a photo (optional)", desc:"We'll make the illustrations look just like them." },
+              ].map(({n,icon,title,desc}) => (
+                <div key={n} style={{ display:"flex", gap:14, alignItems:"flex-start", padding:"14px 16px", borderRadius:16, background:"rgba(255,255,255,.04)", border:"1px solid rgba(255,255,255,.07)" }}>
+                  <div style={{ width:32, height:32, borderRadius:"50%", background:"rgba(192,132,252,.15)", border:"1px solid rgba(192,132,252,.25)", display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0, fontSize:16 }}>{icon}</div>
+                  <div>
+                    <div style={{ fontWeight:700, fontSize:14, color:"rgba(255,255,255,.85)", fontFamily:"'Nunito',sans-serif", marginBottom:3 }}>{title}</div>
+                    <div style={{ fontSize:13, color:"rgba(255,255,255,.35)", fontFamily:"'Crimson Pro',serif" }}>{desc}</div>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            <button className="btn-cta full" style={{ marginBottom:10 }}
+              onClick={()=>{setWizStep(0);setPf({child_name:"",age:"",stuffed_animal:"",best_friend:"",favorite_animal:"",scared_of:"",favorite_thing:""});setScreen("wizard");}}>
+              Let's Create Their First Story ✨
+            </button>
+            <p style={{ color:"rgba(255,255,255,.18)", fontSize:12, marginTop:8 }}>7 Nights Free · No Credit Card Required</p>
+          </div>
+        )}
+
         {screen==="wizard" && (
           <div className="fade" style={{ maxWidth:420, width:"100%", display:"flex", flexDirection:"column", justifyContent:"center", minHeight:"80vh" }}>
             {/* Progress */}
@@ -1601,8 +1764,8 @@ export default function App() {
         ══════════════════════════════════════════════════════════════════════ */}
         {screen==="story" && (
           <div className="fade" style={{ maxWidth:1200, width:"100%", paddingBottom:20 }}>
-            {storyPhase==="text" && <MoonLoader text="Writing your story…" />}
-            {storyPhase==="illustrating" && <IllustrationLoader total={pages.length} loaded={imgsLoaded} title={title} />}
+            {storyPhase==="text" && <MoonLoader text="Writing your story…" childName={active?.child_name||""} />}
+            {storyPhase==="illustrating" && <IllustrationLoader total={pages.length} loaded={imgsLoaded} title={title} imgs={imgs} />}
             {storyPhase==="ready" && pages.length>0 && (
               <>
                 <OpenBook pages={pages} imgs={imgs} spread={spread} onFlip={handleFlip} title={title} mobile={mobile||tablet} coverImg={coverImg} />
@@ -1692,7 +1855,7 @@ export default function App() {
                   const label=isToday?"Tonight":d.toLocaleDateString("en-US",{weekday:"short",month:"short",day:"numeric"});
                   return (
                     <div key={s.id}
-                      onClick={()=>{const ps=s.text.split("\n\n✦\n\n");setPages(ps);setTitle(s.title||"");setImgs(s.page_images||[]);const saved=parseInt(localStorage.getItem("dw_spread_"+s.id)||"0");setSpread(Math.min(saved,ps.length-1));setStory(s);setStoryPhase("ready");setScreen("story");}}
+                      onClick={()=>{const ps=s.text.split("\n\n✦\n\n");setPages(ps);setTitle(s.title||"");setImgs(s.page_images||[]);const saved=parseInt(localStorage.getItem("dw_spread_"+s.id)||"-1");setSpread(Math.min(saved,ps.length-1));setStory(s);setStoryPhase("ready");setScreen("story");}}
                       style={{ display:"flex", gap:12, alignItems:"center", padding:"14px", cursor:"pointer", borderRadius:18, background:"rgba(255,255,255,.04)", border:`1px solid ${isToday?"rgba(201,168,76,.2)":"rgba(255,255,255,.07)"}`, transition:"all .2s", WebkitTapHighlightColor:"transparent" }}
                       onMouseEnter={e=>{e.currentTarget.style.background="rgba(255,255,255,.08)"}}
                       onMouseLeave={e=>{e.currentTarget.style.background="rgba(255,255,255,.04)"}}>
