@@ -624,23 +624,23 @@ function DreamweaverLogo({ size = 32, showText = true }) {
     <div style={{ display:"inline-flex", alignItems:"center", gap:10 }}>
       <svg width={size} height={size} viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
         <defs>
-          <radialGradient id="moonGlow" cx="50%" cy="35%" r="55%">
+          <radialGradient id="dwMoonGlow" cx="50%" cy="35%" r="55%">
             <stop offset="0%" stopColor="#f6e27a" stopOpacity="1"/>
             <stop offset="60%" stopColor="#c9a030" stopOpacity="1"/>
             <stop offset="100%" stopColor="#7c4dcc" stopOpacity="1"/>
           </radialGradient>
-          <radialGradient id="starGrad" cx="50%" cy="50%" r="50%">
+          <radialGradient id="dwStarGrad" cx="50%" cy="50%" r="50%">
             <stop offset="0%" stopColor="#ffffff" stopOpacity="1"/>
             <stop offset="100%" stopColor="#c084fc" stopOpacity="0.8"/>
           </radialGradient>
         </defs>
         {/* Moon crescent */}
-        <path d="M26 8C18.268 8 12 14.268 12 22C12 29.732 18.268 36 26 36C28.2 36 30.28 35.46 32.1 34.5C28.5 33.1 26 29.34 26 25C26 18.924 30.04 13.78 35.6 11.9C33.16 9.48 29.76 8 26 8Z" fill="url(#moonGlow)" opacity="0.95"/>
+        <path d="M26 8C18.268 8 12 14.268 12 22C12 29.732 18.268 36 26 36C28.2 36 30.28 35.46 32.1 34.5C28.5 33.1 26 29.34 26 25C26 18.924 30.04 13.78 35.6 11.9C33.16 9.48 29.76 8 26 8Z" fill="url(#dwMoonGlow)" opacity="0.95"/>
         {/* Stars */}
-        <circle cx="10" cy="12" r="1.5" fill="url(#starGrad)" opacity="0.9"/>
-        <circle cx="6" cy="22" r="1" fill="url(#starGrad)" opacity="0.7"/>
-        <circle cx="14" cy="6" r="1" fill="url(#starGrad)" opacity="0.6"/>
-        <circle cx="34" cy="20" r="1.2" fill="url(#starGrad)" opacity="0.5"/>
+        <circle cx="10" cy="12" r="1.5" fill="url(#dwStarGrad)" opacity="0.9"/>
+        <circle cx="6" cy="22" r="1" fill="url(#dwStarGrad)" opacity="0.7"/>
+        <circle cx="14" cy="6" r="1" fill="url(#dwStarGrad)" opacity="0.6"/>
+        <circle cx="34" cy="20" r="1.2" fill="url(#dwStarGrad)" opacity="0.5"/>
         <circle cx="30" cy="6" r="0.8" fill="#c084fc" opacity="0.7"/>
       </svg>
       {showText && (
@@ -755,6 +755,7 @@ function OpenBook({ pages, imgs, spread, onFlip, title, mobile=false, coverImg=n
         {/* Closed book */}
         <div
           onClick={()=>!animating&&onFlip("forward")}
+          onTouchEnd={(e)=>{ e.preventDefault(); if(!animating) onFlip("forward"); }}
           className={openingCover ? "cover-opening" : ""}
           style={{ width:W, aspectRatio:aspect, position:"relative", cursor:openingCover?"default":"pointer",
             boxShadow:"8px 8px 0 rgba(0,0,0,.15), 0 60px 120px rgba(0,0,0,.85), 0 20px 60px rgba(0,0,0,.6), 0 0 0 1px rgba(255,255,255,.06)",
@@ -1167,7 +1168,7 @@ export default function App() {
   const generateStory = async () => {
     if (!hasAccess()) return setScreen("paywall");
     if (!active) return;
-    setScreen("story"); setStoryPhase("text");
+    setStoryPhase("text"); setScreen("story");
     setStory(null); setTitle(""); setPages([]); setImgs([]); setSpread(-1); setImgsLoaded(0); setCoverImg(null);
 
     const { data:ex } = await supabase.from("stories").select("*").eq("user_id",user.id).eq("story_date",todayStr()).eq("child_profile_id",active.id).maybeSingle();
@@ -2096,7 +2097,7 @@ export default function App() {
         ══════════════════════════════════════════════════════════════════════ */}
         {screen==="story" && (
           <div className="fade has-bottom-nav" style={{ maxWidth:"min(98vw,1320px)", width:"100%", paddingBottom:20 }}>
-            {storyPhase==="text" && <MoonLoader text="Writing your story…" childName={active?.child_name||""} />}
+            {(storyPhase==="text" || storyPhase==="idle") && <MoonLoader text="Writing your story…" childName={active?.child_name||""} />}
             {storyPhase==="illustrating" && <IllustrationLoader total={pages.length} loaded={imgsLoaded} title={title} imgs={imgs} />}
             {storyPhase==="ready" && pages.length>0 && (
               <>
@@ -2124,11 +2125,18 @@ export default function App() {
                     {coloringLoading?"🎨 Generating…":"🖍️ Make a Coloring Page"}
                   </button>
                   {/* Row 3: nav + utilities */}
-                  <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr 1fr", gap:8 }}>
-                    <button className="btn-soft" style={{ fontSize:13 }} onClick={()=>setScreen("home")}>← Home</button>
-                    <button className="btn-soft" style={{ fontSize:13 }} onClick={shareStory}>{copied?"✅ Copied!":"🔗 Share"}</button>
-                    <button className="btn-soft" style={{ fontSize:13 }} onClick={readAloud}>{speaking?"⏹️ Stop":"🔊 Read"}</button>
-                  </div>
+                  {mobile ? (
+                    <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:8 }}>
+                      <button className="btn-soft" style={{ fontSize:13 }} onClick={shareStory}>{copied?"✅ Copied!":"🔗 Share"}</button>
+                      <button className="btn-soft" style={{ fontSize:13 }} onClick={readAloud}>{speaking?"⏹️ Stop":"🔊 Read"}</button>
+                    </div>
+                  ) : (
+                    <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr 1fr", gap:8 }}>
+                      <button className="btn-soft" style={{ fontSize:13 }} onClick={()=>setScreen("home")}>← Home</button>
+                      <button className="btn-soft" style={{ fontSize:13 }} onClick={shareStory}>{copied?"✅ Copied!":"🔗 Share"}</button>
+                      <button className="btn-soft" style={{ fontSize:13 }} onClick={readAloud}>{speaking?"⏹️ Stop":"🔊 Read"}</button>
+                    </div>
+                  )}
                 </div>
               </>
             )}
