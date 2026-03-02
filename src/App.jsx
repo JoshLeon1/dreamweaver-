@@ -1283,7 +1283,7 @@ export default function App() {
                     </p>
                   </div>
                   <div style={{ display:"flex", flexDirection:"column", gap:11, marginBottom:28 }}>
-                    {["10-Page Illustrated Story Every Night","AI Watercolor Art On Every Page","Photo-Matched Character Illustrations","Life Lesson Story Mode","Read Aloud Narrator","Story Library Saved Forever","Coloring Book Generator","Milestone Badges For Kids","Add More Kids For +$2.99/mo Each","Cancel Anytime"].map(f => (
+                    {["10-Page Illustrated Story Every Night","AI Watercolor Art On Every Page","Photo-Matched Character Illustrations","Life Lesson Story Mode","Read Aloud Narrator","Story Library Saved Forever","Coloring Book Generator","Milestone Badges For Kids","Add More Kids For +$2.99/mo Per Additional Child","Cancel Anytime"].map(f => (
                       <div key={f} style={{ display:"flex", alignItems:"center", gap:10 }}>
                         <span style={{ color:"#a78bfa", fontSize:14, flexShrink:0 }}>✦</span>
                         <span style={{ color:"rgba(255,255,255,.6)", fontSize:"clamp(13px,1.5vw,14px)", fontFamily:"'Nunito',sans-serif" }}>{f}</span>
@@ -1350,7 +1350,7 @@ export default function App() {
             <div className="form-card" style={{ display:"flex", flexDirection:"column", gap:16 }}>
               <div>
                 <h2 style={{ fontFamily:"'Playfair Display',serif", fontSize:20 }}>Start your free trial</h2>
-                <p style={{ color:"rgba(255,255,255,.3)", fontSize:13, marginTop:5 }}>7 Nights Free · $5.99/mo · +$2.99 per extra child</p>
+                <p style={{ color:"rgba(255,255,255,.3)", fontSize:13, marginTop:5 }}>7 Nights Free · $5.99/mo · +$2.99 per additional child</p>
               </div>
               {err && <p className="err">{err}</p>}
               {[{k:"name",l:"Your Name",t:"text",ph:"Parent's name"},{k:"email",l:"Email",t:"email",ph:"you@example.com"},{k:"password",l:"Password",t:"password",ph:"Create a password"}].map(f => (
