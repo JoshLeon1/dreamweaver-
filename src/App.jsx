@@ -494,6 +494,36 @@ function IllustrationLoader({ total, loaded, title, imgs=[] }) {
 }
 
 
+
+// ── Bottom Nav (mobile only) ──────────────────────────────────────────────────
+function BottomNav({ screen, setScreen, loadLibrary, badgeCount, totalBadges }) {
+  const tabs = [
+    { id:"home",    icon:"🏠", label:"Home"    },
+    { id:"library", icon:"📚", label:"Library" },
+    { id:"badges",  icon:"🏅", label:"Badges",  badge: badgeCount > 0 ? `${badgeCount}` : null },
+  ];
+  return (
+    <nav className="bottom-nav">
+      {tabs.map(t => (
+        <button key={t.id}
+          className={screen===t.id ? "active" : ""}
+          onClick={() => {
+            if (t.id==="library") { loadLibrary(); }
+            setScreen(t.id);
+          }}>
+          <span className="nav-icon" style={{ position:"relative" }}>
+            {t.icon}
+            {t.badge && (
+              <span style={{ position:"absolute", top:-4, right:-6, background:"#c084fc", borderRadius:99, fontSize:9, fontWeight:800, color:"white", padding:"1px 4px", fontFamily:"'Nunito',sans-serif", lineHeight:1.4 }}>{t.badge}</span>
+            )}
+          </span>
+          <span className="nav-label">{t.label}</span>
+        </button>
+      ))}
+    </nav>
+  );
+}
+
 // ── DreamWeaver Logo ──────────────────────────────────────────────────────────
 function DreamweaverLogo({ size = 32, showText = true }) {
   return (
@@ -542,6 +572,7 @@ function OpenBook({ pages, imgs, spread, onFlip, title, mobile=false, coverImg=n
   const totalSpreads = Math.ceil(pages.length / 2);
   const isCover = spread === -1;
   const [animating, setAnimating] = useState(false);
+  const [openingCover, setOpeningCover] = useState(false);
   const [displaySpread, setDisplaySpread] = useState(spread);
   const [flipClass, setFlipClass] = useState("");
   const [enterClass, setEnterClass] = useState("");
@@ -551,84 +582,137 @@ function OpenBook({ pages, imgs, spread, onFlip, title, mobile=false, coverImg=n
     if (spread === displaySpread) return;
     const forward = spread > prevSpread.current;
     prevSpread.current = spread;
+
+    // Cover → page 1: play cover-open animation
+    if (displaySpread === -1 && forward) {
+      setOpeningCover(true);
+      setAnimating(true);
+      setTimeout(() => {
+        setOpeningCover(false);
+        setDisplaySpread(0);
+        setEnterClass("page-enter-forward");
+        setTimeout(() => { setEnterClass(""); setAnimating(false); }, 650);
+      }, 750);
+      return;
+    }
+
     setAnimating(true);
     setFlipClass(forward ? "page-flip-forward" : "page-flip-back");
     setEnterClass("");
-    setTimeout(() => { setDisplaySpread(spread); setFlipClass(""); setEnterClass(forward ? "page-enter-forward" : "page-enter-back"); setAnimating(false); }, 560);
+    setTimeout(() => {
+      setDisplaySpread(spread);
+      setFlipClass("");
+      setEnterClass(forward ? "page-enter-forward" : "page-enter-back");
+      setTimeout(() => { setEnterClass(""); setAnimating(false); }, 650);
+    }, 650);
   }, [spread]);
 
-  const li = displaySpread * 2, ri = displaySpread * 2 + 1;
-
-  const Page = ({ idx, side }) => {
-    // Cover page rendering
-    if (isCover && coverImg) {
-      return (
-        <div style={{ position:"relative" }}>
-          <div style={{ borderRadius:"clamp(12px,2vw,18px)", overflow:"hidden", boxShadow:"0 40px 80px rgba(0,0,0,.8),0 0 0 1px rgba(255,255,255,.05)", maxWidth: mobile ? 380 : 700, margin:"0 auto", aspectRatio: mobile ? "3/4" : "16/9", position:"relative" }}>
-            <img src={coverImg} alt="" style={{ width:"100%", height:"100%", objectFit:"cover", display:"block" }} />
-            {/* Title overlay */}
-            <div style={{ position:"absolute", inset:0, background:"linear-gradient(to bottom,transparent 30%,rgba(0,0,0,.75))", display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"flex-end", padding:"clamp(20px,4vw,36px)" }}>
-              <h2 style={{ fontFamily:"'Playfair Display',serif", fontSize:"clamp(20px,4vw,34px)", fontStyle:"italic", color:"white", textAlign:"center", lineHeight:1.2, marginBottom:8, textShadow:"0 2px 16px rgba(0,0,0,.8)" }}>{title}</h2>
-              <p style={{ color:"rgba(255,255,255,.55)", fontFamily:"'Crimson Pro',serif", fontStyle:"italic", fontSize:"clamp(12px,2vw,15px)", textShadow:"0 1px 8px rgba(0,0,0,.8)" }}>A DreamWeaver Story ✦</p>
-            </div>
-          </div>
-          {/* Nav */}
-          <div style={{ display:"flex", justifyContent:"center", marginTop:16 }}>
-            <button onClick={()=>onFlip("forward")} style={{ background:"linear-gradient(135deg,#4c2d99,#7c4dcc)", border:"none", borderRadius:999, padding:"14px 32px", color:"white", fontFamily:"'Nunito',sans-serif", fontWeight:700, fontSize:15, cursor:"pointer", boxShadow:"0 4px 20px rgba(124,77,204,.4)" }}>
-              Open Book →
-            </button>
-          </div>
-        </div>
-      );
-    }
-    // No cover image yet — skip cover, go straight to page 1
-    if (isCover && !coverImg) {
-      setTimeout(() => onFlip("forward"), 100);
-      return null;
-    }
-
+  // ── Page content component ─────────────────────────────────────────────────
+  const PageContent = ({ idx, side }) => {
     const text = pages[idx], img = imgs[idx];
     if (!text) return (
-      <div style={{ flex:1, position:"relative", overflow:"hidden", background:"linear-gradient(160deg,#180a38,#0e0520)" }}>
-        {coverImg ? (
-          <>
-            <img src={coverImg} alt="" style={{ width:"100%", height:"100%", objectFit:"cover", position:"absolute", inset:0 }} />
-            <div style={{ position:"absolute", inset:0, background:"linear-gradient(to bottom,rgba(10,5,30,.2),rgba(10,5,30,.6))" }} />
-            {side==="left" && <div style={{ position:"absolute", inset:0, display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"flex-end", padding:"0 20px 28px" }}>
-              <h3 style={{ fontFamily:"'Playfair Display',serif", fontSize:"clamp(13px,2vw,22px)", color:"white", textAlign:"center", lineHeight:1.4, fontStyle:"italic", textShadow:"0 2px 12px rgba(0,0,0,.9)" }}>{title||"A Bedtime Story"}</h3>
-              <div style={{ width:50, height:1.5, background:"linear-gradient(90deg,transparent,rgba(255,255,255,.5),transparent)", margin:"10px auto 0" }} />
-            </div>}
-          </>
-        ) : (
-          <>
-            <div style={{ position:"absolute", inset:0, background:"radial-gradient(ellipse at 40% 30%,rgba(160,120,255,.1) 0%,transparent 60%)" }} />
-            {side==="left" && <div style={{ position:"absolute", inset:0, display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center" }}>
-              <div style={{ fontSize:48, marginBottom:16, filter:"drop-shadow(0 0 20px rgba(200,170,80,.4))" }}>🌙</div>
-              <h3 style={{ fontFamily:"'Playfair Display',serif", fontSize:"clamp(13px,2vw,20px)", color:"var(--gold-light)", textAlign:"center", padding:"0 20px", lineHeight:1.4, fontStyle:"italic" }}>{title||"A Bedtime Story"}</h3>
-              <div style={{ width:50, height:1.5, background:"linear-gradient(90deg,transparent,var(--gold),transparent)", margin:"14px auto 0" }} />
-            </div>}
-          </>
-        )}
+      <div style={{ flex:1, position:"relative", overflow:"hidden", background:"linear-gradient(160deg,#180a38,#0e0520)", display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center" }}>
+        {coverImg
+          ? <><img src={coverImg} alt="" style={{ width:"100%", height:"100%", objectFit:"cover", position:"absolute", inset:0 }} /><div style={{ position:"absolute", inset:0, background:"rgba(0,0,0,.45)" }} /></>
+          : <div style={{ position:"absolute", inset:0, background:"radial-gradient(ellipse at 40% 30%,rgba(160,120,255,.1) 0%,transparent 60%)" }} />
+        }
+        <div style={{ position:"relative", textAlign:"center", padding:"0 20px" }}>
+          <div style={{ fontSize:32, marginBottom:10, opacity:.6 }}>🌙</div>
+          <p style={{ fontFamily:"'Playfair Display',serif", fontSize:"clamp(11px,1.5vw,16px)", color:"rgba(255,255,255,.4)", fontStyle:"italic" }}>The End</p>
+        </div>
       </div>
     );
     return (
       <div style={{ flex:1, display:"flex", flexDirection:"column", background:"linear-gradient(175deg,#fefcf7 0%,#fdf9f0 60%,#f9f1e0 100%)", position:"relative", overflow:"hidden" }}>
+        {/* Image area — 62% of height */}
         <div style={{ width:"100%", flex:"0 0 62%", position:"relative", overflow:"hidden" }}>
-          {img ? <img src={img} alt="" style={{ width:"100%", height:"100%", objectFit:"cover", display:"block" }} /> : <div className="skeleton" style={{ width:"100%", height:"100%" }} />}
-          <div style={{ position:"absolute", bottom:0, left:0, right:0, height:40, background:"linear-gradient(to bottom,transparent,rgba(253,249,240,.9))" }} />
+          {img
+            ? <img src={img} alt="" style={{ width:"100%", height:"100%", objectFit:"cover", display:"block" }} />
+            : <div className="skeleton" style={{ width:"100%", height:"100%" }} />
+          }
+          <div style={{ position:"absolute", bottom:0, left:0, right:0, height:48, background:"linear-gradient(to bottom,transparent,rgba(253,249,240,.95))" }} />
           <div style={{ position:"absolute", bottom:10, [side==="left"?"right":"left"]:12, background:"rgba(255,255,255,.88)", backdropFilter:"blur(4px)", borderRadius:99, padding:"2px 10px", color:"var(--ink)", fontSize:11, fontFamily:"'Nunito',sans-serif", fontWeight:700 }}>{idx+1}</div>
         </div>
-        <div style={{ flex:1, padding:"14px 20px 16px", display:"flex", alignItems:"center" }}>
-          <p style={{ fontFamily:"'Crimson Pro',serif", fontSize:"clamp(14px,1.6vw,18px)", lineHeight:1.9, color:"var(--ink)", textAlign:"center", width:"100%" }}>{text}</p>
+        {/* Text area */}
+        <div style={{ flex:1, padding:"14px 20px 18px", display:"flex", alignItems:"center" }}>
+          <p style={{ fontFamily:"'Crimson Pro',serif", fontSize:"clamp(13px,1.5vw,17px)", lineHeight:1.95, color:"var(--ink)", textAlign:"center", width:"100%" }}>{text}</p>
         </div>
-        <div style={{ position:"absolute", bottom:8, [side==="left"?"right":"left"]:14, color:"var(--gold)", fontSize:13, opacity:.4 }}>✦</div>
-        {side==="right" && <div style={{ position:"absolute", bottom:0, right:0, width:28, height:28, background:"linear-gradient(225deg,#e8d8b0 45%,transparent 50%)" }} />}
-        {side==="left" && <div style={{ position:"absolute", top:0, right:0, bottom:0, width:16, background:"linear-gradient(to right,transparent,rgba(0,0,0,.06))", pointerEvents:"none" }} />}
-        {side==="right" && <div style={{ position:"absolute", top:0, left:0, bottom:0, width:16, background:"linear-gradient(to left,transparent,rgba(0,0,0,.05))", pointerEvents:"none" }} />}
+        {/* Page corner fold */}
+        {side==="right" && <div style={{ position:"absolute", bottom:0, right:0, width:22, height:22, background:"linear-gradient(225deg,#e8d8b0 45%,transparent 50%)" }} />}
+        {/* Spine shadow */}
+        {side==="left"  && <div style={{ position:"absolute", top:0, right:0, bottom:0, width:18, background:"linear-gradient(to right,transparent,rgba(0,0,0,.08))", pointerEvents:"none" }} />}
+        {side==="right" && <div style={{ position:"absolute", top:0, left:0,  bottom:0, width:18, background:"linear-gradient(to left,transparent,rgba(0,0,0,.06))",  pointerEvents:"none" }} />}
+        <div style={{ position:"absolute", bottom:8, [side==="left"?"right":"left"]:14, color:"var(--gold)", fontSize:12, opacity:.4 }}>✦</div>
       </div>
     );
   };
 
+  // ── COVER — closed book, single page ──────────────────────────────────────
+  if (isCover) {
+    if (!coverImg) {
+      // No cover yet, skip to page 1 automatically
+      useEffect(() => { onFlip("forward"); }, []);
+      return null;
+    }
+    const W = mobile ? "min(92vw,380px)" : "min(52vw,480px)";
+    const aspect = "2/3"; // portrait closed book
+    return (
+      <div style={{ display:"flex", flexDirection:"column", alignItems:"center" }}>
+        {title && <h2 style={{ fontFamily:"'Playfair Display',serif", fontSize:"clamp(16px,2.4vw,24px)", fontStyle:"italic", color:"var(--gold-light)", textAlign:"center", marginBottom:16, textShadow:"0 2px 20px rgba(200,170,80,.3)" }}>{title}</h2>}
+        {/* Closed book */}
+        <div
+          onClick={()=>!animating&&onFlip("forward")}
+          style={{ width:W, aspectRatio:aspect, position:"relative", cursor:"pointer",
+            boxShadow:"8px 8px 0 rgba(0,0,0,.15), 0 60px 120px rgba(0,0,0,.85), 0 20px 60px rgba(0,0,0,.6), 0 0 0 1px rgba(255,255,255,.06)",
+            borderRadius:"4px 12px 12px 4px",
+            transition:"transform .2s ease, box-shadow .2s ease",
+          }}
+          onMouseEnter={e=>{e.currentTarget.style.transform="translateY(-4px) scale(1.01)"; e.currentTarget.style.boxShadow="8px 12px 0 rgba(0,0,0,.15), 0 70px 140px rgba(0,0,0,.9), 0 24px 70px rgba(0,0,0,.65), 0 0 0 1px rgba(255,255,255,.08)";}}
+          onMouseLeave={e=>{e.currentTarget.style.transform=""; e.currentTarget.style.boxShadow="8px 8px 0 rgba(0,0,0,.15), 0 60px 120px rgba(0,0,0,.85), 0 20px 60px rgba(0,0,0,.6), 0 0 0 1px rgba(255,255,255,.06)";}}
+        >
+          {/* Cover image */}
+          <div style={{ position:"absolute", inset:0, borderRadius:"4px 12px 12px 4px", overflow:"hidden" }}>
+            <img src={coverImg} alt="" style={{ width:"100%", height:"100%", objectFit:"cover", display:"block" }} />
+            {/* Dark gradient for text */}
+            <div style={{ position:"absolute", inset:0, background:"linear-gradient(to bottom,rgba(0,0,0,.05) 0%,transparent 30%,rgba(0,0,0,.65) 100%)" }} />
+            {/* Title */}
+            <div style={{ position:"absolute", bottom:0, left:0, right:0, padding:"clamp(16px,3vw,28px)", textAlign:"center" }}>
+              <h2 style={{ fontFamily:"'Playfair Display',serif", fontSize:"clamp(17px,3vw,28px)", fontStyle:"italic", color:"white", lineHeight:1.25, marginBottom:6, textShadow:"0 2px 20px rgba(0,0,0,.9)" }}>{title}</h2>
+              <p style={{ color:"rgba(255,255,255,.5)", fontFamily:"'Crimson Pro',serif", fontStyle:"italic", fontSize:"clamp(11px,1.5vw,14px)", textShadow:"0 1px 8px rgba(0,0,0,.8)" }}>A DreamWeaver Story ✦</p>
+            </div>
+            {/* Shine / gloss */}
+            <div style={{ position:"absolute", inset:0, background:"linear-gradient(125deg,rgba(255,255,255,.12) 0%,transparent 40%)", pointerEvents:"none" }} />
+          </div>
+          {/* Spine */}
+          <div style={{ position:"absolute", top:0, left:0, bottom:0, width:18, borderRadius:"4px 0 0 4px",
+            background:"linear-gradient(90deg,#1a0800,#5c2e0e 40%,#8b4513 50%,#5c2e0e 60%,#2a0a00)",
+            boxShadow:"inset -4px 0 8px rgba(0,0,0,.4)" }} />
+          {/* Pages stacked on right edge */}
+          <div style={{ position:"absolute", top:4, right:-4, bottom:4, width:8, borderRadius:"0 3px 3px 0",
+            background:"linear-gradient(90deg,#f5f0e8,#ede5d0)",
+            boxShadow:"2px 0 4px rgba(0,0,0,.3)" }} />
+          <div style={{ position:"absolute", top:6, right:-7, bottom:6, width:6, borderRadius:"0 3px 3px 0",
+            background:"linear-gradient(90deg,#ede5d0,#e8dfc8)",
+            boxShadow:"2px 0 4px rgba(0,0,0,.2)" }} />
+          {/* Tap hint */}
+          <div style={{ position:"absolute", top:"50%", left:"50%", transform:"translate(-50%,-50%)", opacity:.0, transition:"opacity .2s" }} className="cover-hint">
+          </div>
+        </div>
+        <button
+          onClick={()=>!animating&&onFlip("forward")}
+          style={{ marginTop:20, background:"linear-gradient(135deg,#4c2d99,#7c4dcc)", border:"none", borderRadius:999, padding:"clamp(12px,2vw,15px) clamp(28px,5vw,44px)", color:"white", fontFamily:"'Nunito',sans-serif", fontWeight:700, fontSize:"clamp(14px,2vw,16px)", cursor:"pointer", boxShadow:"0 4px 24px rgba(124,77,204,.45)", letterSpacing:".02em" }}
+        >
+          Open Book →
+        </button>
+        <p style={{ color:"rgba(255,255,255,.2)", fontSize:12, marginTop:10, fontFamily:"'Nunito',sans-serif" }}>or tap the cover</p>
+      </div>
+    );
+  }
+
+  const li = displaySpread * 2;
+  const ri = displaySpread * 2 + 1;
+
+  // ── MOBILE: single page view ───────────────────────────────────────────────
   if (mobile) {
     const touchStart = useRef(null);
     const handleTouchStart = (e) => { touchStart.current = e.touches[0].clientX; };
@@ -638,64 +722,107 @@ function OpenBook({ pages, imgs, spread, onFlip, title, mobile=false, coverImg=n
       touchStart.current = null;
       if (Math.abs(dx) < 40) return;
       if (dx < 0 && spread < pages.length - 1) onFlip("forward");
-      if (dx > 0 && spread > 0) onFlip("back");
+      if (dx > 0 && spread > (coverImg ? -1 : 0)) onFlip("back");
     };
     return (
-      <div style={{ width:"100%", maxWidth: window.innerWidth >= 700 ? 680 : 480, margin:"0 auto" }}>
-        {title && <div style={{ textAlign:"center", marginBottom:12 }}><h2 style={{ fontFamily:"'Playfair Display',serif", fontSize:"clamp(17px,3vw,24px)", fontStyle:"italic", color:"var(--gold-light)" }}>{title}</h2></div>}
+      <div style={{ width:"100%", maxWidth:"min(92vw,520px)", margin:"0 auto" }}>
+        {title && <div style={{ textAlign:"center", marginBottom:12 }}><h2 style={{ fontFamily:"'Playfair Display',serif", fontSize:"clamp(17px,4vw,22px)", fontStyle:"italic", color:"var(--gold-light)" }}>{title}</h2></div>}
         <div
           onTouchStart={handleTouchStart} onTouchEnd={handleTouchEnd}
-          style={{ borderRadius:20, overflow:"hidden", boxShadow:"0 40px 80px rgba(0,0,0,.8),0 0 0 1px rgba(255,255,255,.06)", touchAction:"pan-y" }}>
-          <div style={{ display:"flex" }}>
-            <div style={{ flex:1, display:"flex", flexDirection:"column", background:"linear-gradient(175deg,#fefcf7,#fdf9f0)", position:"relative", overflow:"hidden" }}>
-              <div style={{ width:"100%", aspectRatio: window.innerWidth >= 700 ? "4/3" : "16/9", position:"relative", overflow:"hidden" }}>
-                {imgs[spread]
-                  ? <img src={imgs[spread]} alt="" style={{ width:"100%", height:"100%", objectFit:"cover", display:"block" }} />
-                  : <div className="skeleton" style={{ width:"100%", height:"100%" }} />}
-                <div style={{ position:"absolute", bottom:0, left:0, right:0, height:40, background:"linear-gradient(to bottom,transparent,rgba(253,249,240,.9))" }} />
-                <div style={{ position:"absolute", bottom:10, right:14, background:"rgba(255,255,255,.85)", backdropFilter:"blur(4px)", borderRadius:99, padding:"3px 11px", color:"var(--ink)", fontSize:12, fontFamily:"'Nunito',sans-serif", fontWeight:700 }}>{spread+1}</div>
-              </div>
-              <div style={{ padding: window.innerWidth >= 700 ? "24px 32px 28px" : "clamp(14px,4vw,20px) clamp(16px,5vw,24px)", minHeight: window.innerWidth >= 700 ? 120 : 80 }}>
-                <p style={{ fontFamily:"'Crimson Pro',serif", fontSize: window.innerWidth >= 700 ? "clamp(18px,2.2vw,22px)" : "clamp(15px,4vw,18px)", lineHeight:1.9, color:"var(--ink)", textAlign:"center" }}>{pages[spread]}</p>
-              </div>
+          className={flipClass || enterClass}
+          style={{ borderRadius:16, overflow:"hidden", touchAction:"pan-y",
+            boxShadow:"0 40px 80px rgba(0,0,0,.8), 0 0 0 1px rgba(255,255,255,.06)",
+            transformOrigin: flipClass==="page-flip-back"||enterClass==="page-enter-back" ? "right center" : "left center",
+          }}>
+          <div style={{ display:"flex", flexDirection:"column", background:"linear-gradient(175deg,#fefcf7,#fdf9f0)", position:"relative" }}>
+            <div style={{ width:"100%", aspectRatio:"4/3", position:"relative", overflow:"hidden" }}>
+              {imgs[spread]
+                ? <img src={imgs[spread]} alt="" style={{ width:"100%", height:"100%", objectFit:"cover", display:"block" }} />
+                : <div className="skeleton" style={{ width:"100%", height:"100%" }} />}
+              <div style={{ position:"absolute", bottom:0, left:0, right:0, height:40, background:"linear-gradient(to bottom,transparent,rgba(253,249,240,.9))" }} />
+              <div style={{ position:"absolute", bottom:10, right:14, background:"rgba(255,255,255,.88)", backdropFilter:"blur(4px)", borderRadius:99, padding:"3px 11px", color:"var(--ink)", fontSize:12, fontFamily:"'Nunito',sans-serif", fontWeight:700 }}>{spread+1}</div>
+            </div>
+            <div style={{ padding:"clamp(16px,4vw,22px) clamp(18px,5vw,28px) clamp(18px,4vw,24px)", minHeight:90 }}>
+              <p style={{ fontFamily:"'Crimson Pro',serif", fontSize:"clamp(16px,4.5vw,20px)", lineHeight:1.9, color:"var(--ink)", textAlign:"center" }}>{pages[spread]}</p>
             </div>
           </div>
         </div>
+        {/* Navigation */}
         <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginTop:14, gap:10 }}>
-          <button className="btn-book" disabled={(coverImg?spread===-1:spread===0)||animating} onClick={() => onFlip("back")} style={{ flex:1, fontSize: window.innerWidth >= 700 ? 15 : 13, padding: window.innerWidth >= 700 ? "14px 20px" : undefined }}>← Prev</button>
-          <div style={{ display:"flex", gap:6, alignItems:"center", flexShrink:0 }}>
-            {pages.length <= 12
-              ? Array.from({length:pages.length}).map((_,i) => <div key={i} onClick={()=>!animating&&onFlip(i)} style={{ width:i===spread?22:7, height:7, borderRadius:99, background:i===spread?"var(--gold)":"rgba(255,255,255,.2)", transition:"all .3s", cursor:"pointer" }} />)
-              : <span style={{ color:"rgba(255,255,255,.35)", fontSize: window.innerWidth >= 700 ? 15 : 13, fontFamily:"'Nunito',sans-serif" }}>{spread+1} / {pages.length}</span>}
+          <button className="btn-book" disabled={(coverImg?spread===-1:spread===0)||animating} onClick={()=>onFlip("back")} style={{ flex:1 }}>← Prev</button>
+          <div style={{ display:"flex", gap:5, alignItems:"center", flexShrink:0 }}>
+            {pages.length <= 14
+              ? Array.from({length:pages.length}).map((_,i) => <div key={i} onClick={()=>!animating&&onFlip(i)} style={{ width:i===spread?20:6, height:6, borderRadius:99, background:i===spread?"var(--gold)":"rgba(255,255,255,.2)", transition:"all .3s", cursor:"pointer" }} />)
+              : <span style={{ color:"rgba(255,255,255,.35)", fontSize:13, fontFamily:"'Nunito',sans-serif" }}>{spread+1}/{pages.length}</span>}
           </div>
-          <button className="btn-book" disabled={spread>=pages.length-1||animating} onClick={() => onFlip("forward")} style={{ flex:1, fontSize: window.innerWidth >= 700 ? 15 : 13, padding: window.innerWidth >= 700 ? "14px 20px" : undefined }}>Next →</button>
+          <button className="btn-book" disabled={spread>=pages.length-1||animating} onClick={()=>onFlip("forward")} style={{ flex:1 }}>Next →</button>
         </div>
       </div>
     );
   }
 
+  // ── DESKTOP: two-page spread ───────────────────────────────────────────────
   return (
-    <div style={{ width:"100%", maxWidth:1160, margin:"0 auto" }}>
-      {title && <div style={{ textAlign:"center", marginBottom:14 }}><h2 style={{ fontFamily:"'Playfair Display',serif", fontSize:"clamp(15px,2.4vw,24px)", fontStyle:"italic", color:"var(--gold-light)", textShadow:"0 2px 20px rgba(200,170,80,.3)" }}>{title}</h2></div>}
-      <div style={{ perspective:"2400px", perspectiveOrigin:"50% 44%" }}>
-        <div style={{ display:"flex", position:"relative", borderRadius:16, overflow:"hidden", boxShadow:"0 80px 160px rgba(0,0,0,.85),0 30px 80px rgba(0,0,0,.6),0 0 0 1px rgba(255,255,255,.04)" }}>
-          <div className={flipClass==="page-flip-back"?flipClass:(!flipClass&&enterClass==="page-enter-back"?enterClass:"")} style={{ flex:1, display:"flex", position:"relative", overflow:"hidden", transformOrigin:"right center", transformStyle:"preserve-3d", borderRadius:"14px 0 0 14px", boxShadow:"inset -6px 0 16px rgba(0,0,0,.18)" }}><Page idx={li} side="left" /></div>
-          <div style={{ width:28, flexShrink:0, zIndex:10, background:"linear-gradient(90deg,#100500,var(--spine-mid) 30%,var(--spine-light) 50%,var(--spine-mid) 70%,#100500)", boxShadow:"0 0 24px rgba(0,0,0,.9)", position:"relative" }}>
-            <div style={{ position:"absolute", top:0, bottom:0, left:"50%", width:1, background:"linear-gradient(180deg,transparent 5%,rgba(201,168,76,.3) 50%,transparent 95%)" }} />
+    <div style={{ width:"100%", maxWidth:"min(96vw,1240px)", margin:"0 auto" }}>
+      {title && <div style={{ textAlign:"center", marginBottom:16 }}>
+        <h2 style={{ fontFamily:"'Playfair Display',serif", fontSize:"clamp(16px,2.2vw,26px)", fontStyle:"italic", color:"var(--gold-light)", textShadow:"0 2px 20px rgba(200,170,80,.3)" }}>{title}</h2>
+      </div>}
+
+      <div style={{ perspective:"2800px", perspectiveOrigin:"50% 42%" }}>
+        <div style={{ display:"flex", position:"relative", borderRadius:16,
+          boxShadow:"0 80px 160px rgba(0,0,0,.85), 0 30px 80px rgba(0,0,0,.6), 0 0 0 1px rgba(255,255,255,.04)",
+          overflow:"hidden",
+        }}>
+          {/* LEFT PAGE */}
+          <div
+            className={flipClass==="page-flip-back" ? "page-flip-back" : (enterClass==="page-enter-back" ? "page-enter-back" : "")}
+            style={{ flex:1, display:"flex", position:"relative", overflow:"hidden",
+              transformOrigin:"right center", transformStyle:"preserve-3d",
+              borderRadius:"14px 0 0 14px",
+              boxShadow:"inset -8px 0 20px rgba(0,0,0,.2)",
+            }}>
+            <PageContent idx={li} side="left" />
           </div>
-          <div className={flipClass==="page-flip-forward"?flipClass:(enterClass==="page-enter-forward"?enterClass:"")} style={{ flex:1, display:"flex", position:"relative", overflow:"hidden", transformOrigin:"left center", transformStyle:"preserve-3d", borderRadius:"0 14px 14px 0", boxShadow:"inset 6px 0 16px rgba(0,0,0,.14)" }}><Page idx={ri} side="right" /></div>
+
+          {/* SPINE */}
+          <div style={{ width:32, flexShrink:0, zIndex:10, position:"relative",
+            background:"linear-gradient(90deg,#0a0300,#4a1e08 25%,#8b4513 45%,#c8782a 50%,#8b4513 55%,#4a1e08 75%,#0a0300)",
+            boxShadow:"0 0 30px rgba(0,0,0,.9), inset 0 0 12px rgba(0,0,0,.5)",
+          }}>
+            <div style={{ position:"absolute", top:0, bottom:0, left:"50%", width:1.5, background:"linear-gradient(180deg,transparent 3%,rgba(201,168,76,.4) 30%,rgba(240,210,100,.6) 50%,rgba(201,168,76,.4) 70%,transparent 97%)" }} />
+            <div style={{ position:"absolute", top:0, bottom:0, left:"30%", width:1, background:"linear-gradient(180deg,transparent 5%,rgba(255,255,255,.08) 50%,transparent 95%)" }} />
+          </div>
+
+          {/* RIGHT PAGE */}
+          <div
+            className={flipClass==="page-flip-forward" ? "page-flip-forward" : (enterClass==="page-enter-forward" ? "page-enter-forward" : "")}
+            style={{ flex:1, display:"flex", position:"relative", overflow:"hidden",
+              transformOrigin:"left center", transformStyle:"preserve-3d",
+              borderRadius:"0 14px 14px 0",
+              boxShadow:"inset 8px 0 20px rgba(0,0,0,.16)",
+            }}>
+            <PageContent idx={ri} side="right" />
+          </div>
         </div>
       </div>
-      <div style={{ display:"flex", alignItems:"center", justifyContent:"center", gap:16, marginTop:20 }}>
-        <button className="btn-book" disabled={(coverImg?spread===-1:spread===0)||animating} onClick={() => onFlip("back")}>← Prev</button>
-        <div style={{ display:"flex", gap:6, alignItems:"center" }}>
-          {Array.from({ length: totalSpreads }).map((_,i) => <div key={i} onClick={() => !animating&&onFlip(i)} style={{ width:i===spread?22:7, height:7, borderRadius:99, cursor:animating?"default":"pointer", background:i===spread?"var(--gold)":"rgba(255,255,255,.18)", transition:"all .3s", boxShadow:i===spread?"0 0 10px rgba(201,168,76,.6)":"none" }} />)}
+
+      {/* Navigation */}
+      <div style={{ display:"flex", alignItems:"center", justifyContent:"center", gap:16, marginTop:22 }}>
+        <button className="btn-book" disabled={(coverImg?spread===-1:spread===0)||animating} onClick={()=>onFlip("back")}>← Prev</button>
+        <div style={{ display:"flex", gap:7, alignItems:"center" }}>
+          {Array.from({ length: totalSpreads }).map((_,i) => (
+            <div key={i} onClick={()=>!animating&&onFlip(i)}
+              style={{ width:i===spread?24:7, height:7, borderRadius:99, cursor:animating?"default":"pointer",
+                background:i===spread?"var(--gold)":"rgba(255,255,255,.18)",
+                transition:"all .3s", boxShadow:i===spread?"0 0 12px rgba(201,168,76,.6)":"none" }} />
+          ))}
         </div>
-        <button className="btn-book" disabled={spread>=totalSpreads-1||animating} onClick={() => onFlip("forward")}>Next →</button>
+        <button className="btn-book" disabled={spread>=totalSpreads-1||animating} onClick={()=>onFlip("forward")}>Next →</button>
       </div>
     </div>
   );
 }
+
 
 // ── Main App ──────────────────────────────────────────────────────────────────
 export default function App() {
@@ -705,6 +832,8 @@ export default function App() {
   const [active, setActive]       = useState(null);
   const [sub, setSub]             = useState(null);
   const [streak, setStreak]       = useState(0);
+  const [streakCelebrate, setStreakCelebrate] = useState(false);
+  const [streakMilestone, setStreakMilestone] = useState(null); // null | 3 | 7 | 30
 
   const [story, setStory]         = useState(null);
   const [title, setTitle]         = useState("");
@@ -784,12 +913,16 @@ export default function App() {
     setScreen(profs?.length ? "home" : "welcome");
     if (profs?.length) { const { data:b } = await supabase.from("badges").select("badge_id").eq("user_id",u.id); if (b) setBadges(b.map(x=>x.badge_id)); }
   };
-  const calcStreak = async (uid) => {
+  const calcStreak = async (uid, prevStreak=0) => {
     const { data } = await supabase.from("stories").select("story_date").eq("user_id",uid).order("story_date",{ ascending:false });
     if (!data?.length) return;
     let n=0, check=new Date(); check.setHours(0,0,0,0);
     for (const s of data) { const d=new Date(s.story_date+"T00:00:00"); d.setHours(0,0,0,0); if ((check-d)/86400000<=1) { n++; check=d; } else break; }
     setStreak(n);
+    // Trigger milestone celebration if we just hit 3, 7, or 30
+    const milestones = [3, 7, 30];
+    const hit = milestones.find(m => n === m && prevStreak < m);
+    if (hit) { setStreakMilestone(hit); setStreakCelebrate(true); setTimeout(() => setStreakCelebrate(false), 4000); }
   };
 
   const hasAccess = () => { if (!sub) return true; // allow while loading - server will catch expired
@@ -1020,7 +1153,7 @@ export default function App() {
       if (loaded<=1) setStoryPhase("ready");
       // Final save with complete array
       if (saved?.id) await supabase.from("stories").update({ page_images:generated }).eq("id",saved.id);
-    await calcStreak(user.id);
+    await calcStreak(user.id, streak);
     await calcBadges(user.id, streak);
     } catch(e) { console.error(e); setPages(["The story stars are cloudy tonight. Please try again!"]); setStoryPhase("ready"); }
   };
@@ -1110,7 +1243,84 @@ export default function App() {
     window.speechSynthesis.speak(utt);
   };
 
-  const shareStory = async () => { try { await navigator.clipboard.writeText(`${APP_URL}?story=${story?.id}`); } catch {} setCopied(true); setTimeout(()=>setCopied(false),2500); };
+  const [showShareCard, setShowShareCard] = useState(false);
+
+  const shareStory = async () => {
+    setShowShareCard(true);
+  };
+
+  const copyShareLink = async () => {
+    try { await navigator.clipboard.writeText(`${APP_URL}?story=${story?.id}`); } catch {}
+    setCopied(true); setTimeout(()=>setCopied(false),2500);
+  };
+
+  const downloadShareCard = async () => {
+    // Build a canvas share card
+    const canvas = document.createElement("canvas");
+    canvas.width = 1080; canvas.height = 1080;
+    const ctx = canvas.getContext("2d");
+
+    // Background gradient
+    const bg = ctx.createLinearGradient(0,0,1080,1080);
+    bg.addColorStop(0,"#0d0620"); bg.addColorStop(1,"#1a0a3e");
+    ctx.fillStyle = bg; ctx.fillRect(0,0,1080,1080);
+
+    // Cover image
+    if (coverImg || imgs[0]) {
+      try {
+        const img = new Image(); img.crossOrigin="anonymous";
+        await new Promise((res,rej) => { img.onload=res; img.onerror=rej; img.src=coverImg||imgs[0]; });
+        ctx.save();
+        const r=40, x=80, y=80, w=920, h=680;
+        ctx.beginPath(); ctx.moveTo(x+r,y); ctx.lineTo(x+w-r,y); ctx.quadraticCurveTo(x+w,y,x+w,y+r);
+        ctx.lineTo(x+w,y+h-r); ctx.quadraticCurveTo(x+w,y+h,x+w-r,y+h);
+        ctx.lineTo(x+r,y+h); ctx.quadraticCurveTo(x,y+h,x,y+h-r);
+        ctx.lineTo(x,y+r); ctx.quadraticCurveTo(x,y,x+r,y); ctx.closePath(); ctx.clip();
+        ctx.drawImage(img,80,80,920,680);
+        ctx.restore();
+        // Gradient overlay on image
+        const ov = ctx.createLinearGradient(0,500,0,760);
+        ov.addColorStop(0,"transparent"); ov.addColorStop(1,"rgba(13,6,32,.9)");
+        ctx.fillStyle=ov; ctx.fillRect(80,80,920,680);
+      } catch(e) { console.log("img load failed",e); }
+    }
+
+    // Title text
+    ctx.fillStyle="white";
+    ctx.font="bold italic 54px Georgia, serif";
+    ctx.textAlign="center";
+    const titleText = title || "A DreamWeaver Story";
+    ctx.fillText(titleText.length>36 ? titleText.slice(0,34)+"…" : titleText, 540, 700);
+
+    // Divider
+    ctx.strokeStyle="rgba(201,168,76,.5)"; ctx.lineWidth=1.5;
+    ctx.beginPath(); ctx.moveTo(200,740); ctx.lineTo(880,740); ctx.stroke();
+
+    // Child name
+    ctx.font="500 36px Georgia, serif";
+    ctx.fillStyle="rgba(255,255,255,.6)";
+    ctx.fillText(`A story for ${active?.child_name||"a very special child"} ✦`, 540, 790);
+
+    // DreamWeaver branding
+    ctx.font="bold italic 40px Georgia, serif";
+    ctx.fillStyle="rgba(201,168,76,.9)";
+    ctx.fillText("DreamWeaver", 540, 920);
+    ctx.font="26px Georgia, serif";
+    ctx.fillStyle="rgba(255,255,255,.3)";
+    ctx.fillText("dreamweaverstory.com", 540, 965);
+
+    // Stars decoration
+    ["✦","✦","✦"].forEach((s,i) => {
+      ctx.font="28px serif"; ctx.fillStyle="rgba(201,168,76,.4)";
+      ctx.fillText(s, 310 + i*115, 860);
+    });
+
+    // Download
+    const link = document.createElement("a");
+    link.download = `${title||"dreamweaver-story"}.png`;
+    link.href = canvas.toDataURL("image/png");
+    link.click();
+  };
   const loadLibrary = async () => { if (!user) return; const { data, error } = await supabase.from("stories").select("*").eq("user_id",user.id).order("story_date",{ ascending:false }); if (error) console.error("Library load error:", error); setLibrary(data||[]); };
 
   // ── Coloring book ──────────────────────────────────────────────────────────
@@ -1601,13 +1811,39 @@ export default function App() {
             HOME
         ══════════════════════════════════════════════════════════════════════ */}
         {screen==="home" && active && (
-          <div className="fade" style={{ maxWidth:tablet?640:480, width:"100%", padding: tablet ? "0 8px" : undefined }}>
+          <div className="fade has-bottom-nav" style={{ maxWidth:tablet?640:480, width:"100%", padding: tablet ? "0 8px" : undefined }}>
             {/* Top bar */}
             <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:16 }}>
               <div style={{ display:"flex", gap:8, alignItems:"center", flexWrap:"wrap" }}>
-                {streak>0 && <div style={{ background:"rgba(255,155,40,.1)", border:"1px solid rgba(255,155,40,.22)", borderRadius:999, padding:"5px 12px", display:"flex", gap:6, alignItems:"center" }}>
-                  <span>🔥</span><span style={{ color:"#ffb347", fontSize:13, fontWeight:700 }}>{streak} night{streak!==1?"s":""}</span>
-                </div>}
+                {streak>0 && (
+                  <div style={{ background:streakCelebrate?"rgba(255,155,40,.2)":"rgba(255,155,40,.1)", border:`1px solid ${streakCelebrate?"rgba(255,155,40,.6)":"rgba(255,155,40,.22)"}`, borderRadius:999, padding:"5px 12px", display:"flex", gap:6, alignItems:"center", transition:"all .4s", transform:streakCelebrate?"scale(1.12)":"scale(1)", boxShadow:streakCelebrate?"0 0 20px rgba(255,155,40,.4)":"none" }}>
+                    <span style={{ animation:streakCelebrate?"wiggle .4s ease-in-out 3":"none", display:"inline-block" }}>🔥</span>
+                    <span style={{ color:"#ffb347", fontSize:13, fontWeight:700 }}>{streak} night{streak!==1?"s":""}</span>
+                    {streakCelebrate && <span style={{ color:"#ffd700", fontSize:11, fontWeight:800 }}>🎉</span>}
+                  </div>
+                )}
+                {/* Milestone celebration overlay */}
+                {streakCelebrate && streakMilestone && (
+                  <div style={{ position:"fixed", top:0, left:0, right:0, bottom:0, display:"flex", alignItems:"center", justifyContent:"center", zIndex:9999, pointerEvents:"none" }}>
+                    <div style={{ textAlign:"center", animation:"popIn .4s cubic-bezier(.34,1.56,.64,1)", background:"linear-gradient(155deg,rgba(30,10,80,.96),rgba(20,5,50,.98))", border:"1px solid rgba(255,155,40,.4)", borderRadius:28, padding:"clamp(28px,5vw,44px) clamp(24px,5vw,52px)", boxShadow:"0 0 80px rgba(255,155,40,.3),0 30px 80px rgba(0,0,0,.8)", pointerEvents:"auto" }}>
+                      <div style={{ fontSize:"clamp(52px,12vw,72px)", marginBottom:14, animation:"float 2s ease-in-out infinite" }}>🔥</div>
+                      <h2 style={{ fontFamily:"'Playfair Display',serif", fontSize:"clamp(24px,6vw,34px)", marginBottom:8, lineHeight:1.2, background:"linear-gradient(120deg,#ffd700,#ffb347)", WebkitBackgroundClip:"text", WebkitTextFillColor:"transparent", backgroundClip:"text" }}>
+                        {streakMilestone}-Night Streak!
+                      </h2>
+                      <p style={{ color:"rgba(255,255,255,.5)", fontFamily:"'Crimson Pro',serif", fontStyle:"italic", fontSize:"clamp(14px,3vw,17px)", lineHeight:1.7 }}>
+                        {streakMilestone===3 && "Three nights of magic in a row ✨"}
+                        {streakMilestone===7 && "A whole week of bedtime stories 🌙"}
+                        {streakMilestone===30 && "Thirty nights — you're a DreamWeaver legend ⭐"}
+                      </p>
+                      <div style={{ marginTop:16, display:"flex", gap:4, justifyContent:"center" }}>
+                        {Array.from({length:Math.min(streakMilestone,7)}).map((_,i)=>(
+                          <span key={i} style={{ fontSize:18, animation:`popIn .3s ${i*0.08}s both` }}>🔥</span>
+                        ))}
+                        {streakMilestone>7 && <span style={{ color:"rgba(255,215,0,.6)", fontSize:13, marginLeft:4 }}>+{streakMilestone-7} more</span>}
+                      </div>
+                    </div>
+                  </div>
+                )}
                 {sub?.status==="trial" && <span style={{ color:"var(--purple-light)", fontSize:12, background:"rgba(180,143,255,.1)", padding:"4px 10px", borderRadius:999, border:"1px solid rgba(180,143,255,.2)" }}>{daysLeft()}d Trial Left</span>}
               </div>
               <button onClick={logout} style={{ background:"none", border:"none", color:"rgba(255,255,255,.2)", cursor:"pointer", fontSize:13, fontFamily:"'Nunito',sans-serif", padding:"8px 0", minHeight:44 }}>Sign out</button>
@@ -1714,11 +1950,11 @@ export default function App() {
               </button>
               <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:10 }}>
                 <button className="btn-soft" onClick={()=>{setEditId(active.id);setPf(active);setScreen("profile");}}>✏️ Edit Profile</button>
-                <button className="btn-soft" onClick={()=>{loadLibrary();setScreen("library");}}>📚 Library</button>
+                {!mobile && <button className="btn-soft" onClick={()=>{loadLibrary();setScreen("library");}}>📚 Library</button>}
               </div>
-              <button className="btn-soft" onClick={()=>setScreen("badges")} style={{ display:"flex", alignItems:"center", justifyContent:"center", gap:8 }}>
+              {!mobile && <button className="btn-soft" onClick={()=>setScreen("badges")} style={{ display:"flex", alignItems:"center", justifyContent:"center", gap:8 }}>
                 🏅 Badges <span style={{ color:"var(--gold)", fontSize:12 }}>{badges.length}/{BADGE_DEFS.length}</span>
-              </button>
+              </button>}
             </div>
           </div>
         )}
@@ -1763,12 +1999,12 @@ export default function App() {
             STORY
         ══════════════════════════════════════════════════════════════════════ */}
         {screen==="story" && (
-          <div className="fade" style={{ maxWidth:1200, width:"100%", paddingBottom:20 }}>
+          <div className="fade" style={{ maxWidth:"min(98vw,1320px)", width:"100%", paddingBottom:20 }}>
             {storyPhase==="text" && <MoonLoader text="Writing your story…" childName={active?.child_name||""} />}
             {storyPhase==="illustrating" && <IllustrationLoader total={pages.length} loaded={imgsLoaded} title={title} imgs={imgs} />}
             {storyPhase==="ready" && pages.length>0 && (
               <>
-                <OpenBook pages={pages} imgs={imgs} spread={spread} onFlip={handleFlip} title={title} mobile={mobile||tablet} coverImg={coverImg} />
+                <OpenBook pages={pages} imgs={imgs} spread={spread} onFlip={handleFlip} title={title} mobile={mobile} coverImg={coverImg} />
 
                 {/* Progress indicator */}
                 {imgsLoaded<pages.length && (
@@ -1803,11 +2039,45 @@ export default function App() {
           </div>
         )}
 
+        {/* Share card modal */}
+        {showShareCard && (
+          <div style={{ position:"fixed", inset:0, background:"rgba(0,0,0,.7)", backdropFilter:"blur(12px)", zIndex:2000, display:"flex", alignItems:"flex-end", justifyContent:"center", padding:"0 0 env(safe-area-inset-bottom,0px)" }}
+            onClick={()=>setShowShareCard(false)}>
+            <div style={{ background:"linear-gradient(175deg,#1a0a3e,#0d0620)", border:"1px solid rgba(255,255,255,.1)", borderRadius:"24px 24px 0 0", padding:"clamp(20px,4vw,32px)", width:"100%", maxWidth:480, animation:"slideUp .3s ease" }}
+              onClick={e=>e.stopPropagation()}>
+              {/* Handle */}
+              <div style={{ width:40, height:4, borderRadius:99, background:"rgba(255,255,255,.15)", margin:"0 auto 20px" }} />
+
+              {/* Preview */}
+              <div style={{ borderRadius:16, overflow:"hidden", aspectRatio:"1/1", marginBottom:20, position:"relative", background:"linear-gradient(135deg,#1a0a3e,#0d0620)", border:"1px solid rgba(255,255,255,.08)" }}>
+                {(coverImg||imgs[0]) && <img src={coverImg||imgs[0]} alt="" style={{ width:"100%", height:"70%", objectFit:"cover", display:"block" }} />}
+                <div style={{ padding:"clamp(12px,3vw,18px)", textAlign:"center" }}>
+                  <p style={{ fontFamily:"'Playfair Display',serif", fontStyle:"italic", fontSize:"clamp(15px,4vw,19px)", color:"white", marginBottom:4, lineHeight:1.3 }}>{title}</p>
+                  <p style={{ color:"rgba(255,255,255,.35)", fontFamily:"'Crimson Pro',serif", fontSize:13 }}>A story for {active?.child_name} ✦ DreamWeaver</p>
+                </div>
+              </div>
+
+              {/* Actions */}
+              <div style={{ display:"flex", flexDirection:"column", gap:10 }}>
+                <button className="btn-cta full" onClick={downloadShareCard}>
+                  ⬇️ Save As Image
+                </button>
+                <button className="btn-soft" onClick={copyShareLink}>
+                  {copied ? "✅ Link Copied!" : "🔗 Copy Share Link"}
+                </button>
+                <button className="btn-soft" onClick={()=>setShowShareCard(false)} style={{ opacity:.6 }}>
+                  Cancel
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* ═══════════════════════════════════════════════════════════════════
             BADGES SCREEN
         ══════════════════════════════════════════════════════════════════════ */}
         {screen==="badges" && (
-          <div className="fade" style={{ maxWidth:480, width:"100%" }}>
+          <div className="fade has-bottom-nav" style={{ maxWidth:480, width:"100%" }}>
             <div style={{ display:"flex", alignItems:"center", gap:12, marginBottom:22 }}>
               <button className="btn-soft" style={{ flexShrink:0, width:"auto", padding:"12px 16px" }} onClick={()=>setScreen("home")}>← Home</button>
               <h2 style={{ fontFamily:"'Playfair Display',serif", fontSize:"clamp(17px,4vw,21px)", fontStyle:"italic" }}>🏅 {active?.child_name}'s Badges</h2>
@@ -1837,15 +2107,28 @@ export default function App() {
             LIBRARY
         ══════════════════════════════════════════════════════════════════════ */}
         {screen==="library" && (
-          <div className="fade" style={{ maxWidth:560, width:"100%" }}>
+          <div className="fade has-bottom-nav" style={{ maxWidth:560, width:"100%" }}>
             <div style={{ display:"flex", alignItems:"center", gap:12, marginBottom:20 }}>
               <button className="btn-soft" style={{ flexShrink:0, width:"auto", padding:"12px 16px" }} onClick={()=>setScreen("home")}>← Home</button>
               <h2 style={{ fontFamily:"'Playfair Display',serif", fontSize:"clamp(16px,4vw,20px)", fontStyle:"italic", overflow:"hidden", textOverflow:"ellipsis", whiteSpace:"nowrap" }}>📚 {active?.child_name}'s Library</h2>
             </div>
             {library.length===0 ? (
-              <div style={{ textAlign:"center", padding:"48px 20px" }}>
-                <div style={{ fontSize:44, marginBottom:14 }}>🌙</div>
-                <p style={{ color:"rgba(255,255,255,.3)", fontFamily:"'Crimson Pro',serif", fontStyle:"italic", fontSize:16 }}>No stories yet — generate tonight's first!</p>
+              <div style={{ textAlign:"center", padding:"clamp(48px,10vw,72px) 20px" }}>
+                {/* Soft glow behind moon */}
+                <div style={{ position:"relative", display:"inline-block", marginBottom:24 }}>
+                  <div style={{ position:"absolute", inset:"-20px", borderRadius:"50%", background:"radial-gradient(circle,rgba(200,170,80,.12) 0%,transparent 70%)", pointerEvents:"none" }} />
+                  <div style={{ fontSize:"clamp(52px,12vw,68px)", animation:"float 4s ease-in-out infinite", filter:"drop-shadow(0 0 24px rgba(200,170,80,.3))", position:"relative" }}>🌙</div>
+                </div>
+                <h3 style={{ fontFamily:"'Playfair Display',serif", fontSize:"clamp(20px,5vw,26px)", fontStyle:"italic", marginBottom:10, lineHeight:1.3 }}>
+                  {active?.child_name}'s first story<br/>is waiting to be written
+                </h3>
+                <p style={{ color:"rgba(255,255,255,.32)", fontFamily:"'Crimson Pro',serif", fontStyle:"italic", fontSize:"clamp(14px,3.5vw,16px)", lineHeight:1.8, maxWidth:300, margin:"0 auto 28px" }}>
+                  Every night, a brand new 10-page illustrated picture book — starring {active?.child_name} as the hero.
+                </p>
+                <button className="btn-cta" style={{ margin:"0 auto", display:"block", width:"auto", padding:"16px 32px" }} onClick={()=>setScreen("home")}>
+                  ✨ Open Tonight's Story
+                </button>
+                <p style={{ color:"rgba(255,255,255,.15)", fontSize:12, marginTop:14 }}>Stories you generate will appear here</p>
               </div>
             ) : (
               <div style={{ display:"flex", flexDirection:"column", gap:10 }}>
@@ -1945,6 +2228,11 @@ export default function App() {
           </div>
           );
         })()}
+
+        {/* ── Mobile bottom nav — shown on main app screens ── */}
+        {mobile && ["home","library","badges","story"].includes(screen) && user && (
+          <BottomNav screen={screen} setScreen={setScreen} loadLibrary={loadLibrary} badgeCount={badges.length} totalBadges={BADGE_DEFS.length} />
+        )}
 
         {/* ═══════════════════════════════════════════════════════════════════
             SHARED
