@@ -707,7 +707,20 @@ export default function App() {
       const data = await response.json();
       const description = data.content?.[0]?.text?.trim();
       if (description) {
-        setPf(prev => ({ ...prev, character_card: description }));
+        // Upload photo to Supabase storage for permanent URL
+        try {
+          const ext = file.type.includes("png") ? "png" : "jpg";
+          const path = `avatars/${Date.now()}_${Math.random().toString(36).slice(2)}.${ext}`;
+          const { error: uploadErr } = await supabase.storage.from("story-images").upload(path, file, { contentType: file.type, upsert: true });
+          if (!uploadErr) {
+            const { data: urlData } = supabase.storage.from("story-images").getPublicUrl(path);
+            setPf(prev => ({ ...prev, character_card: description, photo_url: urlData.publicUrl }));
+          } else {
+            setPf(prev => ({ ...prev, character_card: description }));
+          }
+        } catch {
+          setPf(prev => ({ ...prev, character_card: description }));
+        }
         console.log("Character card from photo:", description);
       }
     } catch(e) {
@@ -720,9 +733,28 @@ export default function App() {
   const saveProfile = async () => {
     setErr("");
     if (!pf.child_name) return setErr("Child's name is required.");
-    const payload = { ...pf, user_id:user.id, age:parseInt(pf.age)||5, character_card:pf.character_card||undefined };
-    if (editId) { const { data:u } = await supabase.from("child_profiles").update(payload).eq("id",editId).select().single(); if (u) { setProfiles(profiles.map(p => p.id===editId?u:p)); if (active?.id===editId) setActive(u); } }
-    else { const { data:c, error:e } = await supabase.from("child_profiles").insert(payload).select().single(); if (e) { setErr(e.message); return; } if (c) { setProfiles([...profiles,c]); setActive(c); } }
+    // Explicitly include photo_url and character_card so they always save
+    const payload = {
+      child_name: pf.child_name,
+      age: parseInt(pf.age)||5,
+      stuffed_animal: pf.stuffed_animal||"",
+      best_friend: pf.best_friend||"",
+      favorite_animal: pf.favorite_animal||"",
+      scared_of: pf.scared_of||"",
+      favorite_thing: pf.favorite_thing||"",
+      user_id: user.id,
+      ...(pf.character_card ? { character_card: pf.character_card } : {}),
+      ...(pf.photo_url      ? { photo_url: pf.photo_url }           : {}),
+    };
+    if (editId) {
+      const { data:u, error:ue } = await supabase.from("child_profiles").update(payload).eq("id",editId).select().single();
+      if (ue) { console.error("Profile update error:", ue); setErr(ue.message); return; }
+      if (u) { setProfiles(profiles.map(p => p.id===editId?u:p)); setActive(u); }
+    } else {
+      const { data:c, error:e } = await supabase.from("child_profiles").insert(payload).select().single();
+      if (e) { setErr(e.message); return; }
+      if (c) { setProfiles([...profiles,c]); setActive(c); }
+    }
     setEditId(null); setWizStep(0); setScreen("home");
   };
 
@@ -730,9 +762,12 @@ export default function App() {
 
   // Build a consistent character description — stored once per profile
   const getCharacterCard = async (p) => {
+    // Already has a character card (from photo or previous generation) - reuse it
     if (p.character_card) return p.character_card;
+    // Generate from profile text as fallback
     const card = await callClaude([{role:"user",content:`Describe the appearance of a ${p.age||5}-year-old child named ${p.child_name} for a children's book illustrator. Keep it to 2 short sentences covering hair, eyes, skin tone, and typical outfit. Be specific and consistent so an illustrator can draw the same child every time. Also describe their stuffed animal "${p.stuffed_animal||"a stuffed bear"}" in one sentence.`}], 120);
     const trimmed = card.trim();
+    // Save so we don't regenerate every time
     await supabase.from("child_profiles").update({ character_card: trimmed }).eq("id", p.id);
     setProfiles(prev => prev.map(pr => pr.id===p.id ? {...pr, character_card:trimmed} : pr));
     setActive(prev => prev?.id===p.id ? {...prev, character_card:trimmed} : prev);
@@ -1288,13 +1323,15 @@ export default function App() {
                     </label>
                   )}
 
-                  <div style={{ display:"flex", gap:10 }}>
+                  <div style={{ display:"flex", gap:10, marginBottom:10 }}>
                     <button className="btn-soft" style={{ flexShrink:0, width:"auto", padding:"14px 18px" }} onClick={()=>setWizStep(WIZARD_STEPS.length-1)}>← Back</button>
-                    <button className="btn-solid" style={{ flex:1 }} onClick={saveProfile} disabled={photoAnalyzing}>
-                      {photoAnalyzing ? "Analyzing photo…" : "Start telling stories ✨"}
+                    <button className="btn-solid" style={{ flex:1 }} onClick={saveProfile} disabled={photoAnalyzing || !photoPreview}>
+                      {photoAnalyzing ? "✨ Analyzing…" : "Start telling stories ✨"}
                     </button>
                   </div>
-                  <button style={{ background:"none", border:"none", color:"rgba(255,255,255,.25)", fontSize:12, marginTop:14, cursor:"pointer" }} onClick={saveProfile}>Skip — add photo later</button>
+                  <button className="btn-soft" style={{ width:"100%", opacity:.7 }} onClick={saveProfile}>
+                    Skip for now — add photo later
+                  </button>
                 </div>
               )}
             </div>
@@ -1331,6 +1368,38 @@ export default function App() {
               </h1>
               <p style={{ color:"rgba(255,255,255,.28)", fontFamily:"'Crimson Pro',serif", fontStyle:"italic", fontSize:"clamp(13px,3vw,15px)" }}>10 pages · personalized · fully illustrated</p>
             </div>
+
+            {/* Photo prompt - show if no photo-based character card yet */}
+            {!active.character_card && (
+              <div onClick={()=>{setEditId(active.id);setPf(active);setScreen("profile");}}
+                style={{ marginBottom:16, padding:"14px 16px", borderRadius:16, cursor:"pointer",
+                  background:"rgba(201,168,76,.07)", border:"1.5px dashed rgba(201,168,76,.25)",
+                  display:"flex", alignItems:"center", gap:12, transition:"all .2s" }}>
+                <div style={{ fontSize:28, flexShrink:0 }}>📸</div>
+                <div>
+                  <div style={{ fontSize:13, fontWeight:700, color:"var(--gold-light)", marginBottom:2 }}>
+                    Add {active.child_name}'s photo
+                  </div>
+                  <div style={{ fontSize:12, color:"rgba(255,255,255,.35)", lineHeight:1.4 }}>
+                    We'll make the illustrations look just like them ✨
+                  </div>
+                </div>
+                <div style={{ marginLeft:"auto", color:"rgba(255,255,255,.2)", fontSize:18 }}>→</div>
+              </div>
+            )}
+
+            {/* Show photo avatar if they have one */}
+            {active.photo_url && (
+              <div style={{ display:"flex", alignItems:"center", gap:12, marginBottom:16,
+                padding:"10px 14px", borderRadius:14, background:"rgba(255,255,255,.04)", border:"1px solid rgba(255,255,255,.08)" }}>
+                <img src={active.photo_url} alt="" style={{ width:40, height:40, borderRadius:"50%", objectFit:"cover", border:"2px solid rgba(201,168,76,.4)", flexShrink:0 }} />
+                <div style={{ fontSize:13, color:"rgba(255,255,255,.5)" }}>
+                  Illustrations styled like <strong style={{ color:"rgba(255,255,255,.75)" }}>{active.child_name}</strong> ✨
+                </div>
+                <button onClick={(e)=>{e.stopPropagation();setEditId(active.id);setPf(active);setScreen("profile");}}
+                  style={{ marginLeft:"auto", background:"none", border:"none", color:"rgba(255,255,255,.2)", fontSize:12, cursor:"pointer", padding:"4px 8px" }}>Edit</button>
+              </div>
+            )}
 
             {/* Story type toggle */}
             <div style={{ marginBottom:16 }}>
