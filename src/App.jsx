@@ -848,13 +848,42 @@ export default function App() {
   const readAloud = () => {
     if (speaking) { window.speechSynthesis.cancel(); setSpeaking(false); return; }
     const li=spread*2, ri=spread*2+1;
-    const text=[pages[li],pages[ri]].filter(Boolean).join(". ");
+    const text=[pages[li],pages[ri]].filter(Boolean).join("...  ");
     if (!text) return;
-    const utt=new SpeechSynthesisUtterance(text);
-    utt.rate=0.8; utt.pitch=1.05;
-    const v=window.speechSynthesis.getVoices().find(v=>v.name.includes("Samantha")||v.lang?.startsWith("en"));
-    if (v) utt.voice=v;
-    utt.onend=()=>setSpeaking(false); setSpeaking(true); window.speechSynthesis.speak(utt);
+    const utt = new SpeechSynthesisUtterance(text);
+
+    // Calm, soothing bedtime narration settings
+    utt.rate  = 0.72;   // slow and unhurried
+    utt.pitch = 0.92;   // slightly lower = warmer, less sharp
+    utt.volume = 0.95;
+
+    // Voice priority: prefer warm female voices known to sound soothing
+    const voices = window.speechSynthesis.getVoices();
+    const preferred = [
+      "Samantha",        // macOS/iOS - soft, clear American
+      "Karen",           // macOS Australian - very warm
+      "Moira",           // macOS Irish - gentle lilt
+      "Tessa",           // macOS South African - smooth
+      "Martha",          // macOS - soft
+      "Fiona",           // macOS Scottish - gentle
+      "Daniel",          // macOS British male - calm
+      "Rishi",           // macOS Indian - warm
+    ];
+    let chosen = null;
+    for (const name of preferred) {
+      chosen = voices.find(v => v.name.includes(name));
+      if (chosen) break;
+    }
+    // Fallback: any English female voice
+    if (!chosen) chosen = voices.find(v => v.lang.startsWith("en") && v.name.toLowerCase().includes("female"));
+    // Last resort: any English voice
+    if (!chosen) chosen = voices.find(v => v.lang.startsWith("en"));
+    if (chosen) utt.voice = chosen;
+
+    utt.onend = () => setSpeaking(false);
+    utt.onerror = () => setSpeaking(false);
+    setSpeaking(true);
+    window.speechSynthesis.speak(utt);
   };
 
   const shareStory = async () => { try { await navigator.clipboard.writeText(`${APP_URL}?story=${story?.id}`); } catch {} setCopied(true); setTimeout(()=>setCopied(false),2500); };
