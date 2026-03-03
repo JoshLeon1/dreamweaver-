@@ -207,6 +207,15 @@ body{background:var(--night);min-height:100vh;font-family:'Nunito',sans-serif;co
   padding-right:max(20px,env(safe-area-inset-right));
   box-sizing:border-box;
 }
+/* Landing page: full-width, no padding, no centering constraint */
+.wrap.landing-active{
+  padding:0 !important;
+  align-items:stretch;
+}
+.wrap.landing-active > .fade{
+  max-width:100% !important;
+  width:100% !important;
+}
 /* On mobile, inner screens fill full width */
 @media(max-width:699px){
   .wrap > .fade { width:100% !important; max-width:100% !important; }
@@ -1701,7 +1710,7 @@ NO title. Start immediately.`;
     <>
       <style>{CSS}</style>
       <StarField />
-      <div className="wrap">
+      <div className={`wrap${screen==="landing" ? " landing-active" : ""}`}>
 
         {/* SPLASH */}
         {screen==="splash" && (
@@ -1714,321 +1723,394 @@ NO title. Start immediately.`;
             LANDING
         ══════════════════════════════════════════════════════════════════════ */}
         {screen==="landing" && (
-          <div className="fade" style={{ maxWidth:900, width:"100%", paddingBottom:80 }}>
+          <div className="fade" style={{ width:"100%", maxWidth:"100%", paddingBottom:0 }}>
 
-            {/* ── HERO ── */}
-            <div style={{ textAlign:"center", paddingTop:"clamp(32px,7vw,72px)", paddingBottom:"clamp(48px,8vw,80px)", position:"relative" }}>
-              {/* Deep halo */}
-              <div style={{ position:"absolute", top:"-10%", left:"50%", transform:"translateX(-50%)", width:"100vw", maxWidth:700, height:"60vw", maxHeight:420, background:"radial-gradient(ellipse at 50% 0%,rgba(130,70,255,.18) 0%,rgba(80,40,180,.09) 40%,transparent 70%)", pointerEvents:"none" }} />
-              {/* Floating stars */}
-              <div style={{ position:"absolute", inset:0, pointerEvents:"none", overflow:"hidden" }}>
-                {[{top:"12%",left:"8%",size:3,delay:0},{top:"22%",right:"10%",size:2,delay:1.2},{top:"55%",left:"4%",size:2,delay:2.4},{top:"40%",right:"6%",size:3,delay:0.8},{top:"70%",left:"15%",size:2,delay:1.8},{top:"18%",left:"45%",size:2,delay:3}].map((s,i)=>(
-                  <div key={i} style={{ position:"absolute", top:s.top, left:s.left, right:s.right, width:s.size, height:s.size, borderRadius:"50%", background:"rgba(255,255,255,.6)", boxShadow:"0 0 6px rgba(255,255,255,.8)", animation:`starFloat ${3+i*0.7}s ease-in-out ${s.delay}s infinite alternate` }} />
-                ))}
+            {/* ════════════════════════════════════════════════════════
+                NAV
+            ════════════════════════════════════════════════════════ */}
+            <nav style={{
+              position:"fixed", top:0, left:0, right:0, zIndex:100,
+              padding:"0 clamp(20px,5vw,64px)",
+              height:64,
+              display:"flex", alignItems:"center", justifyContent:"space-between",
+              background:"rgba(7,5,14,0.8)",
+              backdropFilter:"blur(20px)",
+              borderBottom:"1px solid rgba(255,255,255,.05)",
+            }}>
+              <DreamweaverLogo size={28} showText={true} />
+              <div style={{ display:"flex", alignItems:"center", gap:8 }}>
+                <button onClick={()=>setScreen("login")}
+                  style={{ padding:"9px 20px", borderRadius:8, background:"transparent", border:"1px solid rgba(255,255,255,.1)", color:"rgba(255,255,255,.5)", fontFamily:"'Nunito',sans-serif", fontWeight:600, fontSize:13, cursor:"pointer", transition:"all .15s" }}
+                  onMouseEnter={e=>{e.currentTarget.style.borderColor="rgba(255,255,255,.25)";e.currentTarget.style.color="rgba(255,255,255,.85)";}}
+                  onMouseLeave={e=>{e.currentTarget.style.borderColor="rgba(255,255,255,.1)";e.currentTarget.style.color="rgba(255,255,255,.5)";}}>
+                  Sign in
+                </button>
+                <button onClick={()=>setScreen("signup")}
+                  style={{ padding:"9px 20px", borderRadius:8, background:"rgba(255,255,255,.95)", border:"none", color:"#0a0812", fontFamily:"'Nunito',sans-serif", fontWeight:800, fontSize:13, cursor:"pointer", transition:"all .15s" }}
+                  onMouseEnter={e=>{e.currentTarget.style.background="white";e.currentTarget.style.transform="translateY(-1px)";}}
+                  onMouseLeave={e=>{e.currentTarget.style.background="rgba(255,255,255,.95)";e.currentTarget.style.transform="";}}>
+                  Start free
+                </button>
+              </div>
+            </nav>
+
+            {/* ════════════════════════════════════════════════════════
+                HERO
+            ════════════════════════════════════════════════════════ */}
+            <section style={{
+              minHeight:"100svh",
+              display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center",
+              padding:"120px clamp(20px,5vw,64px) 80px",
+              position:"relative", overflow:"hidden",
+              textAlign:"center",
+            }}>
+              {/* Ambient mesh */}
+              <div style={{ position:"absolute", inset:0, pointerEvents:"none" }}>
+                <div style={{ position:"absolute", top:"-10%", left:"50%", transform:"translateX(-50%)", width:"70vw", maxWidth:900, height:"70vw", maxHeight:900, borderRadius:"50%", background:"radial-gradient(ellipse,rgba(180,130,60,.06) 0%,transparent 60%)", filter:"blur(40px)" }} />
+                <div style={{ position:"absolute", top:"20%", left:"-5%", width:400, height:400, borderRadius:"50%", background:"radial-gradient(ellipse,rgba(120,60,220,.05) 0%,transparent 65%)", filter:"blur(60px)" }} />
+                <div style={{ position:"absolute", bottom:"15%", right:"-5%", width:350, height:350, borderRadius:"50%", background:"radial-gradient(ellipse,rgba(60,140,220,.04) 0%,transparent 65%)", filter:"blur(60px)" }} />
               </div>
 
-              {/* Logo */}
-              <div style={{ marginBottom:24, position:"relative" }}>
-                <DreamweaverLogo size={36} showText={true} />
+              {/* Noise grain overlay */}
+              <div style={{ position:"absolute", inset:0, opacity:.025, backgroundImage:"url(\"data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E\")", backgroundSize:"200px 200px", pointerEvents:"none" }} />
+
+              {/* Badge */}
+              <div style={{ display:"inline-flex", alignItems:"center", gap:8, background:"rgba(255,255,255,.04)", border:"1px solid rgba(255,255,255,.08)", borderRadius:999, padding:"6px 16px", marginBottom:40, position:"relative" }}>
+                <span style={{ width:5, height:5, borderRadius:"50%", background:"#c9a030", boxShadow:"0 0 8px #c9a030", flexShrink:0 }} />
+                <span style={{ color:"rgba(255,255,255,.4)", fontSize:12, fontFamily:"'Nunito',sans-serif", fontWeight:600, letterSpacing:".06em" }}>AI-powered personalized bedtime stories</span>
               </div>
 
-              {/* Pill badge */}
-              <div style={{ display:"inline-flex", alignItems:"center", gap:8, background:"rgba(255,255,255,.04)", border:"1px solid rgba(255,255,255,.1)", borderRadius:999, padding:"7px 18px", marginBottom:28 }}>
-                <span style={{ width:6, height:6, borderRadius:"50%", background:"#c084fc", display:"inline-block", boxShadow:"0 0 8px #c084fc", flexShrink:0, animation:"pulse 2.5s ease-in-out infinite" }} />
-                <span style={{ color:"rgba(255,255,255,.55)", fontSize:12, fontWeight:600, letterSpacing:".08em", fontFamily:"'Nunito',sans-serif" }}>7 Nights Free · No Credit Card</span>
-              </div>
+              {/* Headline — editorial, massive, tight */}
+              <h1 style={{
+                fontFamily:"'Playfair Display',serif",
+                fontSize:"clamp(48px,9vw,110px)",
+                lineHeight:1.02,
+                letterSpacing:"-.03em",
+                fontWeight:800,
+                marginBottom:28,
+                maxWidth:900,
+                position:"relative",
+              }}>
+                <span style={{ color:"rgba(255,255,255,.92)" }}>Your child</span>
+                <br />
+                <em style={{
+                  fontStyle:"italic",
+                  background:"linear-gradient(105deg,#e8c96a 0%,#c9a030 40%,#a07820 100%)",
+                  WebkitBackgroundClip:"text", WebkitTextFillColor:"transparent", backgroundClip:"text",
+                }}>is the hero.</em>
+              </h1>
 
-              {/* Headline */}
-              <div style={{ position:"relative", marginBottom:22 }}>
-                <div style={{ position:"absolute", top:"50%", left:"50%", transform:"translate(-50%,-50%)", width:"80%", height:"120%", background:"radial-gradient(ellipse,rgba(200,160,255,.07) 0%,transparent 70%)", pointerEvents:"none" }} />
-                <h1 style={{ fontFamily:"'Playfair Display',serif", fontSize:"clamp(34px,7.5vw,78px)", lineHeight:1.15, letterSpacing:"-.02em", position:"relative" }}>
-                  Your Child Is{" "}
-                  <em style={{ background:"linear-gradient(120deg,#f6d98a 0%,#e8b84b 45%,#c9a030 100%)", WebkitBackgroundClip:"text", WebkitTextFillColor:"transparent", backgroundClip:"text", fontStyle:"italic" }}>
-                    The Hero
-                  </em>
-                  <span style={{ color:"rgba(255,255,255,.55)", display:"block", fontSize:"clamp(22px,5vw,46px)", fontWeight:400, fontStyle:"italic", marginTop:4 }}>Every Night.</span>
-                </h1>
-              </div>
-
-              {/* Subheadline — clear, fast, personal */}
-              <p style={{ fontFamily:"'Crimson Pro',serif", fontSize:"clamp(18px,2.8vw,24px)", color:"rgba(255,255,255,.65)", lineHeight:1.6, maxWidth:480, margin:"0 auto 38px", fontStyle:"italic" }}>
-                A brand new personalized bedtime story in 40 seconds.
+              {/* Subhead — single clean line */}
+              <p style={{
+                color:"rgba(255,255,255,.38)",
+                fontSize:"clamp(16px,2.2vw,21px)",
+                fontFamily:"'Nunito',sans-serif",
+                fontWeight:400,
+                letterSpacing:".01em",
+                lineHeight:1.6,
+                maxWidth:480,
+                marginBottom:48,
+                position:"relative",
+              }}>
+                A new illustrated story every night — starring your child, in 40 seconds.
               </p>
 
-              <div style={{ display:"flex", flexDirection:"column", alignItems:"center", gap:12 }}>
-                {/* CTA with soft glow behind it */}
-                <div style={{ position:"relative" }}>
-                  <div style={{ position:"absolute", inset:"-12px", borderRadius:999, background:"radial-gradient(ellipse,rgba(160,100,255,.18) 0%,transparent 70%)", pointerEvents:"none" }} />
-                  <button className="btn-cta btn-pulse" style={{ fontSize:"clamp(15px,2.5vw,17px)", padding:"clamp(16px,3vw,20px) clamp(32px,6vw,52px)", borderRadius:999, position:"relative" }} onClick={()=>setScreen("signup")}>
-                    Start Free Tonight ✨
-                  </button>
-                </div>
-                {/* Trust line */}
-                <div style={{ display:"flex", alignItems:"center", gap:16, flexWrap:"wrap", justifyContent:"center", marginTop:4 }}>
-                  {["No credit card required","Cancel anytime","Loved by 2,000+ families"].map((t,i) => (
-                    <span key={i} style={{ display:"flex", alignItems:"center", gap:5, color:"rgba(255,255,255,.3)", fontSize:12, fontFamily:"'Nunito',sans-serif" }}>
-                      <span style={{ color:"#4ade80", fontSize:10 }}>✓</span>{t}
+              {/* CTA cluster */}
+              <div style={{ display:"flex", flexDirection:"column", alignItems:"center", gap:14, position:"relative" }}>
+                <button onClick={()=>setScreen("signup")}
+                  style={{
+                    padding:"clamp(16px,3vw,18px) clamp(36px,6vw,56px)",
+                    borderRadius:12,
+                    background:"rgba(255,255,255,.97)",
+                    border:"none",
+                    color:"#0a0812",
+                    fontFamily:"'Nunito',sans-serif",
+                    fontWeight:800,
+                    fontSize:"clamp(15px,2vw,17px)",
+                    cursor:"pointer",
+                    letterSpacing:".01em",
+                    transition:"all .18s",
+                    boxShadow:"0 0 0 1px rgba(255,255,255,.15), 0 20px 60px rgba(0,0,0,.4)",
+                  }}
+                  onMouseEnter={e=>{e.currentTarget.style.transform="translateY(-2px)";e.currentTarget.style.boxShadow="0 0 0 1px rgba(255,255,255,.2), 0 28px 70px rgba(0,0,0,.5)";}}
+                  onMouseLeave={e=>{e.currentTarget.style.transform="";e.currentTarget.style.boxShadow="0 0 0 1px rgba(255,255,255,.15), 0 20px 60px rgba(0,0,0,.4)";}}>
+                  Start free tonight
+                </button>
+                <div style={{ display:"flex", gap:20, alignItems:"center" }}>
+                  {["No card required","7 nights free","Cancel anytime"].map((t,i)=>(
+                    <span key={i} style={{ color:"rgba(255,255,255,.2)", fontSize:12, fontFamily:"'Nunito',sans-serif", display:"flex", alignItems:"center", gap:5 }}>
+                      <span style={{ color:"rgba(201,168,76,.5)", fontSize:10 }}>✓</span>{t}
                     </span>
                   ))}
                 </div>
-                <button onClick={()=>setScreen("login")} style={{ background:"none", border:"none", color:"rgba(255,255,255,.22)", fontSize:13, cursor:"pointer", fontFamily:"'Nunito',sans-serif", padding:"8px 16px", marginTop:4 }}>
-                  Already Have An Account →
-                </button>
               </div>
-            </div>
+            </section>
 
-            {/* ── DEMO BOOK ── */}
-            <div style={{ marginBottom:"clamp(64px,10vw,100px)" }}>
-              <div style={{ textAlign:"center", marginBottom:20 }}>
-                <span style={{ fontFamily:"'Nunito',sans-serif", fontSize:11, fontWeight:700, letterSpacing:".16em", textTransform:"uppercase", color:"rgba(255,255,255,.2)" }}>Live Preview</span>
-                <p style={{ fontFamily:"'Crimson Pro',serif", fontStyle:"italic", color:"rgba(255,255,255,.35)", fontSize:13, marginTop:4 }}>Generated in under 40 seconds</p>
-                <p style={{ fontFamily:"'Crimson Pro',serif", fontStyle:"italic", color:"rgba(255,255,255,.4)", fontSize:15, marginTop:2 }}>Lily's Moonlit Adventure — A Sample Story</p>
+            {/* ════════════════════════════════════════════════════════
+                PRODUCT SHOT — full-bleed cinematic book preview
+            ════════════════════════════════════════════════════════ */}
+            <section style={{ padding:"0 clamp(20px,5vw,64px) 120px", position:"relative" }}>
+              {/* Section label */}
+              <div style={{ textAlign:"center", marginBottom:32 }}>
+                <span style={{ fontSize:11, letterSpacing:".18em", textTransform:"uppercase", color:"rgba(255,255,255,.18)", fontFamily:"'Nunito',sans-serif", fontWeight:700 }}>Generated in under 40 seconds</span>
               </div>
 
-              {(mobile||tablet) ? (
-                <div style={{ maxWidth:380, margin:"0 auto" }}>
-                  <div style={{ borderRadius:20, overflow:"hidden", boxShadow:"0 40px 80px rgba(0,0,0,.8),0 0 0 1px rgba(255,255,255,.06),0 0 60px rgba(120,60,220,.12)" }}>
-                    <div style={{ background:"linear-gradient(175deg,#fefcf7,#fdf9f0)" }}>
+              {/* Book spread */}
+              <div style={{ maxWidth:860, margin:"0 auto", position:"relative" }}>
+                {/* Glow behind book */}
+                <div style={{ position:"absolute", inset:"-30px", borderRadius:40, background:"radial-gradient(ellipse at 50% 60%,rgba(180,130,60,.08) 0%,transparent 65%)", filter:"blur(20px)", pointerEvents:"none" }} />
+
+                {(mobile||tablet) ? (
+                  /* Mobile: single card */
+                  <div style={{ borderRadius:20, overflow:"hidden", boxShadow:"0 40px 100px rgba(0,0,0,.85), 0 0 0 1px rgba(255,255,255,.06)", position:"relative" }}>
+                    <div style={{ background:"linear-gradient(175deg,#fefcf7,#fdf0dc)" }}>
                       <div style={{ width:"100%", aspectRatio:"16/9", position:"relative", overflow:"hidden", background:DEMO_STORY[demoSpread]?.fallback }}>
                         <img src={DEMO_STORY[demoSpread]?.img} alt="" style={{ width:"100%", height:"100%", objectFit:"cover" }} onError={e=>{e.target.style.display="none";}} />
-                        <div style={{ position:"absolute", bottom:0, left:0, right:0, height:32, background:"linear-gradient(to bottom,transparent,rgba(254,252,247,.95))" }} />
+                        <div style={{ position:"absolute", bottom:0, left:0, right:0, height:48, background:"linear-gradient(to bottom,transparent,rgba(254,240,220,.95))" }} />
                       </div>
-                      <div style={{ padding:"18px 22px 22px" }}>
-                        <p style={{ fontFamily:"'Crimson Pro',serif", fontSize:16, lineHeight:1.85, color:"#1a0f2e", textAlign:"center", fontStyle:"italic" }}>{DEMO_STORY[demoSpread]?.text}</p>
+                      <div style={{ padding:"22px 24px 26px", textAlign:"center" }}>
+                        <p style={{ fontFamily:"'Crimson Pro',serif", fontSize:"clamp(16px,4vw,19px)", lineHeight:1.85, color:"#1a0f2e", fontStyle:"italic" }}>{DEMO_STORY[demoSpread]?.text}</p>
                       </div>
                     </div>
-                  </div>
-                  <div style={{ display:"flex", justifyContent:"center", gap:8, marginTop:14 }}>
-                    {DEMO_STORY.map((_,i) => <div key={i} onClick={()=>setDemoSpread(i)} style={{ width:i===demoSpread?20:6, height:6, borderRadius:99, background:i===demoSpread?"var(--gold)":"rgba(255,255,255,.15)", cursor:"pointer", transition:"all .3s" }} />)}
-                  </div>
-                </div>
-              ) : (
-                <div style={{ perspective:"2000px" }}>
-                  <div style={{ display:"flex", maxWidth:820, margin:"0 auto", borderRadius:20, overflow:"hidden", boxShadow:"0 60px 120px rgba(0,0,0,.85),0 20px 40px rgba(0,0,0,.5),0 0 0 1px rgba(255,255,255,.05),0 0 80px rgba(120,60,220,.1)" }}>
-                    {/* Spine */}
-                    <div style={{ width:22, flexShrink:0, background:"linear-gradient(90deg,#0a0300,#4a2008 40%,#7a3510 50%,#4a2008 60%,#0a0300)", position:"relative" }}>
-                      <div style={{ position:"absolute", top:0, bottom:0, left:"50%", width:1, background:"linear-gradient(180deg,transparent 5%,rgba(201,168,76,.3) 50%,transparent 95%)" }} />
+                    <div style={{ display:"flex", justifyContent:"center", gap:8, padding:"12px 0 16px", background:"linear-gradient(175deg,#fdf0dc,#f8e4c0)" }}>
+                      {DEMO_STORY.map((_,i)=><div key={i} onClick={()=>setDemoSpread(i)} style={{ width:i===demoSpread?20:6, height:6, borderRadius:99, background:i===demoSpread?"#c9a030":"rgba(0,0,0,.15)", cursor:"pointer", transition:"all .3s" }} />)}
                     </div>
-                    {[0,1].map(side => {
+                  </div>
+                ) : (
+                  /* Desktop: two-page spread */
+                  <div style={{ display:"flex", borderRadius:20, overflow:"hidden", boxShadow:"0 60px 140px rgba(0,0,0,.9), 0 20px 60px rgba(0,0,0,.5), 0 0 0 1px rgba(255,255,255,.05)", cursor:"pointer" }} onClick={()=>setDemoSpread(p=>(p+1)%2)}>
+                    <div style={{ width:20, flexShrink:0, background:"linear-gradient(90deg,#0a0200,#3a1600 40%,#6b3010 50%,#3a1600 60%,#0a0200)" }}>
+                      <div style={{ width:"100%", height:"100%", background:"linear-gradient(180deg,transparent 10%,rgba(201,168,76,.2) 50%,transparent 90%)", marginLeft:"50%" }} />
+                    </div>
+                    {[0,1].map(side=>{
                       const idx=demoSpread*2+side, page=DEMO_STORY[idx];
                       return (
-                        <div key={side} style={{ flex:1, display:"flex", flexDirection:"column", background:side===0?"linear-gradient(175deg,#fefcf7,#fdf9f0)":"linear-gradient(175deg,#fdfaf2,#faf5e8)", borderLeft:side===1?"1px solid rgba(0,0,0,.06)":"none" }}>
+                        <div key={side} style={{ flex:1, background:side===0?"linear-gradient(175deg,#fefcf7,#fdf5e4)":"linear-gradient(175deg,#fdf8ee,#f9f0d8)", borderLeft:side===1?"1px solid rgba(0,0,0,.06)":"none" }}>
                           <div style={{ width:"100%", aspectRatio:"4/3", position:"relative", overflow:"hidden", background:page?.fallback||"#1a0a2e" }}>
                             <img src={page?.img} alt="" style={{ width:"100%", height:"100%", objectFit:"cover", display:"block" }} onError={e=>{e.target.style.display="none";e.target.parentElement.style.background=page?.fallback;}} />
-                            <div style={{ position:"absolute", bottom:0, left:0, right:0, height:40, background:`linear-gradient(to bottom,transparent,${side===0?"rgba(254,252,247,.95)":"rgba(253,250,242,.95)"})`}} />
-                            <div style={{ position:"absolute", bottom:10, [side===0?"right":"left"]:10, background:"rgba(255,255,255,.85)", backdropFilter:"blur(4px)", borderRadius:99, padding:"2px 9px", fontSize:10, color:"#1a0f2e", fontWeight:700 }}>{idx+1}</div>
+                            <div style={{ position:"absolute", bottom:0, left:0, right:0, height:40, background:`linear-gradient(to bottom,transparent,${side===0?"rgba(253,245,228,.95)":"rgba(249,240,216,.95)"})` }} />
+                            <div style={{ position:"absolute", bottom:10, [side===0?"right":"left"]:10, background:"rgba(255,255,255,.75)", backdropFilter:"blur(4px)", borderRadius:99, padding:"2px 9px", fontSize:10, color:"#1a0f2e", fontWeight:700 }}>{idx+1}</div>
                           </div>
-                          <div style={{ flex:1, padding:"14px 20px 18px", display:"flex", alignItems:"center", minHeight:70 }}>
-                            <p style={{ fontFamily:"'Crimson Pro',serif", fontSize:"clamp(12px,1.4vw,15px)", lineHeight:1.9, color:"#1a0f2e", textAlign:"center", width:"100%", fontStyle:"italic" }}>{page?.text}</p>
+                          <div style={{ padding:"18px 22px 22px", minHeight:80, display:"flex", alignItems:"center", justifyContent:"center" }}>
+                            <p style={{ fontFamily:"'Crimson Pro',serif", fontSize:"clamp(13px,1.3vw,15px)", lineHeight:1.9, color:"#1a0f2e", textAlign:"center", fontStyle:"italic" }}>{page?.text||""}</p>
                           </div>
                         </div>
                       );
                     })}
                   </div>
-                  <div style={{ display:"flex", justifyContent:"center", gap:9, marginTop:16 }}>
-                    {[0,1].map(i => <div key={i} onClick={()=>setDemoSpread(i)} style={{ width:i===demoSpread?26:7, height:7, borderRadius:99, background:i===demoSpread?"var(--gold)":"rgba(255,255,255,.15)", cursor:"pointer", transition:"all .3s", boxShadow:i===demoSpread?"0 0 12px rgba(201,168,76,.5)":"none" }} />)}
-                  </div>
-                </div>
-              )}
-            </div>
+                )}
 
-            {/* ── HOW IT WORKS ── */}
-            <div style={{ marginBottom:"clamp(64px,10vw,100px)" }}>
-              <div style={{ textAlign:"center", marginBottom:36 }}>
-                <span style={{ fontFamily:"'Nunito',sans-serif", fontSize:11, fontWeight:700, letterSpacing:".16em", textTransform:"uppercase", color:"rgba(255,255,255,.2)" }}>How it works</span>
-                <h2 style={{ fontFamily:"'Playfair Display',serif", fontSize:"clamp(26px,5vw,42px)", fontStyle:"italic", marginTop:10, lineHeight:1.2 }}>Three Steps To Bedtime Magic</h2>
+                {/* Click hint */}
+                {!mobile && <p style={{ textAlign:"center", marginTop:14, fontSize:11, color:"rgba(255,255,255,.14)", fontFamily:"'Nunito',sans-serif", letterSpacing:".06em" }}>CLICK TO TURN PAGE</p>}
               </div>
-              <div style={{ display:"grid", gridTemplateColumns:mobile?"1fr":tablet?"repeat(2,1fr)":"repeat(3,1fr)", gap:16 }}>
+            </section>
+
+            {/* ════════════════════════════════════════════════════════
+                STATS BAR
+            ════════════════════════════════════════════════════════ */}
+            <section style={{ padding:"48px clamp(20px,5vw,64px)", borderTop:"1px solid rgba(255,255,255,.05)", borderBottom:"1px solid rgba(255,255,255,.05)", marginBottom:120 }}>
+              <div style={{ maxWidth:860, margin:"0 auto", display:"grid", gridTemplateColumns:mobile?"repeat(2,1fr)":"repeat(4,1fr)", gap:mobile?"32px 16px":"0" }}>
                 {[
-                  { n:"01", icon:"👧", title:"Tell Us About Your Child", desc:"Name, age, favorite things. Done in 30 seconds.", color:"rgba(192,132,252,.15)", border:"rgba(192,132,252,.28)" },
-                  { n:"02", icon:"✨", title:"Add A Photo (Optional)", desc:"We match hair, skin tone, eye color.", color:"rgba(251,191,36,.1)", border:"rgba(251,191,36,.24)" },
-                  { n:"03", icon:"🌙", title:"Open Tonight's Book", desc:"Fully illustrated. Ready in 40 seconds.", color:"rgba(103,232,249,.1)", border:"rgba(103,232,249,.24)" },
-                ].map(({n,icon,title,desc,color,border},i) => (
-                  <div key={n} style={{ padding:"clamp(20px,3vw,28px)", borderRadius:20, background:color, border:`1px solid ${border}`, position:"relative", overflow:"hidden", opacity: i===0 ? 1 : 0.85 }}>
-                    {/* Large faint watermark number */}
-                    <div style={{ position:"absolute", bottom:-10, right:8, fontFamily:"'Playfair Display',serif", fontSize:"clamp(72px,12vw,100px)", fontStyle:"italic", color:"rgba(255,255,255,.03)", lineHeight:1, fontWeight:800, userSelect:"none" }}>{n}</div>
-                    <div style={{ fontSize:32, marginBottom:14, position:"relative" }}>{icon}</div>
-                    <h3 style={{ fontFamily:"'Playfair Display',serif", fontSize:"clamp(16px,2.2vw,19px)", marginBottom:10, lineHeight:1.3, position:"relative" }}>{title}</h3>
-                    <p style={{ color:"rgba(255,255,255,.48)", fontSize:"clamp(13px,1.5vw,15px)", lineHeight:1.75, fontFamily:"'Crimson Pro',serif", position:"relative" }}>{desc}</p>
+                  { n:"40s", label:"Story generation" },
+                  { n:"14", label:"Illustrated pages" },
+                  { n:"2,000+", label:"Families" },
+                  { n:"4.9★", label:"Parent rating" },
+                ].map(({n,label},i)=>(
+                  <div key={i} style={{ textAlign:"center", padding:mobile?"0":"0 24px", borderLeft:(!mobile&&i>0)?"1px solid rgba(255,255,255,.06)":"none" }}>
+                    <div style={{ fontFamily:"'Playfair Display',serif", fontSize:"clamp(28px,4vw,42px)", fontWeight:800, letterSpacing:"-.02em", color:"rgba(255,255,255,.9)", marginBottom:4 }}>{n}</div>
+                    <div style={{ fontSize:12, color:"rgba(255,255,255,.25)", fontFamily:"'Nunito',sans-serif", letterSpacing:".06em", textTransform:"uppercase" }}>{label}</div>
                   </div>
                 ))}
               </div>
-            </div>
+            </section>
 
-            {/* ── FEATURES GRID ── */}
-            <div style={{ marginBottom:"clamp(64px,10vw,100px)" }}>
-              <div style={{ textAlign:"center", marginBottom:36 }}>
-                <span style={{ fontFamily:"'Nunito',sans-serif", fontSize:11, fontWeight:700, letterSpacing:".16em", textTransform:"uppercase", color:"rgba(255,255,255,.2)" }}>Everything included</span>
-                <h2 style={{ fontFamily:"'Playfair Display',serif", fontSize:"clamp(26px,5vw,42px)", fontStyle:"italic", marginTop:10, lineHeight:1.2 }}>One Subscription. A Lifetime Of Stories.</h2>
+            {/* ════════════════════════════════════════════════════════
+                HOW IT WORKS — minimal numbered list
+            ════════════════════════════════════════════════════════ */}
+            <section style={{ padding:"0 clamp(20px,5vw,64px) 120px", maxWidth:860, margin:"0 auto" }}>
+              <div style={{ marginBottom:64 }}>
+                <p style={{ fontSize:11, letterSpacing:".18em", textTransform:"uppercase", color:"rgba(255,255,255,.2)", fontFamily:"'Nunito',sans-serif", fontWeight:700, marginBottom:16 }}>How it works</p>
+                <h2 style={{ fontFamily:"'Playfair Display',serif", fontSize:"clamp(32px,5vw,52px)", fontWeight:800, letterSpacing:"-.025em", lineHeight:1.1, color:"rgba(255,255,255,.9)" }}>
+                  Three steps to<br/><em style={{ fontStyle:"italic", color:"rgba(255,255,255,.45)" }}>bedtime magic.</em>
+                </h2>
               </div>
-              <div style={{ display:"grid", gridTemplateColumns:mobile?"1fr 1fr":tablet?"repeat(2,1fr)":"repeat(3,1fr)", gap:12 }}>
+
+              <div style={{ display:"flex", flexDirection:"column", gap:0 }}>
                 {[
-                  { icon:"🎨", title:"AI Watercolor Art",      desc:"Every page gets a unique hand-painted watercolor illustration" },
-                  { icon:"📸", title:"Illustrated Like Them",  desc:"Upload a photo and the hero looks just like your child" },
-                  { icon:"🧸", title:"Deeply Personalized",    desc:"Name, stuffed animal, best friend, fears — woven into every page naturally" },
-                  { icon:"✨", title:"Life Lesson Stories",    desc:"Pick a value — kindness, bravery, patience — your child discovers it through adventure, never a lecture" },
-                  { icon:"📖", title:"14 Pages Every Night",   desc:"A complete illustrated picture book every single night" },
-                  { icon:"🔊", title:"Read Aloud Voice",       desc:"Calm, soothing narration reads the story aloud at bedtime" },
-                  { icon:"🎨", title:"Coloring Book Mode",     desc:"Turn any story into a printable coloring page your child can color in" },
-                  { icon:"📚", title:"Story Library",          desc:"Every story saved forever — revisit old favorites anytime" },
-                  { icon:"🏅", title:"Milestone Badges",       desc:"Kids earn badges for reading streaks, adventures, and milestones" },
-                ].map(({icon,title,desc}) => (
-                  <div key={title} style={{ padding:"clamp(16px,2.5vw,24px)", borderRadius:18, background:"rgba(255,255,255,.03)", border:"1px solid rgba(255,255,255,.07)", transition:"border-color .2s, transform .2s", cursor:"default" }}
-                    onMouseEnter={e=>{e.currentTarget.style.borderColor="rgba(255,255,255,.14)";e.currentTarget.style.transform="translateY(-2px)";}}
-                    onMouseLeave={e=>{e.currentTarget.style.borderColor="rgba(255,255,255,.07)";e.currentTarget.style.transform="";}}
-                  >
-                    <div style={{ fontSize:"clamp(22px,3vw,28px)", marginBottom:10 }}>{icon}</div>
-                    <div style={{ fontWeight:700, fontSize:"clamp(13px,1.5vw,14px)", color:"rgba(255,255,255,.88)", marginBottom:6, fontFamily:"'Nunito',sans-serif" }}>{title}</div>
-                    <div style={{ fontSize:"clamp(12px,1.3vw,13px)", color:"rgba(255,255,255,.32)", lineHeight:1.65, fontFamily:"'Crimson Pro',serif" }}>{desc}</div>
+                  { n:"01", title:"Tell us about your child", body:"Name, age, stuffed animal, best friend. Done in 30 seconds.", accent:"rgba(201,168,76,.6)" },
+                  { n:"02", title:"Add a photo", body:"Optional — we match hair, eyes, skin tone. The hero looks just like them.", accent:"rgba(130,180,255,.5)" },
+                  { n:"03", title:"Open tonight's book", body:"Fully illustrated. 14 pages. Ready in 40 seconds.", accent:"rgba(160,220,140,.5)" },
+                ].map(({n,title,body,accent},i)=>(
+                  <div key={i} style={{
+                    display:"flex", gap:mobile?"20px":"40px", alignItems:"flex-start",
+                    padding:"40px 0",
+                    borderBottom: i<2 ? "1px solid rgba(255,255,255,.05)" : "none",
+                  }}>
+                    <div style={{ fontFamily:"'Playfair Display',serif", fontSize:"clamp(36px,6vw,72px)", fontWeight:800, letterSpacing:"-.04em", color:"rgba(255,255,255,.06)", lineHeight:1, flexShrink:0, minWidth:mobile?60:100, userSelect:"none" }}>{n}</div>
+                    <div style={{ paddingTop:mobile?4:8 }}>
+                      <h3 style={{ fontFamily:"'Playfair Display',serif", fontSize:"clamp(18px,2.5vw,26px)", fontWeight:700, marginBottom:10, color:"rgba(255,255,255,.88)", letterSpacing:"-.01em" }}>{title}</h3>
+                      <p style={{ color:"rgba(255,255,255,.32)", fontSize:"clamp(14px,1.6vw,16px)", lineHeight:1.7, fontFamily:"'Nunito',sans-serif", fontWeight:400, maxWidth:480 }}>{body}</p>
+                    </div>
                   </div>
                 ))}
               </div>
-            </div>
+            </section>
 
-            {/* ── LIFE LESSONS SECTION ── */}
-            <div style={{ marginBottom:"clamp(64px,10vw,100px)", position:"relative" }}>
-              <div style={{ position:"absolute", inset:"-60px", background:"radial-gradient(ellipse at 50% 50%,rgba(34,197,94,.05) 0%,transparent 70%)", pointerEvents:"none" }} />
-              <div style={{ position:"relative", borderRadius:"clamp(22px,3.5vw,32px)", overflow:"hidden", background:"linear-gradient(150deg,rgba(6,20,13,.98),rgba(4,16,10,.99))", border:"1px solid rgba(74,222,128,.15)" }}>
-                <div style={{ height:2, background:"linear-gradient(90deg,#14532d,#22c55e,#4ade80,#86efac,#4ade80,#22c55e,#14532d)", backgroundSize:"220% 100%", animation:"gradFlow 3s linear infinite" }} />
-                <div style={{ padding:"clamp(28px,5vw,52px) clamp(24px,4vw,48px)" }}>
-                  <div style={{ display:"inline-flex", alignItems:"center", gap:6, background:"rgba(74,222,128,.1)", border:"1px solid rgba(74,222,128,.22)", borderRadius:999, padding:"4px 14px", marginBottom:22 }}>
-                    <span style={{ width:5, height:5, borderRadius:"50%", background:"#4ade80", boxShadow:"0 0 6px #4ade80", flexShrink:0 }} />
-                    <span style={{ color:"#4ade80", fontSize:10, fontWeight:800, letterSpacing:".14em", textTransform:"uppercase" }}>Life Lesson Stories</span>
-                  </div>
-                  <h3 style={{ fontFamily:"'Playfair Display',serif", fontSize:"clamp(24px,4.5vw,38px)", fontStyle:"italic", marginBottom:14, lineHeight:1.2, color:"white" }}>
-                    Stories That Teach,<br/>Not Preach
-                  </h3>
-                  <p style={{ color:"rgba(255,255,255,.4)", fontSize:"clamp(14px,1.7vw,16px)", lineHeight:1.85, fontFamily:"'Crimson Pro',serif", marginBottom:28, maxWidth:480 }}>
-                    Choose a value and DreamWeaver weaves it naturally into your child's adventure. No moralizing — they discover the lesson themselves through the magic of the story.
-                  </p>
-                  <div style={{ display:"flex", gap:10, flexWrap:"wrap", marginBottom:28 }}>
-                    {[{e:"🤝",l:"Sharing"},{e:"💛",l:"Kindness"},{e:"🦁",l:"Bravery"},{e:"🌟",l:"Honesty"},{e:"🌱",l:"Patience"},{e:"💪",l:"Keep Trying"},{e:"🌈",l:"Big Feelings"},{e:"👫",l:"Friendship"},{e:"🙏",l:"Gratitude"},{e:"🌍",l:"Nature"}].map(({e,l})=>(
-                      <span key={l} className="l-pill" style={{ padding:"10px 18px", fontSize:"clamp(12px,1.5vw,14px)" }}><span>{e}</span><span>{l}</span></span>
-                    ))}
-                  </div>
-                  <div style={{ display:"flex", gap:10, overflowX:"auto", WebkitOverflowScrolling:"touch", scrollbarWidth:"none", paddingBottom:4 }}>
-                    {[
-                      {lesson:"💛 Kindness", text:"Emma saw the lonely bunny sitting alone, and felt something warm bloom in her chest…", bg:"rgba(251,191,36,.08)", bd:"rgba(251,191,36,.2)", lc:"#fde68a"},
-                      {lesson:"🦁 Bravery",  text:"The dark cave looked scary. But Max squeezed his bear and took one brave step inside…", bg:"rgba(251,146,60,.08)", bd:"rgba(251,146,60,.2)", lc:"#fed7aa"},
-                      {lesson:"🌱 Patience", text:"The tiny seed didn't sprout overnight. Lily watered it every single morning and waited…", bg:"rgba(74,222,128,.07)", bd:"rgba(74,222,128,.2)", lc:"#bbf7d0"},
-                    ].map(({lesson,text,bg,bd,lc})=>(
-                      <div key={lesson} className="snip" style={{ flex:"0 0 auto", width:"clamp(180px,48vw,220px)", background:bg, border:`1px solid ${bd}` }}>
-                        <div style={{ color:lc, fontSize:10.5, fontWeight:700, letterSpacing:".05em", marginBottom:7 }}>{lesson}</div>
-                        <p style={{ fontFamily:"'Crimson Pro',serif", fontStyle:"italic", color:"rgba(255,255,255,.48)", fontSize:12.5, lineHeight:1.65, margin:0 }}>{text}</p>
-                      </div>
-                    ))}
-                  </div>
+            {/* ════════════════════════════════════════════════════════
+                FEATURES — sparse grid
+            ════════════════════════════════════════════════════════ */}
+            <section style={{ padding:"0 clamp(20px,5vw,64px) 120px" }}>
+              <div style={{ maxWidth:860, margin:"0 auto" }}>
+                <div style={{ marginBottom:56 }}>
+                  <p style={{ fontSize:11, letterSpacing:".18em", textTransform:"uppercase", color:"rgba(255,255,255,.2)", fontFamily:"'Nunito',sans-serif", fontWeight:700, marginBottom:16 }}>Everything included</p>
+                  <h2 style={{ fontFamily:"'Playfair Display',serif", fontSize:"clamp(32px,5vw,52px)", fontWeight:800, letterSpacing:"-.025em", lineHeight:1.1, color:"rgba(255,255,255,.9)" }}>
+                    One subscription.<br/><em style={{ fontStyle:"italic", color:"rgba(255,255,255,.45)" }}>A lifetime of stories.</em>
+                  </h2>
+                </div>
+
+                <div style={{ display:"grid", gridTemplateColumns:mobile?"1fr":"repeat(3,1fr)", gap:"1px", background:"rgba(255,255,255,.05)", borderRadius:16, overflow:"hidden", border:"1px solid rgba(255,255,255,.05)" }}>
+                  {[
+                    { icon:"🎨", title:"Watercolor illustrations", desc:"Every page painted in soft pastel watercolor" },
+                    { icon:"📸", title:"Photo-matched hero", desc:"Upload a photo — the character looks like your child" },
+                    { icon:"🧸", title:"Deeply personal", desc:"Name, stuffed animal, best friend in every story" },
+                    { icon:"✨", title:"Life lessons", desc:"Kindness, bravery, patience — woven in naturally" },
+                    { icon:"📚", title:"Library saved forever", desc:"Every story archived and re-readable anytime" },
+                    { icon:"🔊", title:"Read aloud", desc:"Calm narration reads the story at bedtime" },
+                    { icon:"🖍️", title:"Coloring pages", desc:"Turn any story into a printable coloring page" },
+                    { icon:"🏅", title:"Milestone badges", desc:"Kids earn rewards for reading streaks" },
+                    { icon:"✍️", title:"Sequels", desc:"Loved a story? Continue the adventure tomorrow" },
+                  ].map(({icon,title,desc},i)=>(
+                    <div key={i}
+                      style={{ padding:"clamp(20px,2.5vw,28px)", background:"rgba(255,255,255,.015)", transition:"background .15s" }}
+                      onMouseEnter={e=>{e.currentTarget.style.background="rgba(255,255,255,.04)";}}
+                      onMouseLeave={e=>{e.currentTarget.style.background="rgba(255,255,255,.015)";}}>
+                      <div style={{ fontSize:22, marginBottom:12 }}>{icon}</div>
+                      <div style={{ fontFamily:"'Nunito',sans-serif", fontWeight:700, fontSize:14, color:"rgba(255,255,255,.82)", marginBottom:6 }}>{title}</div>
+                      <div style={{ fontSize:13, color:"rgba(255,255,255,.28)", lineHeight:1.6, fontFamily:"'Nunito',sans-serif" }}>{desc}</div>
+                    </div>
+                  ))}
                 </div>
               </div>
-            </div>
+            </section>
 
-            {/* ── SOCIAL PROOF ── */}
-            <div style={{ marginBottom:"clamp(64px,10vw,100px)" }}>
-              <div style={{ textAlign:"center", marginBottom:32 }}>
-                <div style={{ display:"flex", justifyContent:"center", gap:2, marginBottom:10 }}>
-                  {"★★★★★".split("").map((s,i) => <span key={i} style={{ color:"#fbbf24", fontSize:22 }}>{s}</span>)}
-                </div>
-                <p style={{ color:"rgba(255,255,255,.7)", fontSize:16, fontFamily:"'Playfair Display',serif", fontStyle:"italic", marginBottom:4 }}>4.9/5 from 487 parents</p>
-                <p style={{ color:"rgba(255,255,255,.3)", fontSize:12, fontFamily:"'Nunito',sans-serif" }}>Used in 32 states · Loved by families everywhere</p>
+            {/* ════════════════════════════════════════════════════════
+                EMOTIONAL SECTION — large type, lots of space
+            ════════════════════════════════════════════════════════ */}
+            <section style={{ padding:"80px clamp(20px,5vw,64px) 120px", textAlign:"center", position:"relative", overflow:"hidden" }}>
+              <div style={{ position:"absolute", inset:0, background:"radial-gradient(ellipse at 50% 50%,rgba(180,130,60,.04) 0%,transparent 60%)", pointerEvents:"none" }} />
+              <div style={{ maxWidth:680, margin:"0 auto", position:"relative" }}>
+                <div style={{ fontSize:"clamp(48px,8vw,80px)", marginBottom:32, filter:"drop-shadow(0 0 40px rgba(200,170,80,.3))", animation:"float 6s ease-in-out infinite" }}>🌙</div>
+                <h2 style={{ fontFamily:"'Playfair Display',serif", fontSize:"clamp(32px,5.5vw,60px)", fontWeight:800, letterSpacing:"-.025em", lineHeight:1.1, marginBottom:24, color:"rgba(255,255,255,.9)" }}>
+                  Bedtime isn't just a story.<br/>
+                  <em style={{ fontStyle:"italic", background:"linear-gradient(105deg,#e8c96a 0%,#c9a030 60%)", WebkitBackgroundClip:"text", WebkitTextFillColor:"transparent", backgroundClip:"text" }}>It's a memory.</em>
+                </h2>
+                <p style={{ color:"rgba(255,255,255,.32)", fontSize:"clamp(16px,2vw,19px)", lineHeight:1.8, fontFamily:"'Nunito',sans-serif", fontWeight:400, marginBottom:48 }}>
+                  Five minutes. No screens. No stress.<br/>Just you and them, in a world made only for tonight.
+                </p>
+                <button onClick={()=>setScreen("signup")}
+                  style={{
+                    padding:"clamp(16px,3vw,18px) clamp(36px,6vw,56px)",
+                    borderRadius:12, background:"rgba(255,255,255,.97)", border:"none",
+                    color:"#0a0812", fontFamily:"'Nunito',sans-serif", fontWeight:800,
+                    fontSize:"clamp(15px,2vw,17px)", cursor:"pointer", letterSpacing:".01em",
+                    transition:"all .18s", boxShadow:"0 0 0 1px rgba(255,255,255,.15), 0 20px 60px rgba(0,0,0,.4)",
+                  }}
+                  onMouseEnter={e=>{e.currentTarget.style.transform="translateY(-2px)";}}
+                  onMouseLeave={e=>{e.currentTarget.style.transform="";}}>
+                  Start your first story
+                </button>
               </div>
-              <div style={{ display:"grid", gridTemplateColumns:mobile?"1fr":tablet?"repeat(2,1fr)":"repeat(3,1fr)", gap:14 }}>
+            </section>
+
+            {/* ════════════════════════════════════════════════════════
+                TESTIMONIALS
+            ════════════════════════════════════════════════════════ */}
+            <section style={{ padding:"0 clamp(20px,5vw,64px) 120px", maxWidth:860, margin:"0 auto" }}>
+              <div style={{ marginBottom:56 }}>
+                <p style={{ fontSize:11, letterSpacing:".18em", textTransform:"uppercase", color:"rgba(255,255,255,.2)", fontFamily:"'Nunito',sans-serif", fontWeight:700, marginBottom:8 }}>From parents</p>
+                <div style={{ display:"flex", alignItems:"center", gap:12 }}>
+                  <div style={{ display:"flex", gap:2 }}>{"★★★★★".split("").map((s,i)=><span key={i} style={{ color:"#c9a030", fontSize:18 }}>{s}</span>)}</div>
+                  <span style={{ color:"rgba(255,255,255,.3)", fontSize:13, fontFamily:"'Nunito',sans-serif" }}>4.9 · 487 reviews · used in 32 states</span>
+                </div>
+              </div>
+
+              <div style={{ display:"grid", gridTemplateColumns:mobile?"1fr":"repeat(3,1fr)", gap:1, background:"rgba(255,255,255,.05)", borderRadius:16, overflow:"hidden", border:"1px solid rgba(255,255,255,.05)" }}>
                 {[
-                  { quote:"My daughter asks for her story every single night now. She loves that her stuffed bunny Mr. Hops is always the hero.", name:"Sarah M.", role:"Mom of a 5-year-old", initials:"SM", color:"rgba(192,132,252,.2)" },
-                  { quote:"The illustrations are gorgeous. It genuinely looks like a real children's picture book — I'm blown away every time.", name:"James T.", role:"Dad of twins", initials:"JT", color:"rgba(251,191,36,.2)" },
-                  { quote:"We used the 'bravery' lesson when my son was scared of the dark. He asked to read it three nights in a row.", name:"Priya K.", role:"Mom of a 6-year-old", initials:"PK", color:"rgba(103,232,249,.2)" },
-                ].map(({quote,name,role,initials,color}) => (
-                  <div key={name} style={{ padding:"clamp(18px,2.5vw,24px)", borderRadius:18, background:"rgba(255,255,255,.03)", border:"1px solid rgba(255,255,255,.07)" }}>
-                    <div style={{ color:"#fbbf24", fontSize:14, marginBottom:14, letterSpacing:2 }}>★★★★★</div>
-                    <p style={{ fontFamily:"'Crimson Pro',serif", fontStyle:"italic", color:"rgba(255,255,255,.6)", fontSize:"clamp(13px,1.5vw,15px)", lineHeight:1.8, marginBottom:16 }}>"{quote}"</p>
+                  { q:"My daughter asks for her story every single night. She loves that Mr. Hops is always the hero.", name:"Sarah M.", role:"Mom of a 5-year-old", init:"SM" },
+                  { q:"The illustrations look like a real children's picture book. I'm genuinely blown away every time.", name:"James T.", role:"Dad of twins", init:"JT" },
+                  { q:"We used the bravery story when my son was scared of the dark. He asked to read it three nights in a row.", name:"Priya K.", role:"Mom of a 6-year-old", init:"PK" },
+                ].map(({q,name,role,init},i)=>(
+                  <div key={i} style={{ padding:"clamp(24px,3vw,32px)", background:"rgba(255,255,255,.015)" }}>
+                    <div style={{ color:"#c9a030", fontSize:13, letterSpacing:2, marginBottom:16 }}>★★★★★</div>
+                    <p style={{ fontFamily:"'Crimson Pro',serif", fontStyle:"italic", color:"rgba(255,255,255,.55)", fontSize:"clamp(14px,1.4vw,16px)", lineHeight:1.8, marginBottom:20 }}>"{q}"</p>
                     <div style={{ display:"flex", alignItems:"center", gap:10 }}>
-                      <div style={{ width:36, height:36, borderRadius:"50%", background:color, display:"flex", alignItems:"center", justifyContent:"center", fontFamily:"'Nunito',sans-serif", fontWeight:800, fontSize:12, color:"white", flexShrink:0 }}>{initials}</div>
+                      <div style={{ width:32, height:32, borderRadius:"50%", background:"rgba(255,255,255,.07)", border:"1px solid rgba(255,255,255,.1)", display:"flex", alignItems:"center", justifyContent:"center", fontSize:11, fontWeight:800, color:"rgba(255,255,255,.5)", fontFamily:"'Nunito',sans-serif", flexShrink:0 }}>{init}</div>
                       <div>
-                        <div style={{ fontWeight:700, fontSize:13, color:"rgba(255,255,255,.75)", fontFamily:"'Nunito',sans-serif" }}>{name}</div>
-                        <div style={{ fontSize:11, color:"rgba(255,255,255,.28)", fontFamily:"'Nunito',sans-serif" }}>{role}</div>
+                        <div style={{ fontFamily:"'Nunito',sans-serif", fontWeight:700, fontSize:13, color:"rgba(255,255,255,.7)" }}>{name}</div>
+                        <div style={{ fontSize:11, color:"rgba(255,255,255,.25)", fontFamily:"'Nunito',sans-serif" }}>{role}</div>
                       </div>
                     </div>
                   </div>
                 ))}
               </div>
-            </div>
+            </section>
 
-            {/* ── EMOTIONAL MEMORY SECTION ── */}
-            <div style={{ marginBottom:"clamp(64px,10vw,100px)", textAlign:"center", padding:"clamp(52px,7vw,80px) clamp(24px,5vw,60px)", position:"relative", borderRadius:"clamp(24px,4vw,36px)", background:"linear-gradient(155deg,rgba(20,8,50,.6),rgba(10,4,30,.7))", border:"1px solid rgba(200,160,100,.1)", overflow:"hidden" }}>
-              <div style={{ position:"absolute", top:0, left:"50%", transform:"translateX(-50%)", width:"60%", height:"50%", background:"radial-gradient(ellipse,rgba(200,160,80,.06) 0%,transparent 70%)", pointerEvents:"none" }} />
-              <div style={{ fontSize:"clamp(36px,6vw,52px)", marginBottom:20, filter:"drop-shadow(0 0 20px rgba(200,170,80,.4))", animation:"float 6s ease-in-out infinite", position:"relative" }}>🌙</div>
-              <h2 style={{ fontFamily:"'Playfair Display',serif", fontSize:"clamp(28px,5.5vw,50px)", fontStyle:"italic", lineHeight:1.2, marginBottom:20, position:"relative" }}>
-                Bedtime Isn't Just A Story.<br/>
-                <em style={{ background:"linear-gradient(120deg,#f6d98a 0%,#e8b84b 45%,#c9a030 100%)", WebkitBackgroundClip:"text", WebkitTextFillColor:"transparent", backgroundClip:"text" }}>
-                  It's A Memory.
-                </em>
-              </h2>
-              <p style={{ color:"rgba(255,255,255,.5)", fontSize:"clamp(15px,2vw,19px)", lineHeight:1.9, maxWidth:500, margin:"0 auto 32px", fontFamily:"'Crimson Pro',serif", fontStyle:"italic", position:"relative" }}>
-                These are the nights they'll remember.<br/>Five minutes of connection. No screens. No stress.<br/>Just you and them.
-              </p>
-              <button className="btn-cta btn-pulse" style={{ fontSize:"clamp(15px,2.5vw,17px)", padding:"clamp(16px,3vw,20px) clamp(32px,6vw,52px)", borderRadius:999 }} onClick={()=>setScreen("signup")}>
-                Start Free Tonight ✨
-              </button>
-              <div style={{ display:"flex", alignItems:"center", gap:16, flexWrap:"wrap", justifyContent:"center", marginTop:14 }}>
-                {["No credit card required","Cancel anytime","7 nights free"].map((t,i) => (
-                  <span key={i} style={{ display:"flex", alignItems:"center", gap:5, color:"rgba(255,255,255,.28)", fontSize:12, fontFamily:"'Nunito',sans-serif" }}>
-                    <span style={{ color:"#4ade80", fontSize:10 }}>✓</span>{t}
-                  </span>
-                ))}
-              </div>
-            </div>
+            {/* ════════════════════════════════════════════════════════
+                PRICING
+            ════════════════════════════════════════════════════════ */}
+            <section style={{ padding:"0 clamp(20px,5vw,64px) 120px", maxWidth:520, margin:"0 auto" }}>
+              <div style={{ borderRadius:20, border:"1px solid rgba(255,255,255,.08)", background:"rgba(255,255,255,.02)", overflow:"hidden" }}>
+                {/* Top accent line */}
+                <div style={{ height:1, background:"linear-gradient(90deg,transparent,rgba(201,168,76,.5),transparent)" }} />
+                <div style={{ padding:"clamp(32px,5vw,48px)" }}>
+                  <div style={{ display:"inline-flex", alignItems:"center", gap:6, background:"rgba(201,168,76,.08)", border:"1px solid rgba(201,168,76,.15)", borderRadius:999, padding:"4px 14px", marginBottom:28 }}>
+                    <span style={{ color:"rgba(201,168,76,.8)", fontSize:11, fontWeight:700, fontFamily:"'Nunito',sans-serif", letterSpacing:".06em" }}>7 NIGHTS FREE</span>
+                  </div>
 
-            {/* ── PRICING ── */}
-            <div style={{ marginBottom:"clamp(64px,10vw,100px)" }}>
-              <div style={{ textAlign:"center", marginBottom:32 }}>
-                <span style={{ fontFamily:"'Nunito',sans-serif", fontSize:11, fontWeight:700, letterSpacing:".16em", textTransform:"uppercase", color:"rgba(255,255,255,.2)" }}>Pricing</span>
-                <h2 style={{ fontFamily:"'Playfair Display',serif", fontSize:"clamp(26px,5vw,42px)", fontStyle:"italic", marginTop:10, lineHeight:1.2 }}>$5.99/month</h2>
-                <p style={{ color:"rgba(255,255,255,.4)", fontFamily:"'Crimson Pro',serif", fontSize:"clamp(15px,2vw,18px)", fontStyle:"italic", marginTop:8 }}>Unlimited Personalized Bedtime Stories · Cancel Anytime.</p>
-              </div>
-              <div style={{ maxWidth:360, margin:"0 auto", borderRadius:24, overflow:"hidden", background:"linear-gradient(150deg,rgba(60,20,120,.4),rgba(30,10,80,.5))", border:"1px solid rgba(160,100,255,.2)", position:"relative" }}>
-                <div style={{ height:2, background:"linear-gradient(90deg,#7c3aed,#a78bfa,#c084fc,#a78bfa,#7c3aed)", backgroundSize:"220% 100%", animation:"gradFlow 3s linear infinite" }} />
-                <div style={{ padding:"clamp(28px,4vw,40px)" }}>
-                  <div style={{ display:"inline-flex", alignItems:"center", gap:6, background:"rgba(192,132,252,.12)", border:"1px solid rgba(192,132,252,.22)", borderRadius:999, padding:"4px 14px", marginBottom:20 }}>
-                    <span style={{ color:"#c084fc", fontSize:10, fontWeight:800, letterSpacing:".14em", textTransform:"uppercase" }}>✨ 7 nights free</span>
+                  <div style={{ marginBottom:8 }}>
+                    <span style={{ fontFamily:"'Playfair Display',serif", fontSize:"clamp(52px,9vw,72px)", fontWeight:800, letterSpacing:"-.03em", color:"rgba(255,255,255,.9)" }}>$5.99</span>
+                    <span style={{ color:"rgba(255,255,255,.2)", fontSize:16, marginLeft:6, fontFamily:"'Nunito',sans-serif" }}>/month</span>
                   </div>
-                  <div style={{ marginBottom:24 }}>
-                    <div style={{ display:"flex", alignItems:"baseline", gap:8, justifyContent:"center", flexWrap:"wrap" }}>
-                      <span style={{ fontFamily:"'Playfair Display',serif", fontSize:"clamp(44px,8vw,60px)", fontWeight:800, lineHeight:1 }}>$5.99</span>
-                      <span style={{ color:"rgba(255,255,255,.35)", fontSize:16 }}>/month</span>
-                    </div>
-                    <p style={{ color:"rgba(255,255,255,.3)", fontSize:13, marginTop:8, fontFamily:"'Nunito',sans-serif" }}>
-                      For 1 child · <span style={{ color:"rgba(192,132,252,.7)" }}>+$2.99/month per additional child</span>
-                    </p>
-                  </div>
-                  {/* Value bullets */}
-                  <div style={{ display:"flex", flexDirection:"column", gap:11, marginBottom:28 }}>
-                    {["30+ stories per month","AI watercolor illustrations on every page","Story library saved forever","Add kids anytime","Photo-matched character illustrations","Life Lesson Story Mode","Read Aloud Narrator","Coloring Book Generator","Milestone Badges For Kids","Cancel Anytime"].map(f => (
-                      <div key={f} style={{ display:"flex", alignItems:"center", gap:10 }}>
-                        <span style={{ color:"#a78bfa", fontSize:14, flexShrink:0 }}>✦</span>
-                        <span style={{ color:"rgba(255,255,255,.6)", fontSize:"clamp(13px,1.5vw,14px)", fontFamily:"'Nunito',sans-serif" }}>{f}</span>
+                  <p style={{ color:"rgba(255,255,255,.25)", fontSize:13, fontFamily:"'Nunito',sans-serif", marginBottom:36 }}>
+                    First child · +$2.99/mo per additional child
+                  </p>
+
+                  <div style={{ display:"flex", flexDirection:"column", gap:12, marginBottom:36 }}>
+                    {[
+                      "14-page illustrated story every night",
+                      "AI watercolor art on every page",
+                      "Photo-matched character illustrations",
+                      "Story library saved forever",
+                      "Life lesson story mode",
+                      "Coloring page generator",
+                      "Read aloud narrator",
+                      "Cancel anytime",
+                    ].map(f=>(
+                      <div key={f} style={{ display:"flex", alignItems:"center", gap:12 }}>
+                        <span style={{ color:"rgba(201,168,76,.6)", fontSize:12, flexShrink:0 }}>—</span>
+                        <span style={{ color:"rgba(255,255,255,.45)", fontSize:13, fontFamily:"'Nunito',sans-serif" }}>{f}</span>
                       </div>
                     ))}
                   </div>
-                  <button className="btn-cta full" style={{ borderRadius:14 }} onClick={()=>setScreen("signup")}>Start Free — 7 Nights Free ✨</button>
-                  <p style={{ color:"rgba(255,255,255,.2)", fontSize:11, textAlign:"center", marginTop:12 }}>No Credit Card Required · Cancel Anytime</p>
+
+                  <button onClick={()=>setScreen("signup")}
+                    style={{ width:"100%", padding:"clamp(16px,3vw,18px)", borderRadius:12, background:"rgba(255,255,255,.97)", border:"none", color:"#0a0812", fontFamily:"'Nunito',sans-serif", fontWeight:800, fontSize:15, cursor:"pointer", transition:"all .18s", letterSpacing:".01em" }}
+                    onMouseEnter={e=>{e.currentTarget.style.background="white";e.currentTarget.style.transform="translateY(-1px)";}}
+                    onMouseLeave={e=>{e.currentTarget.style.background="rgba(255,255,255,.97)";e.currentTarget.style.transform="";}}>
+                    Start free tonight
+                  </button>
+                  <p style={{ textAlign:"center", color:"rgba(255,255,255,.15)", fontSize:11, marginTop:12, fontFamily:"'Nunito',sans-serif" }}>No credit card required</p>
                 </div>
               </div>
-            </div>
+            </section>
 
-            {/* ── BOTTOM CTA ── */}
-            <div style={{ textAlign:"center", padding:"clamp(52px,7vw,80px) clamp(24px,5vw,60px)", position:"relative", overflow:"hidden", borderRadius:"clamp(24px,4vw,36px)", background:"linear-gradient(155deg,rgba(40,15,100,.35),rgba(15,5,50,.45))", border:"1px solid rgba(150,100,255,.12)" }}>
-              <div style={{ position:"absolute", top:"-20%", left:"50%", transform:"translateX(-50%)", width:"80%", height:"140%", background:"radial-gradient(ellipse,rgba(110,60,200,.1) 0%,transparent 65%)", pointerEvents:"none" }} />
-              <div style={{ fontSize:"clamp(44px,8vw,64px)", marginBottom:16, filter:"drop-shadow(0 0 28px rgba(200,170,80,.45))", animation:"float 5s ease-in-out infinite", position:"relative" }}>🌙</div>
-              <h3 style={{ fontFamily:"'Playfair Display',serif", fontSize:"clamp(26px,5vw,44px)", fontStyle:"italic", marginBottom:12, position:"relative", lineHeight:1.2 }}>
-                Tonight's Story<br/>Is Waiting
-              </h3>
-              <p style={{ color:"rgba(255,255,255,.32)", marginBottom:32, fontFamily:"'Crimson Pro',serif", fontSize:"clamp(15px,2vw,18px)", lineHeight:1.8, position:"relative" }}>
-                Join families everywhere who've made bedtime<br/>the most magical part of their child's day.
-              </p>
-              <div style={{ maxWidth:320, margin:"0 auto", position:"relative", display:"flex", flexDirection:"column", gap:12 }}>
-                <button className="btn-cta btn-pulse full" style={{ fontSize:"clamp(15px,2.5vw,17px)", padding:"clamp(17px,3vw,22px)" }} onClick={()=>setScreen("signup")}>Create Free Account ✨</button>
-                <button onClick={()=>setScreen("login")} style={{ background:"none", border:"none", color:"rgba(255,255,255,.25)", fontSize:13, cursor:"pointer", fontFamily:"'Nunito',sans-serif" }}>Already Have An Account →</button>
-              </div>
-            </div>
+            {/* ════════════════════════════════════════════════════════
+                FOOTER
+            ════════════════════════════════════════════════════════ */}
+            <footer style={{ padding:"40px clamp(20px,5vw,64px) 60px", borderTop:"1px solid rgba(255,255,255,.05)", display:"flex", justifyContent:"space-between", alignItems:"center", flexWrap:"wrap", gap:16 }}>
+              <DreamweaverLogo size={22} showText={true} />
+              <p style={{ color:"rgba(255,255,255,.14)", fontSize:12, fontFamily:"'Nunito',sans-serif" }}>© 2025 DreamWeaver · Made for bedtime</p>
+            </footer>
 
           </div>
         )}
