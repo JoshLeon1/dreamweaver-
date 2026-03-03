@@ -1,49 +1,55 @@
+// api/start-image.js
+// Starts a Replicate image generation prediction and returns the prediction ID immediately.
+// Uses the official models endpoint — no version hash needed for flux-schnell.
+// ENV VARS: REPLICATE_API_TOKEN
+
 export default async function handler(req, res) {
+  if (req.method !== "POST") return res.status(405).json({ error: "Method not allowed" });
+
+  const { prompt, coloring = false } = req.body;
+  if (!prompt) return res.status(400).json({ error: "Missing prompt" });
+
+  const imagePrompt = coloring
+    ? `${prompt} Children's coloring book page. Pure black outlines only on white background. No color fills, no shading, no grey tones. Simple clean line art suitable for coloring in. NO text, NO words, NO letters anywhere.`
+    : prompt;
+
   try {
-    if (req.method !== "POST") return res.status(405).json({ error: "Method not allowed" });
+    // Use the /models/{owner}/{name}/predictions endpoint for official models
+    // This is the correct endpoint for flux-schnell — no version hash required
+    const response = await fetch(
+      "https://api.replicate.com/v1/models/black-forest-labs/flux-schnell/predictions",
+      {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${process.env.REPLICATE_API_TOKEN}`,
+          "Content-Type": "application/json",
+          "Prefer": "respond-async", // return immediately with prediction ID
+        },
+        body: JSON.stringify({
+          input: {
+            prompt: imagePrompt,
+            num_inference_steps: coloring ? 4 : 4,
+            guidance: 0,
+            output_format: "webp",
+            output_quality: 85,
+            aspect_ratio: coloring ? "1:1" : "3:4",
+            go_fast: true,
+          },
+        }),
+      }
+    );
 
-    const { prompt, coloring = false, aspect_ratio } = req.body || {};
-    if (!prompt || typeof prompt !== "string") return res.status(400).json({ error: "Missing prompt" });
+    if (!response.ok) {
+      const errText = await response.text();
+      console.error("Replicate start error:", response.status, errText);
+      return res.status(response.status).json({ error: errText });
+    }
 
-    const token = process.env.REPLICATE_API_TOKEN;
-    if (!token) return res.status(500).json({ error: "Missing REPLICATE_API_TOKEN" });
+    const prediction = await response.json();
+    return res.status(200).json({ id: prediction.id });
 
-    // Prefer model name for flux-schnell; allow version override if you want it
-    const model = process.env.REPLICATE_MODEL || "black-forest-labs/flux-schnell";
-    const version = process.env.REPLICATE_MODEL_VERSION; // optional
-
-    // Flux Schnell inputs (common ones): prompt, aspect_ratio, num_outputs, num_inference_steps, output_format, output_quality
-    // See Replicate model schema/examples for details. Defaults are fine if omitted. :contentReference[oaicite:1]{index=1}
-    const input = {
-      prompt,
-      aspect_ratio: aspect_ratio || "1:1",
-      output_format: "webp",
-      output_quality: 80,
-      // num_inference_steps: 4, // max is 4 for this model version :contentReference[oaicite:2]{index=2}
-      // num_outputs: 1,
-    };
-
-    // If you want "coloring" to slightly affect style, you can alter the prompt:
-    if (coloring) input.prompt = `${prompt}. clean line art, coloring book style, simple outlines`;
-
-    const body = version
-      ? { version, input }
-      : { model, input };
-
-    const resp = await fetch("https://api.replicate.com/v1/predictions", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-      body: JSON.stringify(body),
-    });
-
-    const data = await resp.json();
-    if (!resp.ok) return res.status(resp.status).json({ error: data?.detail || data?.error || "Failed to start prediction" });
-
-    return res.status(200).json({ id: data.id });
-  } catch (e) {
-    return res.status(500).json({ error: e?.message || "Server error" });
+  } catch (err) {
+    console.error("start-image handler error:", err);
+    return res.status(500).json({ error: err.message });
   }
 }

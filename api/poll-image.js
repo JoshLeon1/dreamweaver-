@@ -1,20 +1,45 @@
+// api/poll-image.js
+// Polls a Replicate prediction by ID and returns its status + output URL.
+// Called every 2s by the frontend until status is "succeeded" or "failed".
+// ENV VARS: REPLICATE_API_TOKEN
+
 export default async function handler(req, res) {
-  res.setHeader("Access-Control-Allow-Origin", "*");
-  res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
-  res.setHeader("Access-Control-Allow-Headers", "Content-Type");
-  if (req.method === "OPTIONS") return res.status(200).end();
+  if (req.method !== "POST") return res.status(405).json({ error: "Method not allowed" });
 
   const { id } = req.body;
-  const key = process.env.REPLICATE_KEY || process.env.VITE_REPLICATE_KEY;
-  if (!key) return res.status(500).json({ error: "Missing REPLICATE_KEY" });
+  if (!id) return res.status(400).json({ error: "Missing prediction id" });
 
   try {
-    const r = await fetch(`https://api.replicate.com/v1/predictions/${id}`, {
-      headers: { "Authorization": `Bearer ${key}` }
+    const response = await fetch(`https://api.replicate.com/v1/predictions/${id}`, {
+      headers: {
+        "Authorization": `Bearer ${process.env.REPLICATE_API_TOKEN}`,
+        "Content-Type": "application/json",
+      },
     });
-    const data = await r.json();
-    return res.json({ status: data.status, url: data.output?.[0] || null, error: data.error || null });
-  } catch (e) {
-    return res.status(500).json({ error: e.message });
+
+    if (!response.ok) {
+      const errText = await response.text();
+      console.error("Replicate poll error:", response.status, errText);
+      return res.status(response.status).json({ status: "failed", error: errText, url: null });
+    }
+
+    const prediction = await response.json();
+    const status = prediction.status; // "starting" | "processing" | "succeeded" | "failed" | "canceled"
+
+    // flux-schnell returns output as an array of URLs
+    let url = null;
+    if (status === "succeeded" && prediction.output) {
+      url = Array.isArray(prediction.output) ? prediction.output[0] : prediction.output;
+    }
+
+    return res.status(200).json({
+      status,
+      url,
+      error: prediction.error || null,
+    });
+
+  } catch (err) {
+    console.error("poll-image handler error:", err);
+    return res.status(500).json({ status: "failed", url: null, error: err.message });
   }
 }
