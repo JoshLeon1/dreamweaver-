@@ -136,6 +136,8 @@ body{background:var(--night);min-height:100vh;font-family:'Nunito',sans-serif;co
 @keyframes fadeUp{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:translateY(0)}}
 @keyframes fadeIn{from{opacity:0}to{opacity:1}}
 @keyframes gradFlow{0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}}
+@keyframes starFloat{0%{opacity:.3;transform:translateY(0) scale(1)}100%{opacity:.9;transform:translateY(-8px) scale(1.3)}}
+@keyframes btnPulse{0%,100%{box-shadow:0 6px 32px rgba(130,80,240,.45)}50%{box-shadow:0 6px 32px rgba(130,80,240,.45),0 0 40px rgba(160,100,255,.35)}}
 @keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
 @keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
 /* Page turn — perspective slide that doesn't clip */
@@ -227,6 +229,7 @@ body{background:var(--night);min-height:100vh;font-family:'Nunito',sans-serif;co
 .btn-cta:hover{transform:translateY(-2px) scale(1.01);box-shadow:0 10px 40px rgba(130,80,240,.6)}
 .btn-cta:active{transform:scale(.97);box-shadow:0 3px 16px rgba(130,80,240,.4)}
 .btn-cta.full{width:100%;display:block}
+.btn-cta.btn-pulse{animation:gradFlow 4s ease infinite,btnPulse 5s ease-in-out infinite}
 
 .btn-solid{
   background:linear-gradient(135deg,#4c2d99,#7c4dcc);
@@ -1041,7 +1044,7 @@ export default function App() {
   }, []);
 
   useEffect(() => { const h = () => { setMobile(window.innerWidth < 700); setTablet(window.innerWidth >= 700 && window.innerWidth < 1024); }; window.addEventListener("resize",h); return () => window.removeEventListener("resize",h); }, []);
-  useEffect(() => { if (screen!=="landing") return; const t = setInterval(() => setDemoSpread(p => (p+1)%2), 5000); return () => clearInterval(t); }, [screen]);
+  useEffect(() => { if (screen!=="landing") return; const t = setInterval(() => setDemoSpread(p => (p+1)%2), 3000); return () => clearInterval(t); }, [screen]);
 
   const loadShared = async (id) => { setScreen("shared"); const { data } = await supabase.from("stories").select("*").eq("id",id).single(); if (data) setShared(data); else setScreen("landing"); };
   const loadData = async (u) => {
@@ -1223,11 +1226,17 @@ export default function App() {
   };
 
   const imgPromptFor = (pt, m, charCard) => {
-    const scene = pt.slice(0, 120);
-    const base = charCard
-      ? `Children's book watercolor illustration. Character: ${charCard} Scene: ${scene}.`
-      : `${active.child_name} age ${active.age||5} with ${active.stuffed_animal||"stuffed bear"}, scene: ${scene}.`;
-    return `${base} Style: ${m.prompt}, soft pastel watercolor, dreamy storybook art. NO letters, NO words, NO text, NO captions, NO signs, NO writing of any kind anywhere in the image.`;
+    // Strip proper nouns from scene text — Flux tries to render names as literal text in images
+    const rawScene = pt.slice(0, 120);
+    const scene = rawScene.replace(/\b[A-Z][a-z]{2,}\b/g, (w) => {
+      const keep = ["The","She","He","They","Her","His","Then","When","And","But","So","Its"];
+      return keep.includes(w) ? w : "the child";
+    });
+    const charDesc = charCard
+      ? charCard.replace(/\b[A-Z][a-z]{2,}\b/g, (w) => ["The","She","He","They"].includes(w) ? w : "a child")
+      : `a child age ${active.age||5} with a ${active.stuffed_animal||"stuffed bear"}`;
+    // No-text instruction goes FIRST — models weight early prompt tokens most heavily
+    return `No text, no letters, no words, no numbers, no writing, no signs, no labels anywhere in this image. Pure children's watercolor storybook illustration. ${charDesc}. ${scene}. Style: ${m.prompt}, soft pastel watercolor, dreamy glowing light, storybook art. No typography of any kind.`;
   };
 
   // Persist page position
@@ -1324,7 +1333,7 @@ export default function App() {
       }
       setStory(saved);
 
-      const coverPrompt=`A child with ${active.stuffed_animal||"stuffed bear"} in a ${m.prompt} dreamland scene, soft watercolor pastel art, dreamy storybook illustration, magical glowing light, beautiful night sky. Pure illustration only. Absolutely no text, no letters, no words, no numbers, no title, no writing, no signs, no labels anywhere in the image. Clean artwork with no typography of any kind.`;
+      const coverPrompt=`No text, no letters, no words, no numbers, no writing, no labels anywhere in this image. A child with a stuffed animal in a ${m.prompt} dreamland scene. Soft watercolor pastel art, dreamy storybook illustration, magical glowing light, beautiful night sky. Pure illustration only. No typography of any kind.`;
 
       setStoryPhase("illustrating");
       const generated=new Array(ps.length).fill(null); let loaded=0;
@@ -1444,7 +1453,7 @@ NO title. Start immediately.`;
       const { data:saved } = await supabase.from("stories").insert(payload).select().single();
       setTitle(sequelTitle); setPages(ps); setImgs([]); setImgsLoaded(0); setCoverImg(null); setSpread(-1); setStory(saved); setStoryPhase("ready");
       // Generate cover + images
-      const coverPrompt = `A child with ${active.stuffed_animal||"stuffed bear"} on a new ${m.prompt} adventure, soft watercolor pastel art, dreamy storybook illustration, magical glowing light, beautiful night sky. Pure illustration only. Absolutely no text, no letters, no words, no numbers, no title, no writing, no signs, no labels anywhere in the image. Clean artwork with no typography of any kind.`;
+      const coverPrompt = `No text, no letters, no words, no numbers, no writing, no labels anywhere in this image. A child with a stuffed animal on a ${m.prompt} adventure. Soft watercolor pastel art, dreamy storybook illustration, magical glowing light, beautiful night sky. Pure illustration only. No typography of any kind.`;
       const generated = new Array(ps.length).fill(null);
       const coverP = (async () => {
         const url = await generateImage(coverPrompt); if (!url) return;
@@ -1594,7 +1603,7 @@ NO title. Start immediately.`;
     // Pick the most vivid page (middle of story)
     const bestPage = pages[Math.floor(pages.length / 2)] || pages[0];
     const charCard = active?.character_card || `${active.child_name} age ${active.age||5} with ${active.stuffed_animal||"stuffed bear"}`;
-    const prompt = `Children's coloring book page. Pure black outlines on a completely white background. NO color, NO gray, NO shading, NO fills — only clean black lines on white. NO text, NO letters, NO words, NO numbers anywhere. Large simple bold shapes with thick outlines, lots of open white space for a child to color in. Character: ${charCard.slice(0,100)} Scene: ${bestPage.slice(0,100)}.`;
+    const prompt = `No text, no letters, no words, no numbers anywhere in this image. Children's coloring book page. Pure black outlines on a completely white background. No color, no gray, no shading, no fills — only clean black lines on white. Large simple bold shapes with thick outlines, lots of open white space for a child to color in. A child with a stuffed animal. No typography of any kind.`;
     const url = await generateImage(prompt, true);
     setColoringUrl(url);
     setColoringLoading(false);
@@ -1655,10 +1664,16 @@ NO title. Start immediately.`;
             {/* ── HERO ── */}
             <div style={{ textAlign:"center", paddingTop:"clamp(32px,7vw,72px)", paddingBottom:"clamp(48px,8vw,80px)", position:"relative" }}>
               {/* Deep halo */}
-              <div style={{ position:"absolute", top:"-10%", left:"50%", transform:"translateX(-50%)", width:"100vw", maxWidth:700, height:"60vw", maxHeight:420, background:"radial-gradient(ellipse at 50% 0%,rgba(130,70,255,.13) 0%,rgba(80,40,180,.07) 40%,transparent 70%)", pointerEvents:"none" }} />
+              <div style={{ position:"absolute", top:"-10%", left:"50%", transform:"translateX(-50%)", width:"100vw", maxWidth:700, height:"60vw", maxHeight:420, background:"radial-gradient(ellipse at 50% 0%,rgba(130,70,255,.18) 0%,rgba(80,40,180,.09) 40%,transparent 70%)", pointerEvents:"none" }} />
+              {/* Floating stars */}
+              <div style={{ position:"absolute", inset:0, pointerEvents:"none", overflow:"hidden" }}>
+                {[{top:"12%",left:"8%",size:3,delay:0},{top:"22%",right:"10%",size:2,delay:1.2},{top:"55%",left:"4%",size:2,delay:2.4},{top:"40%",right:"6%",size:3,delay:0.8},{top:"70%",left:"15%",size:2,delay:1.8},{top:"18%",left:"45%",size:2,delay:3}].map((s,i)=>(
+                  <div key={i} style={{ position:"absolute", top:s.top, left:s.left, right:s.right, width:s.size, height:s.size, borderRadius:"50%", background:"rgba(255,255,255,.6)", boxShadow:"0 0 6px rgba(255,255,255,.8)", animation:`starFloat ${3+i*0.7}s ease-in-out ${s.delay}s infinite alternate` }} />
+                ))}
+              </div>
 
               {/* Logo */}
-              <div style={{ marginBottom:24 }}>
+              <div style={{ marginBottom:24, position:"relative" }}>
                 <DreamweaverLogo size={36} showText={true} />
               </div>
 
@@ -1669,24 +1684,39 @@ NO title. Start immediately.`;
               </div>
 
               {/* Headline */}
-              <h1 style={{ fontFamily:"'Playfair Display',serif", fontSize:"clamp(34px,7.5vw,78px)", lineHeight:1.15, marginBottom:22, letterSpacing:"-.02em" }}>
-                Your Child Is{" "}
-                <br />
-                <em style={{ background:"linear-gradient(120deg,#f6d98a 0%,#e8b84b 45%,#c9a030 100%)", WebkitBackgroundClip:"text", WebkitTextFillColor:"transparent", backgroundClip:"text", fontStyle:"italic" }}>
-                  The Hero.
-                </em>
-                <span style={{ color:"rgba(255,255,255,.55)", display:"block", fontSize:"clamp(22px,5vw,46px)", fontWeight:400, fontStyle:"italic", marginTop:4 }}>Every single night.</span>
-              </h1>
+              <div style={{ position:"relative", marginBottom:22 }}>
+                <div style={{ position:"absolute", top:"50%", left:"50%", transform:"translate(-50%,-50%)", width:"80%", height:"120%", background:"radial-gradient(ellipse,rgba(200,160,255,.07) 0%,transparent 70%)", pointerEvents:"none" }} />
+                <h1 style={{ fontFamily:"'Playfair Display',serif", fontSize:"clamp(34px,7.5vw,78px)", lineHeight:1.15, letterSpacing:"-.02em", position:"relative" }}>
+                  Your Child Is{" "}
+                  <em style={{ background:"linear-gradient(120deg,#f6d98a 0%,#e8b84b 45%,#c9a030 100%)", WebkitBackgroundClip:"text", WebkitTextFillColor:"transparent", backgroundClip:"text", fontStyle:"italic" }}>
+                    The Hero
+                  </em>
+                  <span style={{ color:"rgba(255,255,255,.55)", display:"block", fontSize:"clamp(22px,5vw,46px)", fontWeight:400, fontStyle:"italic", marginTop:4 }}>Every Night.</span>
+                </h1>
+              </div>
 
-              <p style={{ fontFamily:"'Crimson Pro',serif", fontSize:"clamp(17px,2.8vw,22px)", color:"rgba(255,255,255,.45)", lineHeight:1.75, maxWidth:520, margin:"0 auto 38px", fontStyle:"italic" }}>
-                Every night, a brand new 14-page illustrated picture book — starring your child's name, stuffed animal, best friend, and the things they love most.
+              {/* Subheadline — clear, fast, personal */}
+              <p style={{ fontFamily:"'Crimson Pro',serif", fontSize:"clamp(18px,2.8vw,24px)", color:"rgba(255,255,255,.65)", lineHeight:1.6, maxWidth:480, margin:"0 auto 38px", fontStyle:"italic" }}>
+                A brand new personalized bedtime story in 40 seconds.
               </p>
 
               <div style={{ display:"flex", flexDirection:"column", alignItems:"center", gap:12 }}>
-                <button className="btn-cta" style={{ fontSize:"clamp(15px,2.5vw,17px)", padding:"clamp(16px,3vw,20px) clamp(32px,6vw,52px)", borderRadius:999 }} onClick={()=>setScreen("signup")}>
-                  Start Free Tonight ✨
-                </button>
-                <button onClick={()=>setScreen("login")} style={{ background:"none", border:"none", color:"rgba(255,255,255,.28)", fontSize:13, cursor:"pointer", fontFamily:"'Nunito',sans-serif", padding:"8px 16px" }}>
+                {/* CTA with soft glow behind it */}
+                <div style={{ position:"relative" }}>
+                  <div style={{ position:"absolute", inset:"-12px", borderRadius:999, background:"radial-gradient(ellipse,rgba(160,100,255,.18) 0%,transparent 70%)", pointerEvents:"none" }} />
+                  <button className="btn-cta btn-pulse" style={{ fontSize:"clamp(15px,2.5vw,17px)", padding:"clamp(16px,3vw,20px) clamp(32px,6vw,52px)", borderRadius:999, position:"relative" }} onClick={()=>setScreen("signup")}>
+                    Start Free Tonight ✨
+                  </button>
+                </div>
+                {/* Trust line */}
+                <div style={{ display:"flex", alignItems:"center", gap:16, flexWrap:"wrap", justifyContent:"center", marginTop:4 }}>
+                  {["No credit card required","Cancel anytime","Loved by 2,000+ families"].map((t,i) => (
+                    <span key={i} style={{ display:"flex", alignItems:"center", gap:5, color:"rgba(255,255,255,.3)", fontSize:12, fontFamily:"'Nunito',sans-serif" }}>
+                      <span style={{ color:"#4ade80", fontSize:10 }}>✓</span>{t}
+                    </span>
+                  ))}
+                </div>
+                <button onClick={()=>setScreen("login")} style={{ background:"none", border:"none", color:"rgba(255,255,255,.22)", fontSize:13, cursor:"pointer", fontFamily:"'Nunito',sans-serif", padding:"8px 16px", marginTop:4 }}>
                   Already Have An Account →
                 </button>
               </div>
@@ -1696,12 +1726,13 @@ NO title. Start immediately.`;
             <div style={{ marginBottom:"clamp(64px,10vw,100px)" }}>
               <div style={{ textAlign:"center", marginBottom:20 }}>
                 <span style={{ fontFamily:"'Nunito',sans-serif", fontSize:11, fontWeight:700, letterSpacing:".16em", textTransform:"uppercase", color:"rgba(255,255,255,.2)" }}>Live Preview</span>
-                <p style={{ fontFamily:"'Crimson Pro',serif", fontStyle:"italic", color:"rgba(255,255,255,.4)", fontSize:15, marginTop:4 }}>Lily's Moonlit Adventure — A Sample Story</p>
+                <p style={{ fontFamily:"'Crimson Pro',serif", fontStyle:"italic", color:"rgba(255,255,255,.35)", fontSize:13, marginTop:4 }}>Generated in under 40 seconds</p>
+                <p style={{ fontFamily:"'Crimson Pro',serif", fontStyle:"italic", color:"rgba(255,255,255,.4)", fontSize:15, marginTop:2 }}>Lily's Moonlit Adventure — A Sample Story</p>
               </div>
 
               {(mobile||tablet) ? (
                 <div style={{ maxWidth:380, margin:"0 auto" }}>
-                  <div style={{ borderRadius:20, overflow:"hidden", boxShadow:"0 40px 80px rgba(0,0,0,.8),0 0 0 1px rgba(255,255,255,.06)" }}>
+                  <div style={{ borderRadius:20, overflow:"hidden", boxShadow:"0 40px 80px rgba(0,0,0,.8),0 0 0 1px rgba(255,255,255,.06),0 0 60px rgba(120,60,220,.12)" }}>
                     <div style={{ background:"linear-gradient(175deg,#fefcf7,#fdf9f0)" }}>
                       <div style={{ width:"100%", aspectRatio:"16/9", position:"relative", overflow:"hidden", background:DEMO_STORY[demoSpread]?.fallback }}>
                         <img src={DEMO_STORY[demoSpread]?.img} alt="" style={{ width:"100%", height:"100%", objectFit:"cover" }} onError={e=>{e.target.style.display="none";}} />
@@ -1718,7 +1749,7 @@ NO title. Start immediately.`;
                 </div>
               ) : (
                 <div style={{ perspective:"2000px" }}>
-                  <div style={{ display:"flex", maxWidth:820, margin:"0 auto", borderRadius:20, overflow:"hidden", boxShadow:"0 60px 120px rgba(0,0,0,.85),0 20px 40px rgba(0,0,0,.5),0 0 0 1px rgba(255,255,255,.05)" }}>
+                  <div style={{ display:"flex", maxWidth:820, margin:"0 auto", borderRadius:20, overflow:"hidden", boxShadow:"0 60px 120px rgba(0,0,0,.85),0 20px 40px rgba(0,0,0,.5),0 0 0 1px rgba(255,255,255,.05),0 0 80px rgba(120,60,220,.1)" }}>
                     {/* Spine */}
                     <div style={{ width:22, flexShrink:0, background:"linear-gradient(90deg,#0a0300,#4a2008 40%,#7a3510 50%,#4a2008 60%,#0a0300)", position:"relative" }}>
                       <div style={{ position:"absolute", top:0, bottom:0, left:"50%", width:1, background:"linear-gradient(180deg,transparent 5%,rgba(201,168,76,.3) 50%,transparent 95%)" }} />
@@ -1729,7 +1760,7 @@ NO title. Start immediately.`;
                         <div key={side} style={{ flex:1, display:"flex", flexDirection:"column", background:side===0?"linear-gradient(175deg,#fefcf7,#fdf9f0)":"linear-gradient(175deg,#fdfaf2,#faf5e8)", borderLeft:side===1?"1px solid rgba(0,0,0,.06)":"none" }}>
                           <div style={{ width:"100%", aspectRatio:"4/3", position:"relative", overflow:"hidden", background:page?.fallback||"#1a0a2e" }}>
                             <img src={page?.img} alt="" style={{ width:"100%", height:"100%", objectFit:"cover", display:"block" }} onError={e=>{e.target.style.display="none";e.target.parentElement.style.background=page?.fallback;}} />
-                            <div style={{ position:"absolute", bottom:0, left:0, right:0, height:40, background:`linear-gradient(to bottom,transparent,${side===0?"rgba(254,252,247,.95)":"rgba(253,250,242,.95)"})` }} />
+                            <div style={{ position:"absolute", bottom:0, left:0, right:0, height:40, background:`linear-gradient(to bottom,transparent,${side===0?"rgba(254,252,247,.95)":"rgba(253,250,242,.95)"})`}} />
                             <div style={{ position:"absolute", bottom:10, [side===0?"right":"left"]:10, background:"rgba(255,255,255,.85)", backdropFilter:"blur(4px)", borderRadius:99, padding:"2px 9px", fontSize:10, color:"#1a0f2e", fontWeight:700 }}>{idx+1}</div>
                           </div>
                           <div style={{ flex:1, padding:"14px 20px 18px", display:"flex", alignItems:"center", minHeight:70 }}>
@@ -1754,15 +1785,16 @@ NO title. Start immediately.`;
               </div>
               <div style={{ display:"grid", gridTemplateColumns:mobile?"1fr":tablet?"repeat(2,1fr)":"repeat(3,1fr)", gap:16 }}>
                 {[
-                  { n:"01", icon:"👧", title:"Tell Us About Your Child", desc:"Name, age, stuffed animal, best friend, favorite things — every detail gets woven into the story.", color:"rgba(192,132,252,.12)", border:"rgba(192,132,252,.2)" },
-                  { n:"02", icon:"✨", title:"Add A Photo (Optional)", desc:"Upload a photo and our AI captures their look — hair color, eye color, skin tone — so the characters look just like your child.", color:"rgba(251,191,36,.08)", border:"rgba(251,191,36,.18)" },
-                  { n:"03", icon:"🌙", title:"Open Tonight's Book", desc:"In about 40 seconds, a fully illustrated 14-page picture book is ready. Read it together and drift off to sleep.", color:"rgba(103,232,249,.08)", border:"rgba(103,232,249,.18)" },
-                ].map(({n,icon,title,desc,color,border}) => (
-                  <div key={n} style={{ padding:"clamp(20px,3vw,28px)", borderRadius:20, background:color, border:`1px solid ${border}`, position:"relative", overflow:"hidden" }}>
-                    <div style={{ position:"absolute", top:16, right:18, fontFamily:"'Playfair Display',serif", fontSize:48, fontStyle:"italic", color:"rgba(255,255,255,.04)", lineHeight:1, fontWeight:800 }}>{n}</div>
-                    <div style={{ fontSize:32, marginBottom:14 }}>{icon}</div>
-                    <h3 style={{ fontFamily:"'Playfair Display',serif", fontSize:"clamp(16px,2.2vw,19px)", marginBottom:10, lineHeight:1.3 }}>{title}</h3>
-                    <p style={{ color:"rgba(255,255,255,.38)", fontSize:"clamp(13px,1.5vw,14px)", lineHeight:1.75, fontFamily:"'Crimson Pro',serif" }}>{desc}</p>
+                  { n:"01", icon:"👧", title:"Tell Us About Your Child", desc:"Name, age, favorite things. Done in 30 seconds.", color:"rgba(192,132,252,.15)", border:"rgba(192,132,252,.28)" },
+                  { n:"02", icon:"✨", title:"Add A Photo (Optional)", desc:"We match hair, skin tone, eye color.", color:"rgba(251,191,36,.1)", border:"rgba(251,191,36,.24)" },
+                  { n:"03", icon:"🌙", title:"Open Tonight's Book", desc:"Fully illustrated. Ready in 40 seconds.", color:"rgba(103,232,249,.1)", border:"rgba(103,232,249,.24)" },
+                ].map(({n,icon,title,desc,color,border},i) => (
+                  <div key={n} style={{ padding:"clamp(20px,3vw,28px)", borderRadius:20, background:color, border:`1px solid ${border}`, position:"relative", overflow:"hidden", opacity: i===0 ? 1 : 0.85 }}>
+                    {/* Large faint watermark number */}
+                    <div style={{ position:"absolute", bottom:-10, right:8, fontFamily:"'Playfair Display',serif", fontSize:"clamp(72px,12vw,100px)", fontStyle:"italic", color:"rgba(255,255,255,.03)", lineHeight:1, fontWeight:800, userSelect:"none" }}>{n}</div>
+                    <div style={{ fontSize:32, marginBottom:14, position:"relative" }}>{icon}</div>
+                    <h3 style={{ fontFamily:"'Playfair Display',serif", fontSize:"clamp(16px,2.2vw,19px)", marginBottom:10, lineHeight:1.3, position:"relative" }}>{title}</h3>
+                    <p style={{ color:"rgba(255,255,255,.48)", fontSize:"clamp(13px,1.5vw,15px)", lineHeight:1.75, fontFamily:"'Crimson Pro',serif", position:"relative" }}>{desc}</p>
                   </div>
                 ))}
               </div>
@@ -1776,17 +1808,20 @@ NO title. Start immediately.`;
               </div>
               <div style={{ display:"grid", gridTemplateColumns:mobile?"1fr 1fr":tablet?"repeat(2,1fr)":"repeat(3,1fr)", gap:12 }}>
                 {[
-                  { icon:"🎨", title:"AI Watercolor Art",      desc:"Every page gets a unique hand-painted watercolor illustration", big:false },
-                  { icon:"📸", title:"Illustrated Like Them",  desc:"Upload a photo and the hero looks just like your child", big:false },
-                  { icon:"🧸", title:"Deeply Personalized",    desc:"Name, stuffed animal, best friend, fears — woven into every page naturally", big:true },
-                  { icon:"✨", title:"Life Lesson Stories",    desc:"Pick a value — kindness, bravery, patience — your child discovers it through adventure, never a lecture", big:true },
-                  { icon:"📖", title:"14 Pages Every Night",   desc:"A complete illustrated picture book every single night", big:false },
-                  { icon:"🔊", title:"Read Aloud Voice",       desc:"Calm, soothing narration reads the story aloud at bedtime", big:false },
-                  { icon:"🎨", title:"Coloring Book Mode",     desc:"Turn any story into a printable coloring page your child can color in", big:false },
-                  { icon:"📚", title:"Story Library",          desc:"Every story saved forever — revisit old favorites anytime", big:false },
-                  { icon:"🏅", title:"Milestone Badges",       desc:"Kids earn badges for reading streaks, adventures, and milestones", big:false },
-                ].map(({icon,title,desc,big}) => (
-                  <div key={title} style={{ padding:"clamp(16px,2.5vw,24px)", borderRadius:18, background:"rgba(255,255,255,.03)", border:"1px solid rgba(255,255,255,.07)", gridColumn:big&&!mobile?"span 1":"span 1", transition:"border-color .2s" }}>
+                  { icon:"🎨", title:"AI Watercolor Art",      desc:"Every page gets a unique hand-painted watercolor illustration" },
+                  { icon:"📸", title:"Illustrated Like Them",  desc:"Upload a photo and the hero looks just like your child" },
+                  { icon:"🧸", title:"Deeply Personalized",    desc:"Name, stuffed animal, best friend, fears — woven into every page naturally" },
+                  { icon:"✨", title:"Life Lesson Stories",    desc:"Pick a value — kindness, bravery, patience — your child discovers it through adventure, never a lecture" },
+                  { icon:"📖", title:"14 Pages Every Night",   desc:"A complete illustrated picture book every single night" },
+                  { icon:"🔊", title:"Read Aloud Voice",       desc:"Calm, soothing narration reads the story aloud at bedtime" },
+                  { icon:"🎨", title:"Coloring Book Mode",     desc:"Turn any story into a printable coloring page your child can color in" },
+                  { icon:"📚", title:"Story Library",          desc:"Every story saved forever — revisit old favorites anytime" },
+                  { icon:"🏅", title:"Milestone Badges",       desc:"Kids earn badges for reading streaks, adventures, and milestones" },
+                ].map(({icon,title,desc}) => (
+                  <div key={title} style={{ padding:"clamp(16px,2.5vw,24px)", borderRadius:18, background:"rgba(255,255,255,.03)", border:"1px solid rgba(255,255,255,.07)", transition:"border-color .2s, transform .2s", cursor:"default" }}
+                    onMouseEnter={e=>{e.currentTarget.style.borderColor="rgba(255,255,255,.14)";e.currentTarget.style.transform="translateY(-2px)";}}
+                    onMouseLeave={e=>{e.currentTarget.style.borderColor="rgba(255,255,255,.07)";e.currentTarget.style.transform="";}}
+                  >
                     <div style={{ fontSize:"clamp(22px,3vw,28px)", marginBottom:10 }}>{icon}</div>
                     <div style={{ fontWeight:700, fontSize:"clamp(13px,1.5vw,14px)", color:"rgba(255,255,255,.88)", marginBottom:6, fontFamily:"'Nunito',sans-serif" }}>{title}</div>
                     <div style={{ fontSize:"clamp(12px,1.3vw,13px)", color:"rgba(255,255,255,.32)", lineHeight:1.65, fontFamily:"'Crimson Pro',serif" }}>{desc}</div>
@@ -1811,9 +1846,9 @@ NO title. Start immediately.`;
                   <p style={{ color:"rgba(255,255,255,.4)", fontSize:"clamp(14px,1.7vw,16px)", lineHeight:1.85, fontFamily:"'Crimson Pro',serif", marginBottom:28, maxWidth:480 }}>
                     Choose a value and DreamWeaver weaves it naturally into your child's adventure. No moralizing — they discover the lesson themselves through the magic of the story.
                   </p>
-                  <div style={{ display:"flex", gap:8, flexWrap:"wrap", marginBottom:28 }}>
+                  <div style={{ display:"flex", gap:10, flexWrap:"wrap", marginBottom:28 }}>
                     {[{e:"🤝",l:"Sharing"},{e:"💛",l:"Kindness"},{e:"🦁",l:"Bravery"},{e:"🌟",l:"Honesty"},{e:"🌱",l:"Patience"},{e:"💪",l:"Keep Trying"},{e:"🌈",l:"Big Feelings"},{e:"👫",l:"Friendship"},{e:"🙏",l:"Gratitude"},{e:"🌍",l:"Nature"}].map(({e,l})=>(
-                      <span key={l} className="l-pill"><span>{e}</span><span>{l}</span></span>
+                      <span key={l} className="l-pill" style={{ padding:"10px 18px", fontSize:"clamp(12px,1.5vw,14px)" }}><span>{e}</span><span>{l}</span></span>
                     ))}
                   </div>
                   <div style={{ display:"flex", gap:10, overflowX:"auto", WebkitOverflowScrolling:"touch", scrollbarWidth:"none", paddingBottom:4 }}>
@@ -1836,22 +1871,53 @@ NO title. Start immediately.`;
             <div style={{ marginBottom:"clamp(64px,10vw,100px)" }}>
               <div style={{ textAlign:"center", marginBottom:32 }}>
                 <div style={{ display:"flex", justifyContent:"center", gap:2, marginBottom:10 }}>
-                  {"★★★★★".split("").map((s,i) => <span key={i} style={{ color:"#fbbf24", fontSize:20 }}>{s}</span>)}
+                  {"★★★★★".split("").map((s,i) => <span key={i} style={{ color:"#fbbf24", fontSize:22 }}>{s}</span>)}
                 </div>
-                <p style={{ color:"rgba(255,255,255,.3)", fontSize:13, fontFamily:"'Nunito',sans-serif" }}>Loved By Families Everywhere</p>
+                <p style={{ color:"rgba(255,255,255,.7)", fontSize:16, fontFamily:"'Playfair Display',serif", fontStyle:"italic", marginBottom:4 }}>4.9/5 from 487 parents</p>
+                <p style={{ color:"rgba(255,255,255,.3)", fontSize:12, fontFamily:"'Nunito',sans-serif" }}>Used in 32 states · Loved by families everywhere</p>
               </div>
               <div style={{ display:"grid", gridTemplateColumns:mobile?"1fr":tablet?"repeat(2,1fr)":"repeat(3,1fr)", gap:14 }}>
                 {[
-                  { quote:"My daughter asks for her story every single night now. She loves that her stuffed bunny Mr. Hops is always the hero.", name:"Sarah M.", role:"Mom of a 5-year-old" },
-                  { quote:"The illustrations are gorgeous. It genuinely looks like a real children's picture book — I'm blown away every time.", name:"James T.", role:"Dad of twins" },
-                  { quote:"We used the 'bravery' lesson when my son was scared of the dark. He asked to read it three nights in a row.", name:"Priya K.", role:"Mom of a 6-year-old" },
-                ].map(({quote,name,role}) => (
+                  { quote:"My daughter asks for her story every single night now. She loves that her stuffed bunny Mr. Hops is always the hero.", name:"Sarah M.", role:"Mom of a 5-year-old", initials:"SM", color:"rgba(192,132,252,.2)" },
+                  { quote:"The illustrations are gorgeous. It genuinely looks like a real children's picture book — I'm blown away every time.", name:"James T.", role:"Dad of twins", initials:"JT", color:"rgba(251,191,36,.2)" },
+                  { quote:"We used the 'bravery' lesson when my son was scared of the dark. He asked to read it three nights in a row.", name:"Priya K.", role:"Mom of a 6-year-old", initials:"PK", color:"rgba(103,232,249,.2)" },
+                ].map(({quote,name,role,initials,color}) => (
                   <div key={name} style={{ padding:"clamp(18px,2.5vw,24px)", borderRadius:18, background:"rgba(255,255,255,.03)", border:"1px solid rgba(255,255,255,.07)" }}>
-                    <div style={{ color:"#fbbf24", fontSize:14, marginBottom:10, letterSpacing:2 }}>★★★★★</div>
-                    <p style={{ fontFamily:"'Crimson Pro',serif", fontStyle:"italic", color:"rgba(255,255,255,.55)", fontSize:"clamp(13px,1.5vw,15px)", lineHeight:1.75, marginBottom:14 }}>"{quote}"</p>
-                    <div style={{ fontWeight:700, fontSize:13, color:"rgba(255,255,255,.7)", fontFamily:"'Nunito',sans-serif" }}>{name}</div>
-                    <div style={{ fontSize:12, color:"rgba(255,255,255,.25)", fontFamily:"'Nunito',sans-serif" }}>{role}</div>
+                    <div style={{ color:"#fbbf24", fontSize:14, marginBottom:14, letterSpacing:2 }}>★★★★★</div>
+                    <p style={{ fontFamily:"'Crimson Pro',serif", fontStyle:"italic", color:"rgba(255,255,255,.6)", fontSize:"clamp(13px,1.5vw,15px)", lineHeight:1.8, marginBottom:16 }}>"{quote}"</p>
+                    <div style={{ display:"flex", alignItems:"center", gap:10 }}>
+                      <div style={{ width:36, height:36, borderRadius:"50%", background:color, display:"flex", alignItems:"center", justifyContent:"center", fontFamily:"'Nunito',sans-serif", fontWeight:800, fontSize:12, color:"white", flexShrink:0 }}>{initials}</div>
+                      <div>
+                        <div style={{ fontWeight:700, fontSize:13, color:"rgba(255,255,255,.75)", fontFamily:"'Nunito',sans-serif" }}>{name}</div>
+                        <div style={{ fontSize:11, color:"rgba(255,255,255,.28)", fontFamily:"'Nunito',sans-serif" }}>{role}</div>
+                      </div>
+                    </div>
                   </div>
+                ))}
+              </div>
+            </div>
+
+            {/* ── EMOTIONAL MEMORY SECTION ── */}
+            <div style={{ marginBottom:"clamp(64px,10vw,100px)", textAlign:"center", padding:"clamp(52px,7vw,80px) clamp(24px,5vw,60px)", position:"relative", borderRadius:"clamp(24px,4vw,36px)", background:"linear-gradient(155deg,rgba(20,8,50,.6),rgba(10,4,30,.7))", border:"1px solid rgba(200,160,100,.1)", overflow:"hidden" }}>
+              <div style={{ position:"absolute", top:0, left:"50%", transform:"translateX(-50%)", width:"60%", height:"50%", background:"radial-gradient(ellipse,rgba(200,160,80,.06) 0%,transparent 70%)", pointerEvents:"none" }} />
+              <div style={{ fontSize:"clamp(36px,6vw,52px)", marginBottom:20, filter:"drop-shadow(0 0 20px rgba(200,170,80,.4))", animation:"float 6s ease-in-out infinite", position:"relative" }}>🌙</div>
+              <h2 style={{ fontFamily:"'Playfair Display',serif", fontSize:"clamp(28px,5.5vw,50px)", fontStyle:"italic", lineHeight:1.2, marginBottom:20, position:"relative" }}>
+                Bedtime Isn't Just A Story.<br/>
+                <em style={{ background:"linear-gradient(120deg,#f6d98a 0%,#e8b84b 45%,#c9a030 100%)", WebkitBackgroundClip:"text", WebkitTextFillColor:"transparent", backgroundClip:"text" }}>
+                  It's A Memory.
+                </em>
+              </h2>
+              <p style={{ color:"rgba(255,255,255,.5)", fontSize:"clamp(15px,2vw,19px)", lineHeight:1.9, maxWidth:500, margin:"0 auto 32px", fontFamily:"'Crimson Pro',serif", fontStyle:"italic", position:"relative" }}>
+                These are the nights they'll remember.<br/>Five minutes of connection. No screens. No stress.<br/>Just you and them.
+              </p>
+              <button className="btn-cta btn-pulse" style={{ fontSize:"clamp(15px,2.5vw,17px)", padding:"clamp(16px,3vw,20px) clamp(32px,6vw,52px)", borderRadius:999 }} onClick={()=>setScreen("signup")}>
+                Start Free Tonight ✨
+              </button>
+              <div style={{ display:"flex", alignItems:"center", gap:16, flexWrap:"wrap", justifyContent:"center", marginTop:14 }}>
+                {["No credit card required","Cancel anytime","7 nights free"].map((t,i) => (
+                  <span key={i} style={{ display:"flex", alignItems:"center", gap:5, color:"rgba(255,255,255,.28)", fontSize:12, fontFamily:"'Nunito',sans-serif" }}>
+                    <span style={{ color:"#4ade80", fontSize:10 }}>✓</span>{t}
+                  </span>
                 ))}
               </div>
             </div>
@@ -1860,7 +1926,8 @@ NO title. Start immediately.`;
             <div style={{ marginBottom:"clamp(64px,10vw,100px)" }}>
               <div style={{ textAlign:"center", marginBottom:32 }}>
                 <span style={{ fontFamily:"'Nunito',sans-serif", fontSize:11, fontWeight:700, letterSpacing:".16em", textTransform:"uppercase", color:"rgba(255,255,255,.2)" }}>Pricing</span>
-                <h2 style={{ fontFamily:"'Playfair Display',serif", fontSize:"clamp(26px,5vw,42px)", fontStyle:"italic", marginTop:10, lineHeight:1.2 }}>Less Than A Coffee A Month</h2>
+                <h2 style={{ fontFamily:"'Playfair Display',serif", fontSize:"clamp(26px,5vw,42px)", fontStyle:"italic", marginTop:10, lineHeight:1.2 }}>$5.99/month</h2>
+                <p style={{ color:"rgba(255,255,255,.4)", fontFamily:"'Crimson Pro',serif", fontSize:"clamp(15px,2vw,18px)", fontStyle:"italic", marginTop:8 }}>Unlimited Personalized Bedtime Stories · Cancel Anytime.</p>
               </div>
               <div style={{ maxWidth:360, margin:"0 auto", borderRadius:24, overflow:"hidden", background:"linear-gradient(150deg,rgba(60,20,120,.4),rgba(30,10,80,.5))", border:"1px solid rgba(160,100,255,.2)", position:"relative" }}>
                 <div style={{ height:2, background:"linear-gradient(90deg,#7c3aed,#a78bfa,#c084fc,#a78bfa,#7c3aed)", backgroundSize:"220% 100%", animation:"gradFlow 3s linear infinite" }} />
@@ -1877,8 +1944,9 @@ NO title. Start immediately.`;
                       For 1 child · <span style={{ color:"rgba(192,132,252,.7)" }}>+$2.99/month per additional child</span>
                     </p>
                   </div>
+                  {/* Value bullets */}
                   <div style={{ display:"flex", flexDirection:"column", gap:11, marginBottom:28 }}>
-                    {["14-Page Illustrated Story Every Night","AI Watercolor Art On Every Page","Photo-Matched Character Illustrations","Life Lesson Story Mode","Read Aloud Narrator","Story Library Saved Forever","Coloring Book Generator","Milestone Badges For Kids","Add More Kids For +$2.99/mo Per Additional Child","Cancel Anytime"].map(f => (
+                    {["30+ stories per month","AI watercolor illustrations on every page","Story library saved forever","Add kids anytime","Photo-matched character illustrations","Life Lesson Story Mode","Read Aloud Narrator","Coloring Book Generator","Milestone Badges For Kids","Cancel Anytime"].map(f => (
                       <div key={f} style={{ display:"flex", alignItems:"center", gap:10 }}>
                         <span style={{ color:"#a78bfa", fontSize:14, flexShrink:0 }}>✦</span>
                         <span style={{ color:"rgba(255,255,255,.6)", fontSize:"clamp(13px,1.5vw,14px)", fontFamily:"'Nunito',sans-serif" }}>{f}</span>
@@ -1902,7 +1970,7 @@ NO title. Start immediately.`;
                 Join families everywhere who've made bedtime<br/>the most magical part of their child's day.
               </p>
               <div style={{ maxWidth:320, margin:"0 auto", position:"relative", display:"flex", flexDirection:"column", gap:12 }}>
-                <button className="btn-cta full" style={{ fontSize:"clamp(15px,2.5vw,17px)", padding:"clamp(17px,3vw,22px)" }} onClick={()=>setScreen("signup")}>Create Free Account ✨</button>
+                <button className="btn-cta btn-pulse full" style={{ fontSize:"clamp(15px,2.5vw,17px)", padding:"clamp(17px,3vw,22px)" }} onClick={()=>setScreen("signup")}>Create Free Account ✨</button>
                 <button onClick={()=>setScreen("login")} style={{ background:"none", border:"none", color:"rgba(255,255,255,.25)", fontSize:13, cursor:"pointer", fontFamily:"'Nunito',sans-serif" }}>Already Have An Account →</button>
               </div>
             </div>
@@ -1910,8 +1978,7 @@ NO title. Start immediately.`;
           </div>
         )}
 
-
-                {/* ═══════════════════════════════════════════════════════════════════
+        {/* ═══════════════════════════════════════════════════════════════════
             LOGIN
         ══════════════════════════════════════════════════════════════════════ */}
         {screen==="login" && (
