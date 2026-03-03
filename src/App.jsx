@@ -803,12 +803,12 @@ function OpenBook({ pages, imgs, spread, onFlip, title, mobile=false, coverImg=n
               ? <img src={coverImg} alt="" style={{ width:"100%", height:"100%", objectFit:"cover", display:"block" }} />
               : <div style={{ width:"100%", height:"100%", background:"linear-gradient(160deg,#1e0a4e,#0d0520)", display:"flex", alignItems:"center", justifyContent:"center" }}><div style={{ fontSize:48, opacity:.5, animation:"float 3s ease-in-out infinite" }}>🌙</div></div>
             }
-            {/* Dark gradient for text */}
-            <div style={{ position:"absolute", inset:0, background:"linear-gradient(to bottom,rgba(0,0,0,.05) 0%,transparent 30%,rgba(0,0,0,.65) 100%)" }} />
-            {/* Title */}
-            <div style={{ position:"absolute", bottom:0, left:0, right:0, padding:"clamp(16px,3vw,28px)", textAlign:"center" }}>
-              <h2 style={{ fontFamily:"'Playfair Display',serif", fontSize:"clamp(17px,3vw,28px)", fontStyle:"italic", color:"white", lineHeight:1.25, marginBottom:6, textShadow:"0 2px 20px rgba(0,0,0,.9)" }}>{title}</h2>
-              <p style={{ color:"rgba(255,255,255,.5)", fontFamily:"'Crimson Pro',serif", fontStyle:"italic", fontSize:"clamp(11px,1.5vw,14px)", textShadow:"0 1px 8px rgba(0,0,0,.8)" }}>A DreamWeaver Story ✦</p>
+            {/* Dark gradient for text — tall enough to cover any AI-generated text at bottom */}
+            <div style={{ position:"absolute", inset:0, background:"linear-gradient(to bottom,rgba(0,0,0,.05) 0%,transparent 25%,rgba(0,0,0,.45) 55%,rgba(0,0,0,.88) 100%)" }} />
+            {/* Title — overlaid as HTML, never baked into the image */}
+            <div style={{ position:"absolute", bottom:0, left:0, right:0, padding:"clamp(16px,3vw,28px)", textAlign:"center", background:"linear-gradient(to top, rgba(0,0,0,.7) 0%, transparent 100%)" }}>
+              <h2 style={{ fontFamily:"'Playfair Display',serif", fontSize:"clamp(17px,3vw,28px)", fontStyle:"italic", color:"white", lineHeight:1.25, marginBottom:6, textShadow:"0 2px 20px rgba(0,0,0,.9), 0 0 40px rgba(0,0,0,.8)" }}>{title}</h2>
+              <p style={{ color:"rgba(255,255,255,.55)", fontFamily:"'Crimson Pro',serif", fontStyle:"italic", fontSize:"clamp(11px,1.5vw,14px)", textShadow:"0 1px 8px rgba(0,0,0,.8)" }}>A DreamWeaver Story ✦</p>
             </div>
             {/* Shine / gloss */}
             <div style={{ position:"absolute", inset:0, background:"linear-gradient(125deg,rgba(255,255,255,.12) 0%,transparent 40%)", pointerEvents:"none" }} />
@@ -1324,7 +1324,7 @@ export default function App() {
       }
       setStory(saved);
 
-      const coverPrompt=`${active.child_name} age ${active.age||5} with ${active.stuffed_animal||"stuffed bear"}, ${m.prompt} bedtime children's book COVER illustration, dramatic and beautiful, soft watercolor pastel art, dreamy storybook style, bold composition, the title scene. NO letters, NO words, NO text, NO title, NO writing anywhere in the image.`;
+      const coverPrompt=`A child with ${active.stuffed_animal||"stuffed bear"} in a ${m.prompt} dreamland scene, soft watercolor pastel art, dreamy storybook illustration, magical glowing light, beautiful night sky. Pure illustration only. Absolutely no text, no letters, no words, no numbers, no title, no writing, no signs, no labels anywhere in the image. Clean artwork with no typography of any kind.`;
 
       setStoryPhase("illustrating");
       const generated=new Array(ps.length).fill(null); let loaded=0;
@@ -1444,7 +1444,7 @@ NO title. Start immediately.`;
       const { data:saved } = await supabase.from("stories").insert(payload).select().single();
       setTitle(sequelTitle); setPages(ps); setImgs([]); setImgsLoaded(0); setCoverImg(null); setSpread(-1); setStory(saved); setStoryPhase("ready");
       // Generate cover + images
-      const coverPrompt = `${active.child_name} age ${active.age||5} with ${active.stuffed_animal||"stuffed bear"}, ${m.prompt} bedtime children's book COVER illustration, sequel adventure, soft watercolor pastel art, dreamy storybook style. NO letters, NO words, NO text, NO writing anywhere in the image.`;
+      const coverPrompt = `A child with ${active.stuffed_animal||"stuffed bear"} on a new ${m.prompt} adventure, soft watercolor pastel art, dreamy storybook illustration, magical glowing light, beautiful night sky. Pure illustration only. Absolutely no text, no letters, no words, no numbers, no title, no writing, no signs, no labels anywhere in the image. Clean artwork with no typography of any kind.`;
       const generated = new Array(ps.length).fill(null);
       const coverP = (async () => {
         const url = await generateImage(coverPrompt); if (!url) return;
