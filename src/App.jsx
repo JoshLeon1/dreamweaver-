@@ -2300,359 +2300,353 @@ NO title. Start immediately.`;
           const lastStory    = library.find(s => s.child_profile_id===active.id && s.story_date!==todayStr());
           const childStories = library.filter(s => s.child_profile_id===active.id).length;
           const hour         = new Date().getHours();
-          const greeting     = hour < 12 ? "Good morning" : hour < 17 ? "Good afternoon" : "Good evening";
+          const greeting     = hour < 5 ? "Still up?" : hour < 12 ? "Good morning" : hour < 17 ? "Good afternoon" : hour < 21 ? "Good evening" : "Bedtime";
+          const moonPhase    = ["🌑","🌒","🌓","🌔","🌕","🌖","🌗","🌘"][new Date().getDate() % 8];
           const nightsLeft   = sub?.status==="trial" ? daysLeft() : null;
-
-          /* ── shared row style ── */
-          const ROW = { borderBottom:"1px solid rgba(255,255,255,.08)", padding:"24px 0" };
-          const LBL_SM = { fontSize:11, letterSpacing:".1em", textTransform:"uppercase", color:"rgba(255,255,255,.45)", fontFamily:"'Nunito',sans-serif", fontWeight:700, marginBottom:12, display:"block" };
+          const selectedLesson = LESSONS.find(l => l.id===lesson);
 
           return (
-            <div className="fade has-bottom-nav hw-shell" style={{ width:"100%", maxWidth: mobile ? "100%" : 900 }}>
-
-              {/* ════════════════════════════════════════════
-                  SHELL — sidebar + main on desktop, stack on mobile
-              ════════════════════════════════════════════ */}
+            <div className="fade has-bottom-nav hw-shell" style={{ width:"100%", maxWidth: mobile ? "100%" : 980 }}>
               <div style={{
-                display:"flex",
-                flexDirection: mobile ? "column" : "row",
-                minHeight: mobile ? "auto" : "calc(100vh - 80px)",
-                borderRadius: mobile ? 0 : 16,
+                display:"flex", flexDirection: mobile ? "column" : "row",
+                minHeight: mobile ? "auto" : "calc(100vh - 60px)",
+                borderRadius: mobile ? 0 : 18,
                 overflow:"hidden",
-                border: mobile ? "none" : "1px solid rgba(255,255,255,.13)",
-                background: mobile ? "transparent" : "rgba(255,255,255,.05)",
+                border: mobile ? "none" : "1px solid rgba(255,255,255,.1)",
               }}>
 
-                {/* ── SIDEBAR ─────────────────────────── */}
+                {/* ════════════════════════════════
+                    SIDEBAR
+                ════════════════════════════════ */}
                 {!mobile && (
                   <div style={{
-                    width:220, flexShrink:0,
-                    borderRight:"1px solid rgba(255,255,255,.1)",
+                    width:216, flexShrink:0,
+                    borderRight:"1px solid rgba(255,255,255,.08)",
                     display:"flex", flexDirection:"column",
-                    padding:"28px 0",
-                    background:"rgba(0,0,0,.45)",
+                    background:"rgba(0,0,0,.5)",
                   }}>
-                    {/* App mark */}
-                    <div style={{ padding:"0 20px 24px", borderBottom:"1px solid rgba(255,255,255,.1)" }}>
+                    {/* Logo */}
+                    <div style={{ padding:"24px 20px 20px", borderBottom:"1px solid rgba(255,255,255,.07)" }}>
                       <DreamweaverLogo size={22} showText={true} />
                     </div>
 
                     {/* Children */}
-                    <div style={{ padding:"20px 14px 16px", flex:1 }}>
-                      <span style={{ ...LBL_SM, padding:"0 6px" }}>Children</span>
+                    <div style={{ padding:"16px 12px", flex:1 }}>
+                      <div style={{ fontSize:10, letterSpacing:".12em", textTransform:"uppercase", color:"rgba(255,255,255,.3)", fontFamily:"'Nunito',sans-serif", fontWeight:700, padding:"0 8px", marginBottom:8 }}>Children</div>
                       {profiles.map((p,i) => {
-                        const isActive = active?.id===p.id;
+                        const on = active?.id===p.id;
                         return (
-                          <button key={p.id}
-                            onClick={()=>{setActive(p);setPf(p);}}
-                            style={{
-                              width:"100%", display:"flex", alignItems:"center", gap:10,
-                              padding:"9px 10px", borderRadius:8, marginBottom:2,
-                              background: isActive ? "rgba(255,255,255,.11)" : "transparent",
-                              border:"none", cursor:"pointer", transition:"background .12s",
-                              textAlign:"left", WebkitTapHighlightColor:"transparent",
-                            }}
-                            onMouseEnter={e=>{ if(!isActive) e.currentTarget.style.background="rgba(255,255,255,.04)"; }}
-                            onMouseLeave={e=>{ if(!isActive) e.currentTarget.style.background="transparent"; }}>
-                            {/* Avatar */}
-                            <div style={{
-                              width:28, height:28, borderRadius:8, flexShrink:0,
-                              background: isActive ? "rgba(201,168,76,.2)" : "rgba(255,255,255,.06)",
-                              border: isActive ? "1px solid rgba(201,168,76,.3)" : "1px solid rgba(255,255,255,.08)",
-                              display:"flex", alignItems:"center", justifyContent:"center",
-                              fontSize:12, fontWeight:800, color: isActive ? "#e8c96a" : "rgba(255,255,255,.4)",
-                              fontFamily:"'Nunito',sans-serif",
-                            }}>
-                              {p.child_name.charAt(0).toUpperCase()}
+                          <button key={p.id} onClick={()=>{setActive(p);setPf(p);}}
+                            style={{ width:"100%", display:"flex", alignItems:"center", gap:10, padding:"8px 8px", borderRadius:8, marginBottom:1, background: on ? "rgba(255,255,255,.09)" : "transparent", border:"none", cursor:"pointer", transition:"background .12s", textAlign:"left" }}
+                            onMouseEnter={e=>{ if(!on) e.currentTarget.style.background="rgba(255,255,255,.04)"; }}
+                            onMouseLeave={e=>{ if(!on) e.currentTarget.style.background="transparent"; }}>
+                            <div style={{ width:26, height:26, borderRadius:7, flexShrink:0, display:"flex", alignItems:"center", justifyContent:"center", fontSize:11, fontWeight:800, fontFamily:"'Nunito',sans-serif", background: on ? "rgba(201,168,76,.25)" : "rgba(255,255,255,.07)", border: on ? "1px solid rgba(201,168,76,.4)" : "1px solid rgba(255,255,255,.1)", color: on ? "#e8c96a" : "rgba(255,255,255,.45)" }}>
+                              {p.child_name[0].toUpperCase()}
                             </div>
-                            <span style={{
-                              fontFamily:"'Nunito',sans-serif", fontSize:13, fontWeight: isActive ? 700 : 500,
-                              color: isActive ? "white" : "rgba(255,255,255,.48)",
-                              overflow:"hidden", textOverflow:"ellipsis", whiteSpace:"nowrap",
-                            }}>{p.child_name}</span>
+                            <span style={{ fontFamily:"'Nunito',sans-serif", fontSize:13, fontWeight: on ? 700 : 500, color: on ? "white" : "rgba(255,255,255,.45)", overflow:"hidden", textOverflow:"ellipsis", whiteSpace:"nowrap" }}>{p.child_name}</span>
                           </button>
                         );
                       })}
-
-                      {/* Add child */}
                       {canAddProfile()
                         ? <button onClick={()=>{setEditId(null);setPf({child_name:"",age:"",stuffed_animal:"",best_friend:"",favorite_animal:"",scared_of:"",favorite_thing:""});setWizStep(0);setScreen("wizard");}}
-                            style={{ width:"100%", display:"flex", alignItems:"center", gap:10, padding:"9px 10px", borderRadius:8, background:"transparent", border:"none", cursor:"pointer", marginTop:4, textAlign:"left" }}
+                            style={{ width:"100%", display:"flex", alignItems:"center", gap:10, padding:"8px 8px", borderRadius:8, marginTop:4, background:"transparent", border:"none", cursor:"pointer", textAlign:"left" }}
                             onMouseEnter={e=>{e.currentTarget.style.background="rgba(255,255,255,.04)";}}
                             onMouseLeave={e=>{e.currentTarget.style.background="transparent";}}>
-                            <div style={{ width:28, height:28, borderRadius:8, border:"1px dashed rgba(255,255,255,.12)", display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}>
-                              <span style={{ fontSize:14, color:"rgba(255,255,255,.2)", lineHeight:1 }}>+</span>
+                            <div style={{ width:26, height:26, borderRadius:7, border:"1px dashed rgba(255,255,255,.15)", display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}>
+                              <span style={{ fontSize:14, color:"rgba(255,255,255,.25)", lineHeight:1 }}>+</span>
                             </div>
-                            <span style={{ fontFamily:"'Nunito',sans-serif", fontSize:12, color:"rgba(255,255,255,.25)", fontWeight:500 }}>Add child</span>
+                            <span style={{ fontFamily:"'Nunito',sans-serif", fontSize:12, color:"rgba(255,255,255,.3)", fontWeight:500 }}>Add child</span>
                           </button>
                         : <button onClick={()=>setScreen("paywall")}
-                            style={{ width:"100%", display:"flex", alignItems:"center", gap:10, padding:"9px 10px", borderRadius:8, background:"transparent", border:"none", cursor:"pointer", marginTop:4, textAlign:"left" }}>
-                            <div style={{ width:28, height:28, borderRadius:8, border:"1px dashed rgba(201,168,76,.2)", display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}>
-                              <span style={{ fontSize:11, color:"rgba(201,168,76,.35)" }}>+</span>
+                            style={{ width:"100%", display:"flex", alignItems:"center", gap:10, padding:"8px 8px", borderRadius:8, marginTop:4, background:"transparent", border:"none", cursor:"pointer", textAlign:"left" }}>
+                            <div style={{ width:26, height:26, borderRadius:7, border:"1px dashed rgba(201,168,76,.25)", display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}>
+                              <span style={{ fontSize:11, color:"rgba(201,168,76,.4)" }}>+</span>
                             </div>
-                            <span style={{ fontFamily:"'Nunito',sans-serif", fontSize:12, color:"rgba(201,168,76,.4)", fontWeight:500 }}>Add child</span>
+                            <span style={{ fontFamily:"'Nunito',sans-serif", fontSize:12, color:"rgba(201,168,76,.45)", fontWeight:500 }}>Add child</span>
                           </button>
                       }
                     </div>
 
-                    {/* Bottom nav links */}
-                    <div style={{ padding:"16px 14px 0", borderTop:"1px solid rgba(255,255,255,.1)" }}>
+                    {/* Nav */}
+                    <div style={{ padding:"12px 12px 20px", borderTop:"1px solid rgba(255,255,255,.07)" }}>
                       {[
-                        { label:"Story Library", icon:"M4 19.5A2.5 2.5 0 0 1 6.5 17H20", onClick:()=>{loadLibrary();setScreen("library");} },
-                        { label:"Badges", icon:"M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z", onClick:()=>setScreen("badges") },
-                        { label:"Settings", icon:"M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6z", onClick:()=>setScreen("settings") },
-                      ].map(({label,icon,onClick})=>(
-                        <button key={label} onClick={onClick}
-                          style={{ width:"100%", display:"flex", alignItems:"center", gap:10, padding:"9px 10px", borderRadius:8, background:"transparent", border:"none", cursor:"pointer", marginBottom:2, textAlign:"left" }}
-                          onMouseEnter={e=>{e.currentTarget.style.background="rgba(255,255,255,.04)";}}
+                        { label:"Library", path:"M4 19.5A2.5 2.5 0 016.5 17H20M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z", fn:()=>{loadLibrary();setScreen("library");} },
+                        { label:"Badges", path:"M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z", fn:()=>setScreen("badges") },
+                        { label:"Settings", path:"M12 15a3 3 0 100-6 3 3 0 000 6zm7.07-1.07a7 7 0 000-3.86l1.35-1.06a9 9 0 000-4.02l-1.64-.27a7 7 0 00-2.72-2.72l-.27-1.64a9 9 0 00-4.02 0l-.27 1.64a7 7 0 00-2.72 2.72l-1.64.27a9 9 0 000 4.02l1.64.27a7 7 0 002.72 2.72l.27 1.64a9 9 0 004.02 0l.27-1.64a7 7 0 002.72-2.72z", fn:()=>setScreen("settings") },
+                      ].map(({label,path,fn})=>(
+                        <button key={label} onClick={fn}
+                          style={{ width:"100%", display:"flex", alignItems:"center", gap:10, padding:"8px 8px", borderRadius:8, background:"transparent", border:"none", cursor:"pointer", marginBottom:1, textAlign:"left" }}
+                          onMouseEnter={e=>{e.currentTarget.style.background="rgba(255,255,255,.05)";}}
                           onMouseLeave={e=>{e.currentTarget.style.background="transparent";}}>
-                          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.45)" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-                            <path d={icon}/>
-                          </svg>
-                          <span style={{ fontFamily:"'Nunito',sans-serif", fontSize:12, color:"rgba(255,255,255,.52)", fontWeight:500 }}>{label}</span>
+                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.4)" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d={path}/></svg>
+                          <span style={{ fontFamily:"'Nunito',sans-serif", fontSize:12, color:"rgba(255,255,255,.5)", fontWeight:500 }}>{label}</span>
                         </button>
                       ))}
-                    </div>
 
-                    {/* Trial badge */}
-                    {nightsLeft !== null && (
-                      <div style={{ margin:"16px 14px 0", padding:"10px 12px", borderRadius:8, background:"rgba(201,168,76,.05)", border:"1px solid rgba(201,168,76,.1)" }}>
-                        <div style={{ fontSize:11, fontWeight:700, color:"rgba(225,195,95,.9)", fontFamily:"'Nunito',sans-serif", marginBottom:2 }}>{nightsLeft} nights left</div>
-                        <div style={{ fontSize:10, color:"rgba(255,255,255,.2)", fontFamily:"'Nunito',sans-serif" }}>Free trial</div>
-                      </div>
-                    )}
+                      {nightsLeft !== null && (
+                        <div style={{ marginTop:12, padding:"10px 12px", borderRadius:8, background:"rgba(201,168,76,.07)", border:"1px solid rgba(201,168,76,.15)" }}>
+                          <div style={{ fontSize:12, fontWeight:700, color:"rgba(225,195,95,.95)", fontFamily:"'Nunito',sans-serif", marginBottom:1 }}>{nightsLeft} nights free</div>
+                          <div style={{ fontSize:10, color:"rgba(255,255,255,.3)", fontFamily:"'Nunito',sans-serif" }}>Free trial · then $5.99/mo</div>
+                        </div>
+                      )}
+                    </div>
                   </div>
                 )}
 
-                {/* ── MAIN PANEL ──────────────────────── */}
-                <div style={{ flex:1, display:"flex", flexDirection:"column", minWidth:0, padding: mobile ? "0" : "0" }}>
+                {/* ════════════════════════════════
+                    MAIN
+                ════════════════════════════════ */}
+                <div style={{ flex:1, display:"flex", flexDirection:"column", minWidth:0, overflowY:"auto", background:"rgba(255,255,255,.02)" }}>
 
-                  {/* ── TOP BAR ── */}
-                  <div style={{
-                    display:"flex", alignItems:"center", justifyContent:"space-between",
-                    padding: mobile ? "16px 20px 0" : "24px 32px",
-                    borderBottom:"1px solid rgba(255,255,255,.05)",
-                    flexShrink:0,
-                  }}>
-                    <div>
-                      <div style={{ fontSize:11, color:"rgba(255,255,255,.2)", fontFamily:"'Nunito',sans-serif", fontWeight:600, letterSpacing:".06em", textTransform:"uppercase", marginBottom:4 }}>
-                        {greeting}
-                      </div>
-                      <div style={{ fontFamily:"'Playfair Display',serif", fontSize: mobile ? "clamp(22px,6vw,28px)" : 28, fontWeight:700, letterSpacing:"-.02em", color:"rgba(255,255,255,.9)", lineHeight:1 }}>
-                        {active.child_name}
-                        {todayStory && <span style={{ marginLeft:10, fontSize:14, color:"rgba(255,255,255,.25)", fontFamily:"'Nunito',sans-serif", fontWeight:500, letterSpacing:0 }}>· story ready</span>}
+                  {/* ── MOBILE HEADER ── */}
+                  {mobile && (
+                    <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", padding:"16px 20px", borderBottom:"1px solid rgba(255,255,255,.06)", flexShrink:0 }}>
+                      <DreamweaverLogo size={20} showText={true} />
+                      <div style={{ display:"flex", gap:8, alignItems:"center" }}>
+                        {streak > 0 && <div style={{ display:"flex", alignItems:"center", gap:4, padding:"5px 10px", borderRadius:6, background:"rgba(255,120,30,.1)", border:"1px solid rgba(255,120,30,.2)" }}><span style={{ fontSize:11 }}>🔥</span><span style={{ fontFamily:"'Nunito',sans-serif", fontSize:12, fontWeight:700, color:"rgba(255,160,60,.9)" }}>{streak}</span></div>}
+                        <button onClick={()=>setScreen("settings")} style={{ width:30, height:30, borderRadius:6, background:"rgba(255,255,255,.05)", border:"1px solid rgba(255,255,255,.08)", display:"flex", alignItems:"center", justifyContent:"center", cursor:"pointer" }}>
+                          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.5)" strokeWidth="2" strokeLinecap="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-2 2 2 2 0 01-2-2v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83 0 2 2 0 010-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 01-2-2 2 2 0 012-2h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 010-2.83 2 2 0 012.83 0l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 012-2 2 2 0 012 2v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 0 2 2 0 010 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 012 2 2 2 0 01-2 2h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+                        </button>
                       </div>
                     </div>
+                  )}
 
-                    <div style={{ display:"flex", alignItems:"center", gap:8 }}>
-                      {streak > 0 && (
-                        <div style={{ display:"flex", alignItems:"center", gap:5, padding:"6px 12px", borderRadius:6, background:"rgba(255,255,255,.04)", border:"1px solid rgba(255,255,255,.06)" }}>
-                          <span style={{ fontSize:12 }}>🔥</span>
-                          <span style={{ fontFamily:"'Nunito',sans-serif", fontSize:12, fontWeight:700, color:"rgba(255,255,255,.5)" }}>{streak}</span>
+                  {/* ── MOBILE child tabs ── */}
+                  {mobile && (
+                    <div style={{ display:"flex", overflowX:"auto", scrollbarWidth:"none", borderBottom:"1px solid rgba(255,255,255,.06)", flexShrink:0 }}>
+                      {profiles.map(p => {
+                        const on = active?.id===p.id;
+                        return <button key={p.id} onClick={()=>{setActive(p);setPf(p);}} style={{ flexShrink:0, padding:"11px 18px", background:"transparent", border:"none", borderBottom: on?"2px solid rgba(201,168,76,.75)":"2px solid transparent", cursor:"pointer", fontFamily:"'Nunito',sans-serif", fontSize:13, fontWeight: on?700:500, color: on?"rgba(255,255,255,.9)":"rgba(255,255,255,.35)", marginBottom:"-1px", transition:"all .15s", WebkitTapHighlightColor:"transparent" }}>{p.child_name}</button>;
+                      })}
+                      {canAddProfile() && <button onClick={()=>{setEditId(null);setPf({child_name:"",age:"",stuffed_animal:"",best_friend:"",favorite_animal:"",scared_of:"",favorite_thing:""});setWizStep(0);setScreen("wizard");}} style={{ flexShrink:0, padding:"11px 14px", background:"transparent", border:"none", borderBottom:"2px solid transparent", cursor:"pointer", fontFamily:"'Nunito',sans-serif", fontSize:13, color:"rgba(255,255,255,.2)", marginBottom:"-1px" }}>+ Add</button>}
+                    </div>
+                  )}
+
+                  {/* ── HERO CARD — the primary action lives here ── */}
+                  <div style={{
+                    margin: mobile ? "16px 16px 0" : "24px 24px 0",
+                    borderRadius:16,
+                    overflow:"hidden",
+                    position:"relative",
+                    background:"linear-gradient(135deg, rgba(30,15,70,.95) 0%, rgba(15,8,40,.98) 50%, rgba(20,10,55,.95) 100%)",
+                    border:"1px solid rgba(255,255,255,.1)",
+                    flexShrink:0,
+                  }}>
+                    {/* Ambient glow layers */}
+                    <div style={{ position:"absolute", inset:0, pointerEvents:"none" }}>
+                      <div style={{ position:"absolute", top:"-20%", right:"-10%", width:"55%", height:"140%", borderRadius:"50%", background:"radial-gradient(ellipse,rgba(180,130,60,.12) 0%,transparent 65%)", filter:"blur(20px)" }} />
+                      <div style={{ position:"absolute", bottom:"-20%", left:"10%", width:"40%", height:"80%", borderRadius:"50%", background:"radial-gradient(ellipse,rgba(100,50,200,.1) 0%,transparent 65%)", filter:"blur(24px)" }} />
+                    </div>
+
+                    {/* Starfield — tiny dots */}
+                    {[{x:8,y:15,s:1.5},{x:22,y:40,s:1},{x:60,y:8,s:2},{x:78,y:30,s:1.5},{x:88,y:60,s:1},{x:45,y:70,s:1.5},{x:12,y:75,s:1},{x:95,y:15,s:1.2}].map((st,i)=>(
+                      <div key={i} style={{ position:"absolute", left:`${st.x}%`, top:`${st.y}%`, width:st.s, height:st.s, borderRadius:"50%", background:"rgba(255,255,255,.6)", boxShadow:`0 0 ${st.s*3}px rgba(255,255,255,.4)`, animation:`starFloat ${3+i*.4}s ease-in-out ${i*.3}s infinite alternate`, pointerEvents:"none" }} />
+                    ))}
+
+                    <div style={{ position:"relative", padding: mobile ? "24px 20px 22px" : "32px 32px 28px", display:"flex", flexDirection: mobile ? "column" : "row", alignItems: mobile ? "flex-start" : "center", gap: mobile ? 20 : 32 }}>
+
+                      {/* Moon + greeting */}
+                      <div style={{ flexShrink:0, textAlign:"center" }}>
+                        <div style={{ fontSize: mobile ? 52 : 64, lineHeight:1, filter:"drop-shadow(0 0 28px rgba(200,170,80,.6)) drop-shadow(0 0 60px rgba(200,170,80,.25))", animation:"float 5s ease-in-out infinite", display:"inline-block" }}>{moonPhase}</div>
+                        <div style={{ fontSize:10, letterSpacing:".12em", textTransform:"uppercase", color:"rgba(255,255,255,.35)", fontFamily:"'Nunito',sans-serif", marginTop:8 }}>{greeting}</div>
+                      </div>
+
+                      {/* Name + CTA */}
+                      <div style={{ flex:1, minWidth:0 }}>
+                        <div style={{ fontFamily:"'Playfair Display',serif", fontSize: mobile ? "clamp(28px,8vw,36px)" : "clamp(32px,3.5vw,44px)", fontWeight:800, letterSpacing:"-.025em", lineHeight:1.05, color:"white", marginBottom:6 }}>
+                          {todayStory ? `${active.child_name}'s story` : `Tonight's story`}
                         </div>
-                      )}
-                      {mobile && (
-                        <button onClick={()=>setScreen("settings")} style={{ width:32, height:32, borderRadius:6, background:"rgba(255,255,255,.04)", border:"1px solid rgba(255,255,255,.06)", display:"flex", alignItems:"center", justifyContent:"center", cursor:"pointer" }}>
-                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.35)" strokeWidth="2" strokeLinecap="round">
-                            <circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-2 2 2 2 0 01-2-2v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83 0 2 2 0 010-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 01-2-2 2 2 0 012-2h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 010-2.83 2 2 0 012.83 0l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 012-2 2 2 0 012 2v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 0 2 2 0 010 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 012 2 2 2 0 01-2 2h-.09a1.65 1.65 0 00-1.51 1z"/>
-                          </svg>
+                        <div style={{ fontFamily:"'Nunito',sans-serif", fontSize:13, color:"rgba(255,255,255,.4)", marginBottom: mobile ? 20 : 24, lineHeight:1.5 }}>
+                          {todayStory
+                            ? "Already generated — tap below to read it"
+                            : `A personalized adventure for ${active.child_name} · 14 illustrated pages`}
+                        </div>
+
+                        {/* PRIMARY CTA — inside the hero */}
+                        <button onClick={generateStory}
+                          style={{
+                            display:"inline-flex", alignItems:"center", gap:8,
+                            padding: mobile ? "14px 28px" : "15px 36px",
+                            borderRadius:10,
+                            background: todayStory
+                              ? "rgba(255,255,255,.08)"
+                              : "linear-gradient(135deg, #d4a842 0%, #c49030 40%, #b07820 100%)",
+                            border: todayStory ? "1px solid rgba(255,255,255,.12)" : "none",
+                            color: todayStory ? "rgba(255,255,255,.65)" : "#1a0d00",
+                            fontFamily:"'Nunito',sans-serif", fontWeight:800,
+                            fontSize: mobile ? 15 : 15,
+                            cursor:"pointer", letterSpacing:".01em",
+                            boxShadow: todayStory ? "none" : "0 8px 32px rgba(180,130,30,.45), 0 2px 8px rgba(0,0,0,.3)",
+                            transition:"all .18s", WebkitTapHighlightColor:"transparent",
+                            width: mobile ? "100%" : "auto",
+                            justifyContent: mobile ? "center" : "flex-start",
+                          }}
+                          onMouseEnter={e=>{ e.currentTarget.style.transform="translateY(-2px)"; if(!todayStory) e.currentTarget.style.boxShadow="0 12px 40px rgba(180,130,30,.55), 0 4px 12px rgba(0,0,0,.35)"; }}
+                          onMouseLeave={e=>{ e.currentTarget.style.transform=""; e.currentTarget.style.boxShadow=todayStory?"none":"0 8px 32px rgba(180,130,30,.45), 0 2px 8px rgba(0,0,0,.3)"; }}>
+                          <span style={{ fontSize:16 }}>{todayStory ? "📖" : "✨"}</span>
+                          {todayStory ? "Read tonight's story" : storyMode==="lesson" ? `Generate — ${selectedLesson?.label||"Kindness"}` : "Generate tonight's story"}
                         </button>
+
+                        {/* Subtext under CTA */}
+                        {!todayStory && (
+                          <div style={{ marginTop:10, fontSize:11, color:"rgba(255,255,255,.22)", fontFamily:"'Nunito',sans-serif" }}>
+                            {storyMode==="lesson" ? `${selectedLesson?.emoji||"✨"} ${selectedLesson?.label} · ${MOODS.find(m=>m.id===mood)?.label||"Magical"} mood` : `${MOODS.find(m=>m.id===mood)?.emoji||"✨"} ${MOODS.find(m=>m.id===mood)?.label||"Magical"} mood · ready in ~40s`}
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Desktop: streak + stories — inside hero, right aligned */}
+                      {!mobile && (
+                        <div style={{ display:"flex", flexDirection:"column", gap:12, flexShrink:0, alignItems:"flex-end" }}>
+                          {streak > 0 && (
+                            <div style={{ display:"flex", alignItems:"center", gap:6, padding:"8px 14px", borderRadius:8, background:"rgba(255,120,30,.1)", border:"1px solid rgba(255,120,30,.2)" }}>
+                              <span style={{ fontSize:14 }}>🔥</span>
+                              <div>
+                                <div style={{ fontFamily:"'Playfair Display',serif", fontSize:18, fontWeight:800, color:"rgba(255,160,60,.95)", lineHeight:1 }}>{streak}</div>
+                                <div style={{ fontSize:9, letterSpacing:".1em", textTransform:"uppercase", color:"rgba(255,120,30,.6)", fontFamily:"'Nunito',sans-serif" }}>night streak</div>
+                              </div>
+                            </div>
+                          )}
+                          {childStories > 0 && (
+                            <div style={{ display:"flex", alignItems:"center", gap:6, padding:"8px 14px", borderRadius:8, background:"rgba(192,132,252,.08)", border:"1px solid rgba(192,132,252,.18)" }}>
+                              <span style={{ fontSize:14 }}>📚</span>
+                              <div>
+                                <div style={{ fontFamily:"'Playfair Display',serif", fontSize:18, fontWeight:800, color:"rgba(200,160,255,.9)", lineHeight:1 }}>{childStories}</div>
+                                <div style={{ fontSize:9, letterSpacing:".1em", textTransform:"uppercase", color:"rgba(192,132,252,.55)", fontFamily:"'Nunito',sans-serif" }}>stories</div>
+                              </div>
+                            </div>
+                          )}
+                        </div>
                       )}
                     </div>
                   </div>
 
-                  {/* ── MOBILE: child tabs ── */}
-                  {mobile && (
-                    <div style={{ display:"flex", gap:0, overflowX:"auto", scrollbarWidth:"none", borderBottom:"1px solid rgba(255,255,255,.05)", flexShrink:0 }}>
-                      {profiles.map((p,i) => {
-                        const isActive = active?.id===p.id;
-                        return (
-                          <button key={p.id}
-                            onClick={()=>{setActive(p);setPf(p);}}
-                            style={{
-                              flexShrink:0, padding:"12px 20px",
-                              background:"transparent", border:"none",
-                              borderBottom: isActive ? "2px solid rgba(201,168,76,.7)" : "2px solid transparent",
-                              cursor:"pointer", WebkitTapHighlightColor:"transparent",
-                              fontFamily:"'Nunito',sans-serif", fontSize:13, fontWeight: isActive ? 700 : 500,
-                              color: isActive ? "rgba(255,255,255,.9)" : "rgba(255,255,255,.3)",
-                              transition:"all .15s", marginBottom:"-1px",
-                            }}>
-                            {p.child_name}
-                          </button>
-                        );
-                      })}
-                      {canAddProfile()
-                        ? <button onClick={()=>{setEditId(null);setPf({child_name:"",age:"",stuffed_animal:"",best_friend:"",favorite_animal:"",scared_of:"",favorite_thing:""});setWizStep(0);setScreen("wizard");}}
-                            style={{ flexShrink:0, padding:"12px 16px", background:"transparent", border:"none", borderBottom:"2px solid transparent", cursor:"pointer", fontFamily:"'Nunito',sans-serif", fontSize:13, color:"rgba(255,255,255,.2)", marginBottom:"-1px" }}>
-                            + Add
-                          </button>
-                        : null
-                      }
-                    </div>
-                  )}
+                  {/* ── CONTROLS GRID ── */}
+                  <div style={{ margin: mobile ? "12px 16px 0" : "16px 24px 0", display:"grid", gridTemplateColumns: mobile ? "1fr" : "1fr 1fr", gap:12 }}>
 
-                  {/* ── SCROLLABLE FORM BODY ── */}
-                  <div style={{
-                    flex:1, overflowY:"auto", scrollbarWidth:"thin",
-                    scrollbarColor:"rgba(255,255,255,.06) transparent",
-                    padding: mobile ? "0 20px 100px" : "0 32px 40px",
-                  }}>
-
-                    {/* ── LAST NIGHT STRIP (conditional) ── */}
-                    {lastStory && !todayStory && (
-                      <div
-                        onClick={()=>{const ps=lastStory.text.split("\n\n✦\n\n");setPages(ps);setTitle(lastStory.title||"");setImgs(lastStory.page_images||[]);setCoverImg(lastStory.cover_image||null);setSpread(lastStory.cover_image?-1:0);setStory(lastStory);setStoryPhase("ready");setScreen("story");try{localStorage.setItem("dw_last_story",lastStory.id);localStorage.setItem("dw_last_screen","story");}catch{}}}
-                        style={{ ...ROW, display:"flex", alignItems:"center", gap:14, cursor:"pointer" }}
-                        onMouseEnter={e=>{e.currentTarget.style.opacity=".75";}}
-                        onMouseLeave={e=>{e.currentTarget.style.opacity="1";}}>
-                        <div style={{ width:40, height:52, borderRadius:6, overflow:"hidden", flexShrink:0, background:"rgba(255,255,255,.04)", border:"1px solid rgba(255,255,255,.06)" }}>
-                          {lastStory.cover_image && <img src={lastStory.cover_image} alt="" style={{ width:"100%", height:"100%", objectFit:"cover" }} />}
-                        </div>
-                        <div style={{ flex:1, minWidth:0 }}>
-                          <div style={{ fontSize:10, letterSpacing:".1em", textTransform:"uppercase", color:"rgba(255,255,255,.2)", fontFamily:"'Nunito',sans-serif", marginBottom:3 }}>Last night</div>
-                          <div style={{ fontFamily:"'Playfair Display',serif", fontSize:14, fontStyle:"italic", color:"rgba(255,255,255,.82)", whiteSpace:"nowrap", overflow:"hidden", textOverflow:"ellipsis" }}>{lastStory.title||"Your last story"}</div>
-                        </div>
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.15)" strokeWidth="2" strokeLinecap="round"><path d="M9 18l6-6-6-6"/></svg>
+                    {/* Story type card */}
+                    <div style={{ borderRadius:12, border:"1px solid rgba(255,255,255,.08)", background:"rgba(255,255,255,.03)", overflow:"hidden" }}>
+                      <div style={{ padding:"14px 16px 10px", borderBottom:"1px solid rgba(255,255,255,.06)" }}>
+                        <div style={{ fontSize:10, letterSpacing:".12em", textTransform:"uppercase", color:"rgba(255,255,255,.35)", fontFamily:"'Nunito',sans-serif", fontWeight:700 }}>Story type</div>
                       </div>
-                    )}
-
-                    {/* ── PHOTO NUDGE ── */}
-                    {!active.character_card && (
-                      <div
-                        onClick={()=>{setEditId(active.id);setPf(active);setScreen("profile");}}
-                        style={{ ...ROW, display:"flex", alignItems:"center", gap:14, cursor:"pointer" }}
-                        onMouseEnter={e=>{e.currentTarget.style.opacity=".7";}}
-                        onMouseLeave={e=>{e.currentTarget.style.opacity="1";}}>
-                        <div style={{ width:40, height:40, borderRadius:8, border:"1.5px dashed rgba(255,255,255,.1)", display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}>
-                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.2)" strokeWidth="1.8" strokeLinecap="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
-                        </div>
-                        <div style={{ flex:1 }}>
-                          <div style={{ fontFamily:"'Nunito',sans-serif", fontSize:13, fontWeight:600, color:"rgba(255,255,255,.78)", marginBottom:2 }}>Add a photo of {active.child_name}</div>
-                          <div style={{ fontSize:11, color:"rgba(255,255,255,.2)", fontFamily:"'Nunito',sans-serif" }}>The hero will look just like them</div>
-                        </div>
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.15)" strokeWidth="2" strokeLinecap="round"><path d="M9 18l6-6-6-6"/></svg>
-                      </div>
-                    )}
-
-                    {/* ── STORY TYPE ── */}
-                    <div style={ROW}>
-                      <span style={LBL_SM}>Story type</span>
-                      <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:8 }}>
-                        {[{id:"adventure",label:"Adventure",sub:"Imagination & fun"},{id:"lesson",label:"Life lesson",sub:"Gentle moral woven in"}].map(t=>(
+                      <div style={{ padding:"10px 10px", display:"grid", gridTemplateColumns:"1fr 1fr", gap:6 }}>
+                        {[{id:"adventure",label:"Adventure",sub:"Imagination & fun",icon:"🌙"},{id:"lesson",label:"Life lesson",sub:"Gentle moral",icon:"✨"}].map(t=>(
                           <button key={t.id} onClick={()=>setStoryMode(t.id)}
-                            style={{
-                              padding:"14px 16px", borderRadius:8, cursor:"pointer",
-                              background: storyMode===t.id ? "rgba(255,255,255,.1)" : "rgba(255,255,255,.03)",
-                              border: `1px solid ${storyMode===t.id ? "rgba(255,255,255,.14)" : "rgba(255,255,255,.06)"}`,
-                              textAlign:"left", transition:"all .14s", WebkitTapHighlightColor:"transparent",
-                            }}
-                            onMouseEnter={e=>{ if(storyMode!==t.id) e.currentTarget.style.background="rgba(255,255,255,.03)"; }}
-                            onMouseLeave={e=>{ if(storyMode!==t.id) e.currentTarget.style.background="transparent"; }}>
-                            <div style={{ fontFamily:"'Nunito',sans-serif", fontWeight:700, fontSize:13, color: storyMode===t.id ? "white" : "rgba(255,255,255,.5)", marginBottom:3 }}>{t.label}</div>
-                            <div style={{ fontFamily:"'Nunito',sans-serif", fontSize:11, color: storyMode===t.id ? "rgba(255,255,255,.55)" : "rgba(255,255,255,.28)" }}>{t.sub}</div>
+                            style={{ padding:"12px 10px", borderRadius:8, cursor:"pointer", textAlign:"left", transition:"all .14s", WebkitTapHighlightColor:"transparent", background: storyMode===t.id ? "rgba(255,255,255,.1)" : "rgba(255,255,255,.03)", border:`1px solid ${storyMode===t.id ? "rgba(255,255,255,.2)" : "rgba(255,255,255,.07)"}` }}
+                            onMouseEnter={e=>{ if(storyMode!==t.id) e.currentTarget.style.background="rgba(255,255,255,.06)"; }}
+                            onMouseLeave={e=>{ if(storyMode!==t.id) e.currentTarget.style.background="rgba(255,255,255,.03)"; }}>
+                            <div style={{ fontSize:16, marginBottom:5 }}>{t.icon}</div>
+                            <div style={{ fontFamily:"'Nunito',sans-serif", fontWeight:700, fontSize:12, color: storyMode===t.id ? "white" : "rgba(255,255,255,.5)", marginBottom:2 }}>{t.label}</div>
+                            <div style={{ fontFamily:"'Nunito',sans-serif", fontSize:10, color: storyMode===t.id ? "rgba(255,255,255,.5)" : "rgba(255,255,255,.25)" }}>{t.sub}</div>
                           </button>
                         ))}
                       </div>
                     </div>
 
-                    {/* ── LESSON PICKER (conditional) ── */}
-                    {storyMode==="lesson" && (
-                      <div style={ROW}>
-                        <span style={LBL_SM}>Lesson</span>
-                        <div style={{ display:"flex", flexWrap:"wrap", gap:6 }}>
-                          {LESSONS.map(l=>(
-                            <button key={l.id} onClick={()=>setLesson(l.id)}
-                              style={{
-                                padding:"7px 14px", borderRadius:6, cursor:"pointer",
-                                background: lesson===l.id ? "rgba(255,255,255,.1)" : "rgba(255,255,255,.03)",
-                                border:`1px solid ${lesson===l.id ? "rgba(255,255,255,.16)" : "rgba(255,255,255,.07)"}`,
-                                fontFamily:"'Nunito',sans-serif", fontWeight:600, fontSize:12,
-                                color: lesson===l.id ? "white" : "rgba(255,255,255,.48)",
-                                transition:"all .12s", WebkitTapHighlightColor:"transparent",
-                              }}>
-                              {l.emoji} {l.label}
-                            </button>
-                          ))}
-                        </div>
+                    {/* Mood card */}
+                    <div style={{ borderRadius:12, border:"1px solid rgba(255,255,255,.08)", background:"rgba(255,255,255,.03)", overflow:"hidden" }}>
+                      <div style={{ padding:"14px 16px 10px", borderBottom:"1px solid rgba(255,255,255,.06)" }}>
+                        <div style={{ fontSize:10, letterSpacing:".12em", textTransform:"uppercase", color:"rgba(255,255,255,.35)", fontFamily:"'Nunito',sans-serif", fontWeight:700 }}>Mood</div>
                       </div>
-                    )}
-
-                    {/* ── MOOD ── */}
-                    <div style={ROW}>
-                      <span style={LBL_SM}>Mood</span>
-                      <div style={{ display:"flex", flexWrap:"wrap", gap:6 }}>
+                      <div style={{ padding:"10px 10px", display:"flex", flexWrap:"wrap", gap:6 }}>
                         {MOODS.map(m=>(
                           <button key={m.id} onClick={()=>setMood(m.id)}
-                            style={{
-                              padding:"7px 14px", borderRadius:6, cursor:"pointer",
-                              background: mood===m.id ? "rgba(255,255,255,.1)" : "rgba(255,255,255,.03)",
-                              border:`1px solid ${mood===m.id ? "rgba(255,255,255,.16)" : "rgba(255,255,255,.07)"}`,
-                              fontFamily:"'Nunito',sans-serif", fontWeight:600, fontSize:12,
-                              color: mood===m.id ? "white" : "rgba(255,255,255,.48)",
-                              transition:"all .12s", WebkitTapHighlightColor:"transparent",
-                            }}>
+                            style={{ padding:"8px 12px", borderRadius:7, cursor:"pointer", transition:"all .12s", WebkitTapHighlightColor:"transparent", background: mood===m.id ? "rgba(255,255,255,.1)" : "rgba(255,255,255,.04)", border:`1px solid ${mood===m.id ? "rgba(255,255,255,.22)" : "rgba(255,255,255,.08)"}`, fontFamily:"'Nunito',sans-serif", fontWeight:600, fontSize:12, color: mood===m.id ? "white" : "rgba(255,255,255,.45)" }}
+                            onMouseEnter={e=>{ if(mood!==m.id) e.currentTarget.style.background="rgba(255,255,255,.07)"; }}
+                            onMouseLeave={e=>{ if(mood!==m.id) e.currentTarget.style.background="rgba(255,255,255,.04)"; }}>
                             {m.emoji} {m.label}
                           </button>
                         ))}
                       </div>
                     </div>
+                  </div>
 
-                    {/* ── STATS ROW ── */}
-                    <div style={{ ...ROW, display:"flex", gap:0 }}>
-                      {[
-                        { value: streak||0, label:"night streak" },
-                        { value: childStories, label:"stories" },
-                        { value: badges.length, label:"badges" },
-                      ].map(({value,label},i)=>(
-                        <div key={i} style={{ flex:1, paddingRight:24, borderRight: i<2 ? "1px solid rgba(255,255,255,.05)" : "none", paddingLeft: i>0 ? 24 : 0 }}>
-                          <div style={{ fontFamily:"'Playfair Display',serif", fontSize:28, fontWeight:800, color:"rgba(255,255,255,.9)", letterSpacing:"-.02em", lineHeight:1, marginBottom:4 }}>{value}</div>
-                          <div style={{ fontSize:10, letterSpacing:".08em", textTransform:"uppercase", color:"rgba(255,255,255,.2)", fontFamily:"'Nunito',sans-serif" }}>{label}</div>
+                  {/* ── LESSON PICKER (only when lesson mode) ── */}
+                  {storyMode==="lesson" && (
+                    <div style={{ margin: mobile ? "12px 16px 0" : "12px 24px 0", borderRadius:12, border:"1px solid rgba(255,255,255,.08)", background:"rgba(255,255,255,.03)", overflow:"hidden" }}>
+                      <div style={{ padding:"14px 16px 10px", borderBottom:"1px solid rgba(255,255,255,.06)" }}>
+                        <div style={{ fontSize:10, letterSpacing:".12em", textTransform:"uppercase", color:"rgba(255,255,255,.35)", fontFamily:"'Nunito',sans-serif", fontWeight:700 }}>Lesson</div>
+                      </div>
+                      <div style={{ padding:"10px 10px", display:"flex", flexWrap:"wrap", gap:6 }}>
+                        {LESSONS.map(l=>(
+                          <button key={l.id} onClick={()=>setLesson(l.id)}
+                            style={{ padding:"8px 12px", borderRadius:7, cursor:"pointer", transition:"all .12s", WebkitTapHighlightColor:"transparent", background: lesson===l.id ? "rgba(255,255,255,.1)" : "rgba(255,255,255,.04)", border:`1px solid ${lesson===l.id ? "rgba(255,255,255,.22)" : "rgba(255,255,255,.08)"}`, fontFamily:"'Nunito',sans-serif", fontWeight:600, fontSize:12, color: lesson===l.id ? "white" : "rgba(255,255,255,.45)" }}
+                            onMouseEnter={e=>{ if(lesson!==l.id) e.currentTarget.style.background="rgba(255,255,255,.07)"; }}
+                            onMouseLeave={e=>{ if(lesson!==l.id) e.currentTarget.style.background="rgba(255,255,255,.04)"; }}>
+                            {l.emoji} {l.label}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* ── BOTTOM ROW: last story + photo nudge + stats ── */}
+                  <div style={{ margin: mobile ? "12px 16px 0" : "12px 24px 0", display:"grid", gridTemplateColumns: mobile ? "1fr" : lastStory && !active.character_card ? "1fr 1fr 1fr" : lastStory || !active.character_card ? "1fr 1fr" : "1fr", gap:10 }}>
+
+                    {/* Last story */}
+                    {lastStory && (
+                      <div onClick={()=>{const ps=lastStory.text.split("\n\n✦\n\n");setPages(ps);setTitle(lastStory.title||"");setImgs(lastStory.page_images||[]);setCoverImg(lastStory.cover_image||null);setSpread(lastStory.cover_image?-1:0);setStory(lastStory);setStoryPhase("ready");setScreen("story");try{localStorage.setItem("dw_last_story",lastStory.id);}catch{}}}
+                        style={{ borderRadius:12, border:"1px solid rgba(255,255,255,.08)", background:"rgba(255,255,255,.03)", padding:"14px 14px", cursor:"pointer", transition:"all .15s", display:"flex", alignItems:"center", gap:12 }}
+                        onMouseEnter={e=>{e.currentTarget.style.background="rgba(255,255,255,.06)"; e.currentTarget.style.borderColor="rgba(255,255,255,.14)";}}
+                        onMouseLeave={e=>{e.currentTarget.style.background="rgba(255,255,255,.03)"; e.currentTarget.style.borderColor="rgba(255,255,255,.08)";}}>
+                        <div style={{ width:36, height:48, borderRadius:6, overflow:"hidden", flexShrink:0, background:"rgba(255,255,255,.06)", border:"1px solid rgba(255,255,255,.1)" }}>
+                          {lastStory.cover_image && <img src={lastStory.cover_image} alt="" style={{ width:"100%", height:"100%", objectFit:"cover" }} />}
                         </div>
-                      ))}
-                    </div>
+                        <div style={{ flex:1, minWidth:0 }}>
+                          <div style={{ fontSize:9, letterSpacing:".1em", textTransform:"uppercase", color:"rgba(255,255,255,.3)", fontFamily:"'Nunito',sans-serif", marginBottom:3 }}>Last night</div>
+                          <div style={{ fontFamily:"'Playfair Display',serif", fontStyle:"italic", fontSize:13, color:"rgba(255,255,255,.75)", whiteSpace:"nowrap", overflow:"hidden", textOverflow:"ellipsis" }}>{lastStory.title||"Your last story"}</div>
+                          <div style={{ fontSize:10, color:"rgba(255,255,255,.25)", fontFamily:"'Nunito',sans-serif", marginTop:2 }}>Tap to re-read →</div>
+                        </div>
+                      </div>
+                    )}
 
-                    {/* ── EDIT PROFILE LINK ── */}
-                    <div style={{ paddingTop:16 }}>
-                      <button onClick={()=>{setEditId(active.id);setPf(active);setScreen("profile");}}
-                        style={{ background:"none", border:"none", cursor:"pointer", fontFamily:"'Nunito',sans-serif", fontSize:12, color:"rgba(255,255,255,.2)", padding:0, letterSpacing:".04em" }}
-                        onMouseEnter={e=>{e.currentTarget.style.color="rgba(255,255,255,.5)";}}
-                        onMouseLeave={e=>{e.currentTarget.style.color="rgba(255,255,255,.2)";}}>
-                        Edit {active.child_name}'s profile →
-                      </button>
-                    </div>
+                    {/* Photo nudge */}
+                    {!active.character_card && (
+                      <div onClick={()=>{setEditId(active.id);setPf(active);setScreen("profile");}}
+                        style={{ borderRadius:12, border:"1px solid rgba(255,255,255,.08)", background:"rgba(255,255,255,.03)", padding:"14px 14px", cursor:"pointer", transition:"all .15s", display:"flex", alignItems:"center", gap:12 }}
+                        onMouseEnter={e=>{e.currentTarget.style.background="rgba(255,255,255,.06)"; e.currentTarget.style.borderColor="rgba(255,255,255,.14)";}}
+                        onMouseLeave={e=>{e.currentTarget.style.background="rgba(255,255,255,.03)"; e.currentTarget.style.borderColor="rgba(255,255,255,.08)";}}>
+                        <div style={{ width:36, height:36, borderRadius:8, border:"1.5px dashed rgba(255,255,255,.18)", display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}>
+                          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.35)" strokeWidth="1.8" strokeLinecap="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
+                        </div>
+                        <div style={{ flex:1 }}>
+                          <div style={{ fontFamily:"'Nunito',sans-serif", fontSize:12, fontWeight:700, color:"rgba(255,255,255,.65)", marginBottom:2 }}>Add {active.child_name}'s photo</div>
+                          <div style={{ fontSize:10, color:"rgba(255,255,255,.3)", fontFamily:"'Nunito',sans-serif" }}>Hero will look like them</div>
+                        </div>
+                      </div>
+                    )}
 
+                    {/* Stats cell */}
+                    <div style={{ borderRadius:12, border:"1px solid rgba(255,255,255,.08)", background:"rgba(255,255,255,.03)", padding:"14px 16px" }}>
+                      <div style={{ display:"flex", gap:16, height:"100%", alignItems:"center" }}>
+                        {[{v:streak||0,l:"streak",i:"🔥"},{v:childStories,l:"stories",i:"📖"},{v:badges.length,l:"badges",i:"🏅"}].map(({v,l,i})=>(
+                          <div key={l} style={{ flex:1, textAlign:"center" }}>
+                            <div style={{ fontSize:11, marginBottom:3 }}>{i}</div>
+                            <div style={{ fontFamily:"'Playfair Display',serif", fontSize:20, fontWeight:800, color:"rgba(255,255,255,.85)", lineHeight:1, marginBottom:2 }}>{v}</div>
+                            <div style={{ fontSize:9, letterSpacing:".08em", textTransform:"uppercase", color:"rgba(255,255,255,.3)", fontFamily:"'Nunito',sans-serif" }}>{l}</div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
                   </div>
 
-                  {/* ── STICKY CTA ── */}
-                  <div style={{
-                    flexShrink:0, padding: mobile ? "16px 20px calc(16px + env(safe-area-inset-bottom,0px))" : "20px 32px",
-                    borderTop:"1px solid rgba(255,255,255,.1)",
-                    background: mobile ? "rgba(7,5,14,.95)" : "rgba(0,0,0,.2)",
-                    backdropFilter:"blur(12px)",
-                  }}>
-                    <button onClick={generateStory}
-                      style={{
-                        width:"100%", padding: mobile ? "16px" : "15px",
-                        borderRadius:10, border:"none", cursor:"pointer",
-                        background: todayStory ? "rgba(255,255,255,.05)" : "linear-gradient(135deg,#e8c96a 0%,#c9a030 100%)",
-                        color: todayStory ? "rgba(255,255,255,.4)" : "#1a0e00",
-                        fontFamily:"'Nunito',sans-serif", fontWeight:800,
-                        fontSize:15, letterSpacing:".01em",
-                        transition:"all .15s", WebkitTapHighlightColor:"transparent",
-                        border: todayStory ? "1px solid rgba(255,255,255,.08)" : "none",
-                      }}
-                      onMouseEnter={e=>{ e.currentTarget.style.opacity=".88"; e.currentTarget.style.transform="translateY(-1px)"; }}
-                      onMouseLeave={e=>{ e.currentTarget.style.opacity="1"; e.currentTarget.style.transform=""; }}>
-                      {todayStory
-                        ? "Read tonight's story"
-                        : storyMode==="lesson"
-                          ? `Generate story — ${LESSONS.find(l=>l.id===lesson)?.label||"Kindness"}`
-                          : "Generate tonight's story"}
+                  {/* ── FOOTER LINK ── */}
+                  <div style={{ padding: mobile ? "16px 16px 24px" : "16px 24px 24px", display:"flex", justifyContent:"space-between", alignItems:"center" }}>
+                    <button onClick={()=>{setEditId(active.id);setPf(active);setScreen("profile");}}
+                      style={{ background:"none", border:"none", cursor:"pointer", fontFamily:"'Nunito',sans-serif", fontSize:11, color:"rgba(255,255,255,.25)", padding:0, letterSpacing:".04em", transition:"color .15s" }}
+                      onMouseEnter={e=>{e.currentTarget.style.color="rgba(255,255,255,.55)";}}
+                      onMouseLeave={e=>{e.currentTarget.style.color="rgba(255,255,255,.25)";}}>
+                      Edit {active.child_name}'s profile →
                     </button>
+                    {!mobile && (
+                      <div style={{ display:"flex", gap:12 }}>
+                        <button onClick={()=>{loadLibrary();setScreen("library");}} style={{ background:"none", border:"none", cursor:"pointer", fontFamily:"'Nunito',sans-serif", fontSize:11, color:"rgba(255,255,255,.22)", padding:0, transition:"color .15s" }} onMouseEnter={e=>e.currentTarget.style.color="rgba(255,255,255,.5)"} onMouseLeave={e=>e.currentTarget.style.color="rgba(255,255,255,.22)"}>Library</button>
+                        <button onClick={()=>setScreen("badges")} style={{ background:"none", border:"none", cursor:"pointer", fontFamily:"'Nunito',sans-serif", fontSize:11, color:"rgba(255,255,255,.22)", padding:0, transition:"color .15s" }} onMouseEnter={e=>e.currentTarget.style.color="rgba(255,255,255,.5)"} onMouseLeave={e=>e.currentTarget.style.color="rgba(255,255,255,.22)"}>Badges</button>
+                      </div>
+                    )}
                   </div>
 
-                </div>{/* /main panel */}
+                </div>{/* /main */}
               </div>{/* /shell */}
 
               {/* ── MILESTONE OVERLAY ── */}
@@ -2664,10 +2658,7 @@ NO title. Start immediately.`;
                     <p style={{ color:"rgba(255,255,255,.3)", fontFamily:"'Nunito',sans-serif", fontSize:14, lineHeight:1.6, marginBottom:28 }}>
                       {streakMilestone===3?"Three nights in a row.":streakMilestone===7?"A full week of stories.":"Thirty nights. Legendary."}
                     </p>
-                    <button onClick={()=>setStreakCelebrate(false)}
-                      style={{ padding:"11px 28px", borderRadius:8, background:"rgba(255,255,255,.07)", border:"1px solid rgba(255,255,255,.1)", color:"rgba(255,255,255,.6)", fontFamily:"'Nunito',sans-serif", fontSize:13, fontWeight:700, cursor:"pointer" }}>
-                      Continue
-                    </button>
+                    <button onClick={()=>setStreakCelebrate(false)} style={{ padding:"11px 28px", borderRadius:8, background:"rgba(255,255,255,.07)", border:"1px solid rgba(255,255,255,.1)", color:"rgba(255,255,255,.6)", fontFamily:"'Nunito',sans-serif", fontSize:13, fontWeight:700, cursor:"pointer" }}>Continue</button>
                   </div>
                 </div>
               )}
@@ -2675,7 +2666,6 @@ NO title. Start immediately.`;
             </div>
           );
         })()}
-
         {/* ═══════════════════════════════════════════════════════════════════
             PROFILE EDIT
         ══════════════════════════════════════════════════════════════════════ */}
