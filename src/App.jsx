@@ -2411,7 +2411,7 @@ NO title. Start immediately.`;
                   {/* ═══════════════════════════════════════════
                       SCROLLABLE CONTENT — top to bottom flow
                   ═══════════════════════════════════════════ */}
-                  <div style={{ flex:1, padding: mobile ? "20px 16px 120px" : "28px 28px 40px", display:"flex", flexDirection:"column", gap:20, overflowY:"auto" }}>
+                  <div style={{ flex:1, padding: mobile ? "16px 16px 100px" : "22px 24px 36px", display:"flex", flexDirection:"column", gap:14, overflowY:"auto" }}>
 
                     {/* ── 1. WHO — greeting header ── */}
                     <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between" }}>
@@ -2426,40 +2426,45 @@ NO title. Start immediately.`;
                       </div>
                       {/* Desktop stats — small, top-right */}
                       {!mobile && (
-                        <div style={{ display:"flex", gap:8 }}>
-                          {[{v:streak||0,l:"streak",i:"🔥"},{v:childStories,l:"stories",i:"📖"},{v:badges.length,l:"badges",i:"🏅"}].map(({v,l,i})=>(
-                            <div key={l} style={{ textAlign:"center", padding:"8px 14px", borderRadius:8, background:"rgba(255,255,255,.04)", border:"1px solid rgba(255,255,255,.07)" }}>
-                              <div style={{ fontFamily:"'Playfair Display',serif", fontSize:18, fontWeight:800, color:"rgba(255,255,255,.8)", lineHeight:1, marginBottom:2 }}>{v}</div>
-                              <div style={{ fontSize:9, letterSpacing:".08em", textTransform:"uppercase", color:"rgba(255,255,255,.3)", fontFamily:"'Nunito',sans-serif" }}>{l}</div>
-                            </div>
-                          ))}
-                          <button onClick={()=>setScreen("settings")} style={{ width:36, height:36, borderRadius:8, background:"rgba(255,255,255,.04)", border:"1px solid rgba(255,255,255,.07)", display:"flex", alignItems:"center", justifyContent:"center", cursor:"pointer", alignSelf:"center" }}>
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.4)" strokeWidth="2" strokeLinecap="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-2 2 2 2 0 01-2-2v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83 0 2 2 0 010-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 01-2-2 2 2 0 012-2h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 010-2.83 2 2 0 012.83 0l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 012-2 2 2 0 012 2v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 0 2 2 0 010 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 012 2 2 2 0 01-2 2h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+                        <div style={{ display:"flex", alignItems:"center", gap:6 }}>
+                          <div style={{ display:"flex", alignItems:"center", gap:0, borderRadius:8, border:"1px solid rgba(255,255,255,.08)", overflow:"hidden" }}>
+                            {[{v:streak||0,l:"streak",i:"🔥"},{v:childStories,l:"stories",i:"📖"},{v:badges.length,l:"badges",i:"🏅"}].map(({v,l,i},idx)=>(
+                              <div key={l} style={{ display:"flex", alignItems:"center", gap:5, padding:"6px 12px", borderRight: idx<2 ? "1px solid rgba(255,255,255,.07)" : "none", background:"rgba(255,255,255,.03)" }}>
+                                <span style={{ fontSize:11 }}>{i}</span>
+                                <span style={{ fontFamily:"'Nunito',sans-serif", fontSize:13, fontWeight:700, color:"rgba(255,255,255,.7)" }}>{v}</span>
+                                <span style={{ fontFamily:"'Nunito',sans-serif", fontSize:10, color:"rgba(255,255,255,.28)" }}>{l}</span>
+                              </div>
+                            ))}
+                          </div>
+                          <button onClick={()=>setScreen("settings")} style={{ width:32, height:32, borderRadius:8, background:"rgba(255,255,255,.04)", border:"1px solid rgba(255,255,255,.08)", display:"flex", alignItems:"center", justifyContent:"center", cursor:"pointer", flexShrink:0 }}>
+                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.45)" strokeWidth="2" strokeLinecap="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-2 2 2 2 0 01-2-2v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83 0 2 2 0 010-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 01-2-2 2 2 0 012-2h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 010-2.83 2 2 0 012.83 0l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 012-2 2 2 0 012 2v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 0 2 2 0 010 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 012 2 2 2 0 01-2 2h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
                           </button>
                         </div>
                       )}
                     </div>
 
                     {/* ── 2. STORY TYPE ── */}
-                    <div style={{ borderRadius:12, border:"1px solid rgba(255,255,255,.08)", background:"rgba(255,255,255,.03)", overflow:"hidden" }}>
-                      <div style={{ padding:"14px 18px 12px", borderBottom:"1px solid rgba(255,255,255,.06)", display:"flex", alignItems:"center", gap:8 }}>
+                    <div style={{ borderRadius:12, border:"1px solid rgba(255,255,255,.09)", background:"rgba(255,255,255,.035)", overflow:"hidden" }}>
+                      <div style={{ padding:"11px 16px 10px", borderBottom:"1px solid rgba(255,255,255,.06)", display:"flex", alignItems:"center", gap:8 }}>
                         <div style={{ width:18, height:18, borderRadius:"50%", background:"rgba(255,255,255,.06)", border:"1px solid rgba(255,255,255,.1)", display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}>
                           <span style={{ fontSize:9, fontWeight:800, fontFamily:"'Nunito',sans-serif", color:"rgba(255,255,255,.4)" }}>1</span>
                         </div>
                         <div style={{ fontSize:11, letterSpacing:".1em", textTransform:"uppercase", color:"rgba(255,255,255,.4)", fontFamily:"'Nunito',sans-serif", fontWeight:700 }}>Story type</div>
                       </div>
-                      <div style={{ padding:"12px 12px", display:"grid", gridTemplateColumns:"1fr 1fr", gap:8 }}>
+                      <div style={{ padding:"8px 8px", display:"grid", gridTemplateColumns:"1fr 1fr", gap:6 }}>
                         {[
                           {id:"adventure", label:"Adventure", sub:"Pure imagination and fun", icon:"🌙"},
                           {id:"lesson",    label:"Life lesson", sub:"Woven with a gentle moral", icon:"✨"},
                         ].map(t=>(
                           <button key={t.id} onClick={()=>setStoryMode(t.id)}
-                            style={{ padding:"14px 14px", borderRadius:9, cursor:"pointer", textAlign:"left", transition:"all .14s", WebkitTapHighlightColor:"transparent", background: storyMode===t.id ? "rgba(255,255,255,.1)" : "rgba(255,255,255,.03)", border:`1px solid ${storyMode===t.id ? "rgba(255,255,255,.22)" : "rgba(255,255,255,.07)"}` }}
+                            style={{ padding:"11px 14px", borderRadius:8, cursor:"pointer", textAlign:"left", transition:"all .14s", WebkitTapHighlightColor:"transparent", background: storyMode===t.id ? "rgba(255,255,255,.1)" : "rgba(255,255,255,.03)", border:`1px solid ${storyMode===t.id ? "rgba(255,255,255,.22)" : "rgba(255,255,255,.07)"}`, display:"flex", alignItems:"center", gap:10 }}
                             onMouseEnter={e=>{ if(storyMode!==t.id) e.currentTarget.style.background="rgba(255,255,255,.06)"; }}
                             onMouseLeave={e=>{ if(storyMode!==t.id) e.currentTarget.style.background="rgba(255,255,255,.03)"; }}>
-                            <div style={{ fontSize:18, marginBottom:8 }}>{t.icon}</div>
+                            <span style={{ fontSize:16, flexShrink:0 }}>{t.icon}</span>
+                            <div>
                             <div style={{ fontFamily:"'Nunito',sans-serif", fontWeight:700, fontSize:13, color: storyMode===t.id ? "white" : "rgba(255,255,255,.5)", marginBottom:3 }}>{t.label}</div>
-                            <div style={{ fontFamily:"'Nunito',sans-serif", fontSize:11, color: storyMode===t.id ? "rgba(255,255,255,.5)" : "rgba(255,255,255,.25)", lineHeight:1.4 }}>{t.sub}</div>
+                            <div style={{ fontFamily:"'Nunito',sans-serif", fontSize:11, color: storyMode===t.id ? "rgba(255,255,255,.5)" : "rgba(255,255,255,.25)", lineHeight:1.3, marginTop:1 }}>{t.sub}</div>
+                            </div>
                           </button>
                         ))}
                       </div>
@@ -2467,14 +2472,14 @@ NO title. Start immediately.`;
 
                     {/* ── 3. LESSON (conditional) ── */}
                     {storyMode==="lesson" && (
-                      <div style={{ borderRadius:12, border:"1px solid rgba(255,255,255,.08)", background:"rgba(255,255,255,.03)", overflow:"hidden" }}>
-                        <div style={{ padding:"14px 18px 12px", borderBottom:"1px solid rgba(255,255,255,.06)", display:"flex", alignItems:"center", gap:8 }}>
+                      <div style={{ borderRadius:12, border:"1px solid rgba(255,255,255,.09)", background:"rgba(255,255,255,.035)", overflow:"hidden" }}>
+                        <div style={{ padding:"11px 16px 10px", borderBottom:"1px solid rgba(255,255,255,.06)", display:"flex", alignItems:"center", gap:8 }}>
                           <div style={{ width:18, height:18, borderRadius:"50%", background:"rgba(255,255,255,.06)", border:"1px solid rgba(255,255,255,.1)", display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}>
                             <span style={{ fontSize:9, fontWeight:800, fontFamily:"'Nunito',sans-serif", color:"rgba(255,255,255,.4)" }}>2</span>
                           </div>
                           <div style={{ fontSize:11, letterSpacing:".1em", textTransform:"uppercase", color:"rgba(255,255,255,.4)", fontFamily:"'Nunito',sans-serif", fontWeight:700 }}>Lesson</div>
                         </div>
-                        <div style={{ padding:"12px 12px", display:"flex", flexWrap:"wrap", gap:6 }}>
+                        <div style={{ padding:"10px 10px", display:"flex", flexWrap:"wrap", gap:5 }}>
                           {LESSONS.map(l=>(
                             <button key={l.id} onClick={()=>setLesson(l.id)}
                               style={{ padding:"8px 14px", borderRadius:7, cursor:"pointer", transition:"all .12s", WebkitTapHighlightColor:"transparent", background: lesson===l.id ? "rgba(255,255,255,.1)" : "rgba(255,255,255,.04)", border:`1px solid ${lesson===l.id ? "rgba(255,255,255,.22)" : "rgba(255,255,255,.08)"}`, fontFamily:"'Nunito',sans-serif", fontWeight:600, fontSize:12, color: lesson===l.id ? "white" : "rgba(255,255,255,.45)" }}
@@ -2488,17 +2493,17 @@ NO title. Start immediately.`;
                     )}
 
                     {/* ── 3/4. MOOD ── */}
-                    <div style={{ borderRadius:12, border:"1px solid rgba(255,255,255,.08)", background:"rgba(255,255,255,.03)", overflow:"hidden" }}>
-                      <div style={{ padding:"14px 18px 12px", borderBottom:"1px solid rgba(255,255,255,.06)", display:"flex", alignItems:"center", gap:8 }}>
+                    <div style={{ borderRadius:12, border:"1px solid rgba(255,255,255,.09)", background:"rgba(255,255,255,.035)", overflow:"hidden" }}>
+                      <div style={{ padding:"11px 16px 10px", borderBottom:"1px solid rgba(255,255,255,.06)", display:"flex", alignItems:"center", gap:8 }}>
                         <div style={{ width:18, height:18, borderRadius:"50%", background:"rgba(255,255,255,.06)", border:"1px solid rgba(255,255,255,.1)", display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}>
                           <span style={{ fontSize:9, fontWeight:800, fontFamily:"'Nunito',sans-serif", color:"rgba(255,255,255,.4)" }}>{storyMode==="lesson" ? "3" : "2"}</span>
                         </div>
                         <div style={{ fontSize:11, letterSpacing:".1em", textTransform:"uppercase", color:"rgba(255,255,255,.4)", fontFamily:"'Nunito',sans-serif", fontWeight:700 }}>Mood</div>
                       </div>
-                      <div style={{ padding:"12px 12px", display:"flex", flexWrap:"wrap", gap:6 }}>
+                      <div style={{ padding:"10px 10px", display:"flex", flexWrap:"wrap", gap:5 }}>
                         {MOODS.map(m=>(
                           <button key={m.id} onClick={()=>setMood(m.id)}
-                            style={{ padding:"9px 16px", borderRadius:7, cursor:"pointer", transition:"all .12s", WebkitTapHighlightColor:"transparent", background: mood===m.id ? "rgba(255,255,255,.1)" : "rgba(255,255,255,.04)", border:`1px solid ${mood===m.id ? "rgba(255,255,255,.22)" : "rgba(255,255,255,.08)"}`, fontFamily:"'Nunito',sans-serif", fontWeight:600, fontSize:13, color: mood===m.id ? "white" : "rgba(255,255,255,.45)" }}
+                            style={{ padding:"7px 13px", borderRadius:7, cursor:"pointer", transition:"all .12s", WebkitTapHighlightColor:"transparent", background: mood===m.id ? "rgba(255,255,255,.1)" : "rgba(255,255,255,.04)", border:`1px solid ${mood===m.id ? "rgba(255,255,255,.22)" : "rgba(255,255,255,.08)"}`, fontFamily:"'Nunito',sans-serif", fontWeight:600, fontSize:12, color: mood===m.id ? "white" : "rgba(255,255,255,.45)" }}
                             onMouseEnter={e=>{ if(mood!==m.id) e.currentTarget.style.background="rgba(255,255,255,.07)"; }}
                             onMouseLeave={e=>{ if(mood!==m.id) e.currentTarget.style.background="rgba(255,255,255,.04)"; }}>
                             {m.emoji} {m.label}
