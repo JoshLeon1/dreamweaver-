@@ -196,12 +196,19 @@ body{background:var(--night);min-height:100vh;font-family:'Nunito',sans-serif;co
 
 /* ── Wrap ── */
 .wrap{
-  min-height:100vh;position:relative;z-index:1;
+  min-height:100svh;position:relative;z-index:1;
   display:flex;flex-direction:column;align-items:center;
-  padding-top:20px;
-  padding-bottom:max(80px,calc(60px + env(safe-area-inset-bottom)));
-  padding-left:max(16px,env(safe-area-inset-left));
-  padding-right:max(16px,env(safe-area-inset-right));
+  padding-top:env(safe-area-inset-top,20px);
+  padding-top:max(20px,env(safe-area-inset-top));
+  padding-bottom:max(84px,calc(64px + env(safe-area-inset-bottom)));
+  padding-left:max(20px,env(safe-area-inset-left));
+  padding-right:max(20px,env(safe-area-inset-right));
+  box-sizing:border-box;
+}
+/* On mobile, inner screens fill full width */
+@media(max-width:699px){
+  .wrap > .fade { width:100% !important; max-width:100% !important; }
+  .has-bottom-nav { width:100% !important; max-width:100% !important; }
 }
 
 /* ── Buttons ── */
@@ -1500,6 +1507,7 @@ NO title. Start immediately.`;
   };
 
   const [showShareCard, setShowShareCard] = useState(false);
+  const [showSequelPrompt, setShowSequelPrompt] = useState(false);
 
   const shareStory = async () => {
     setShowShareCard(true);
@@ -1748,7 +1756,7 @@ NO title. Start immediately.`;
                 {[
                   { n:"01", icon:"👧", title:"Tell Us About Your Child", desc:"Name, age, stuffed animal, best friend, favorite things — every detail gets woven into the story.", color:"rgba(192,132,252,.12)", border:"rgba(192,132,252,.2)" },
                   { n:"02", icon:"✨", title:"Add A Photo (Optional)", desc:"Upload a photo and our AI captures their look — hair color, eye color, skin tone — so the characters look just like your child.", color:"rgba(251,191,36,.08)", border:"rgba(251,191,36,.18)" },
-                  { n:"03", icon:"🌙", title:"Open Tonight's Book", desc:"In about 40 seconds, a fully illustrated 10-page picture book is ready. Read it together and drift off to sleep.", color:"rgba(103,232,249,.08)", border:"rgba(103,232,249,.18)" },
+                  { n:"03", icon:"🌙", title:"Open Tonight's Book", desc:"In about 40 seconds, a fully illustrated 14-page picture book is ready. Read it together and drift off to sleep.", color:"rgba(103,232,249,.08)", border:"rgba(103,232,249,.18)" },
                 ].map(({n,icon,title,desc,color,border}) => (
                   <div key={n} style={{ padding:"clamp(20px,3vw,28px)", borderRadius:20, background:color, border:`1px solid ${border}`, position:"relative", overflow:"hidden" }}>
                     <div style={{ position:"absolute", top:16, right:18, fontFamily:"'Playfair Display',serif", fontSize:48, fontStyle:"italic", color:"rgba(255,255,255,.04)", lineHeight:1, fontWeight:800 }}>{n}</div>
@@ -1975,7 +1983,7 @@ NO title. Start immediately.`;
             <div style={{ display:"flex", flexDirection:"column", gap:14, marginBottom:36, textAlign:"left" }}>
               {[
                 { n:"1", icon:"👧", title:"Tell us about your child", desc:"Name, stuffed animal, best friend — takes 2 minutes." },
-                { n:"2", icon:"🌙", title:"Open tonight's story", desc:"A 10-page illustrated book generates in ~40 seconds." },
+                { n:"2", icon:"🌙", title:"Open tonight's story", desc:"A 14-page illustrated book generates in ~40 seconds." },
                 { n:"3", icon:"📸", title:"Add a photo (optional)", desc:"We'll make the illustrations look just like them." },
               ].map(({n,icon,title,desc}) => (
                 <div key={n} style={{ display:"flex", gap:14, alignItems:"flex-start", padding:"14px 16px", borderRadius:16, background:"rgba(255,255,255,.04)", border:"1px solid rgba(255,255,255,.07)" }}>
@@ -2072,212 +2080,173 @@ NO title. Start immediately.`;
           const todayStory = library.find(s => s.story_date===todayStr() && s.child_profile_id===active.id);
           const lastStory  = library.find(s => s.child_profile_id===active.id && s.story_date!==todayStr());
           const hour = new Date().getHours();
-          const greeting = hour < 12 ? "Good morning" : hour < 17 ? "Good afternoon" : hour < 21 ? "Good evening" : "Time for bed";
-          const greetingEmoji = hour < 12 ? "☀️" : hour < 17 ? "🌤️" : hour < 21 ? "🌆" : "🌙";
-
+          const timeLabel = hour < 12 ? "Good morning" : hour < 17 ? "Good afternoon" : hour < 21 ? "Good evening" : "Time for bed";
+          const timeEmoji = hour < 17 ? "🌤️" : hour < 21 ? "🌆" : "🌙";
           return (
-          <div className="fade has-bottom-nav" style={{ width:"100%", maxWidth:560, padding:"0 4px", display:"flex", flexDirection:"column", minHeight:"calc(100vh - 80px)" }}>
+          <div className="fade has-bottom-nav" style={{ width:"100%", maxWidth:540 }}>
 
             {/* ── Top row ── */}
-            <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:24 }}>
-              <div style={{ display:"flex", gap:8, alignItems:"center", flexWrap:"wrap" }}>
+            <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:20 }}>
+              <div style={{ display:"flex", gap:7, alignItems:"center" }}>
                 {streak>0 && (
-                  <div style={{ background:"rgba(255,155,40,.1)", border:"1px solid rgba(255,155,40,.2)", borderRadius:999, padding:"6px 13px", display:"flex", gap:6, alignItems:"center",
-                    transform:streakCelebrate?"scale(1.08)":"scale(1)", transition:"transform .3s",
-                    boxShadow:streakCelebrate?"0 0 18px rgba(255,155,40,.4)":"none" }}>
-                    <span style={{ fontSize:14, animation:streakCelebrate?"wiggle .4s ease-in-out 3":"none", display:"inline-block" }}>🔥</span>
+                  <div style={{ background:"rgba(255,155,40,.09)", border:"1px solid rgba(255,155,40,.18)", borderRadius:999, padding:"5px 12px", display:"flex", gap:5, alignItems:"center" }}>
+                    <span style={{ fontSize:13 }}>🔥</span>
                     <span style={{ color:"#ffb347", fontSize:12, fontWeight:800, fontFamily:"'Nunito',sans-serif" }}>{streak} night{streak!==1?"s":""}</span>
                   </div>
                 )}
-                {sub?.status==="trial" && (
-                  <span style={{ color:"rgba(180,143,255,.6)", fontSize:11, fontWeight:600, background:"rgba(180,143,255,.07)", padding:"5px 11px", borderRadius:999, border:"1px solid rgba(180,143,255,.12)", fontFamily:"'Nunito',sans-serif" }}>{daysLeft()}d Trial</span>
-                )}
+                {sub?.status==="trial" && <span style={{ color:"rgba(180,143,255,.55)", fontSize:11, fontWeight:600, background:"rgba(180,143,255,.07)", padding:"4px 10px", borderRadius:999, border:"1px solid rgba(180,143,255,.1)", fontFamily:"'Nunito',sans-serif" }}>{daysLeft()}d Trial</span>}
               </div>
-              <button onClick={logout} style={{ background:"none", border:"none", color:"rgba(255,255,255,.15)", cursor:"pointer", fontSize:12, fontFamily:"'Nunito',sans-serif", padding:"6px 0" }}>Sign out</button>
+              <button onClick={()=>setScreen("settings")} style={{ background:"none", border:"none", cursor:"pointer", padding:"6px", display:"flex", alignItems:"center", justifyContent:"center", borderRadius:"50%", transition:"background .15s" }}>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.28)" strokeWidth="1.8" strokeLinecap="round">
+                  <circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-2 2 2 2 0 01-2-2v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83 0 2 2 0 010-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 01-2-2 2 2 0 012-2h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 010-2.83 2 2 0 012.83 0l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 012-2 2 2 0 012 2v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 0 2 2 0 010 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 012 2 2 2 0 01-2 2h-.09a1.65 1.65 0 00-1.51 1z"/>
+                </svg>
+              </button>
             </div>
 
             {/* ── Profile switcher ── */}
-            <div style={{ display:"flex", gap:7, marginBottom:32, flexWrap:"wrap" }}>
+            <div style={{ display:"flex", gap:7, marginBottom:28, flexWrap:"wrap" }}>
               {profiles.map(p => (
                 <button key={p.id} onClick={()=>{setActive(p);setPf(p);}}
                   style={{ padding:"7px 16px", borderRadius:999, fontSize:13, fontFamily:"'Nunito',sans-serif", fontWeight:700, cursor:"pointer", transition:"all .18s", WebkitTapHighlightColor:"transparent",
-                    background:active?.id===p.id?"rgba(192,132,252,.18)":"transparent",
-                    border:`1.5px solid ${active?.id===p.id?"rgba(192,132,252,.5)":"rgba(255,255,255,.1)"}`,
-                    color:active?.id===p.id?"#e9d5ff":"rgba(255,255,255,.4)" }}>
+                    background:active?.id===p.id?"rgba(192,132,252,.16)":"transparent",
+                    border:`1.5px solid ${active?.id===p.id?"rgba(192,132,252,.45)":"rgba(255,255,255,.1)"}`,
+                    color:active?.id===p.id?"#e9d5ff":"rgba(255,255,255,.38)" }}>
                   🌙 {p.child_name}
                 </button>
               ))}
               {canAddProfile()
                 ? <button onClick={()=>{setEditId(null);setPf({child_name:"",age:"",stuffed_animal:"",best_friend:"",favorite_animal:"",scared_of:"",favorite_thing:""});setWizStep(0);setScreen("wizard");}}
-                    style={{ padding:"7px 16px", borderRadius:999, fontSize:12, fontFamily:"'Nunito',sans-serif", fontWeight:600, cursor:"pointer", background:"transparent", border:"1.5px solid rgba(255,255,255,.09)", color:"rgba(255,255,255,.3)" }}>
+                    style={{ padding:"7px 16px", borderRadius:999, fontSize:12, fontFamily:"'Nunito',sans-serif", fontWeight:600, cursor:"pointer", background:"transparent", border:"1.5px solid rgba(255,255,255,.09)", color:"rgba(255,255,255,.28)", transition:"all .18s" }}>
                     + Add Child
                   </button>
                 : <button onClick={()=>setScreen("paywall")}
-                    style={{ padding:"7px 16px", borderRadius:999, fontSize:12, fontFamily:"'Nunito',sans-serif", fontWeight:600, cursor:"pointer", background:"transparent", border:"1.5px solid rgba(201,168,76,.18)", color:"rgba(201,168,76,.45)" }}>
+                    style={{ padding:"7px 16px", borderRadius:999, fontSize:12, fontFamily:"'Nunito',sans-serif", fontWeight:600, cursor:"pointer", background:"transparent", border:"1.5px solid rgba(201,168,76,.18)", color:"rgba(201,168,76,.4)", transition:"all .18s" }}>
                     + Add Child 🔒
                   </button>
               }
             </div>
 
-            {/* ── Hero ── */}
-            <div style={{ textAlign:"center", marginBottom:28 }}>
-              <div style={{ fontSize:"clamp(10px,2.5vw,13px)", color:"rgba(255,255,255,.25)", fontFamily:"'Nunito',sans-serif", letterSpacing:".12em", textTransform:"uppercase", marginBottom:16 }}>
-                {greetingEmoji} {greeting}
-              </div>
-              <div style={{ fontSize:"clamp(52px,14vw,72px)", lineHeight:1, marginBottom:14, animation:"float 4s ease-in-out infinite", filter:"drop-shadow(0 0 40px rgba(200,170,80,.5))" }}>🌙</div>
-              <h1 style={{ fontFamily:"'Playfair Display',serif", fontSize:"clamp(22px,6vw,32px)", lineHeight:1.2, marginBottom:6, fontWeight:800 }}>
+            {/* ── Hero — no box, just text and moon ── */}
+            <div style={{ textAlign:"center", marginBottom:32, padding:"0 8px" }}>
+              <div style={{ fontSize:11, color:"rgba(255,255,255,.2)", fontFamily:"'Nunito',sans-serif", letterSpacing:".14em", textTransform:"uppercase", marginBottom:14 }}>{timeEmoji} {timeLabel}</div>
+              <div style={{ fontSize:"clamp(56px,15vw,76px)", lineHeight:1, marginBottom:16, animation:"float 4s ease-in-out infinite", filter:"drop-shadow(0 0 44px rgba(200,170,80,.5))" }}>🌙</div>
+              <div style={{ fontFamily:"'Playfair Display',serif", fontSize:"clamp(20px,5.5vw,28px)", lineHeight:1.25, marginBottom:6, color:"rgba(255,255,255,.7)", fontWeight:700 }}>
                 Tonight's story for
-              </h1>
-              <h1 style={{ fontFamily:"'Playfair Display',serif", fontSize:"clamp(30px,8vw,44px)", lineHeight:1.1, marginBottom:12, fontStyle:"italic", color:"var(--gold-light)", filter:"drop-shadow(0 0 28px rgba(232,200,100,.35))" }}>
+              </div>
+              <div style={{ fontFamily:"'Playfair Display',serif", fontSize:"clamp(32px,8.5vw,48px)", lineHeight:1.1, marginBottom:14, fontStyle:"italic", color:"var(--gold-light)", filter:"drop-shadow(0 0 30px rgba(232,200,100,.3))", fontWeight:800 }}>
                 {active.child_name}
-              </h1>
-              <p style={{ color:"rgba(255,255,255,.2)", fontFamily:"'Crimson Pro',serif", fontStyle:"italic", fontSize:"clamp(13px,3vw,15px)", letterSpacing:".04em" }}>
+              </div>
+              <div style={{ color:"rgba(255,255,255,.18)", fontFamily:"'Crimson Pro',serif", fontStyle:"italic", fontSize:"clamp(13px,3vw,15px)", letterSpacing:".05em" }}>
                 14 pages · illustrated · personalized
-              </p>
+              </div>
             </div>
 
-            {/* ── Last story preview card (if has previous story) ── */}
+            {/* ── Last story quick-read (no box border, just image + text) ── */}
             {lastStory && !todayStory && (
               <div onClick={()=>{const ps=lastStory.text.split("\n\n✦\n\n");setPages(ps);setTitle(lastStory.title||"");setImgs(lastStory.page_images||[]);setCoverImg(lastStory.cover_image||null);setSpread(lastStory.cover_image?-1:0);setStory(lastStory);setStoryPhase("ready");setScreen("story");try{localStorage.setItem("dw_last_story",lastStory.id);localStorage.setItem("dw_last_screen","story");}catch{}}}
-                style={{ marginBottom:20, borderRadius:20, overflow:"hidden", cursor:"pointer", border:"1px solid rgba(255,255,255,.07)", display:"flex", alignItems:"stretch", background:"rgba(255,255,255,.03)", transition:"background .2s", WebkitTapHighlightColor:"transparent" }}>
-                {lastStory.cover_image
-                  ? <img src={lastStory.cover_image} alt="" style={{ width:80, flexShrink:0, objectFit:"cover" }} />
-                  : <div style={{ width:80, flexShrink:0, background:"linear-gradient(160deg,#1a0a3e,#0d0520)", display:"flex", alignItems:"center", justifyContent:"center", fontSize:32 }}>🌙</div>
-                }
-                <div style={{ padding:"14px 16px", flex:1, minWidth:0 }}>
-                  <div style={{ fontSize:10, color:"rgba(255,255,255,.25)", fontFamily:"'Nunito',sans-serif", letterSpacing:".1em", textTransform:"uppercase", marginBottom:4 }}>Last Night</div>
-                  <div style={{ fontFamily:"'Playfair Display',serif", fontStyle:"italic", fontSize:15, color:"rgba(255,255,255,.8)", marginBottom:2, overflow:"hidden", textOverflow:"ellipsis", whiteSpace:"nowrap" }}>{lastStory.title||"Untitled Story"}</div>
-                  <div style={{ fontSize:12, color:"rgba(255,255,255,.28)", fontFamily:"'Nunito',sans-serif" }}>Tap to re-read ›</div>
+                style={{ marginBottom:24, display:"flex", alignItems:"center", gap:14, cursor:"pointer", padding:"14px 16px", borderRadius:20, background:"rgba(255,255,255,.03)", border:"1px solid rgba(255,255,255,.06)", WebkitTapHighlightColor:"transparent", transition:"background .15s" }}>
+                <div style={{ width:56, height:72, borderRadius:10, overflow:"hidden", flexShrink:0, background:"linear-gradient(160deg,#1a0a3e,#0d0520)", boxShadow:"0 4px 16px rgba(0,0,0,.5)" }}>
+                  {lastStory.cover_image && <img src={lastStory.cover_image} alt="" style={{ width:"100%", height:"100%", objectFit:"cover" }} />}
                 </div>
+                <div style={{ flex:1, minWidth:0 }}>
+                  <div style={{ fontSize:10, color:"rgba(255,255,255,.22)", fontFamily:"'Nunito',sans-serif", letterSpacing:".1em", textTransform:"uppercase", marginBottom:3 }}>Last night</div>
+                  <div style={{ fontFamily:"'Playfair Display',serif", fontStyle:"italic", fontSize:15, color:"rgba(255,255,255,.75)", marginBottom:2, overflow:"hidden", textOverflow:"ellipsis", whiteSpace:"nowrap" }}>{lastStory.title||"Your last story"}</div>
+                  <div style={{ fontSize:11, color:"rgba(255,255,255,.25)", fontFamily:"'Nunito',sans-serif" }}>Tap to re-read</div>
+                </div>
+                <span style={{ color:"rgba(255,255,255,.15)", fontSize:18, flexShrink:0 }}>›</span>
               </div>
             )}
 
-            {/* ── Photo nudge ── */}
+            {/* ── Photo nudge (only if no char card) ── */}
             {!active.character_card && (
               <div onClick={()=>{setEditId(active.id);setPf(active);setScreen("profile");}}
-                style={{ marginBottom:16, padding:"12px 16px", borderRadius:16, cursor:"pointer",
-                  background:"rgba(201,168,76,.05)", border:"1px dashed rgba(201,168,76,.2)",
-                  display:"flex", alignItems:"center", gap:12, transition:"background .2s", WebkitTapHighlightColor:"transparent" }}>
-                <div style={{ width:38, height:38, borderRadius:"50%", background:"rgba(201,168,76,.1)", display:"flex", alignItems:"center", justifyContent:"center", fontSize:18, flexShrink:0 }}>📸</div>
+                style={{ marginBottom:20, padding:"13px 16px", borderRadius:16, cursor:"pointer",
+                  background:"rgba(201,168,76,.05)", border:"1px dashed rgba(201,168,76,.18)",
+                  display:"flex", alignItems:"center", gap:12, WebkitTapHighlightColor:"transparent" }}>
+                <div style={{ width:36, height:36, borderRadius:"50%", background:"rgba(201,168,76,.1)", display:"flex", alignItems:"center", justifyContent:"center", fontSize:17, flexShrink:0 }}>📸</div>
                 <div style={{ flex:1 }}>
-                  <div style={{ fontSize:13, fontWeight:700, color:"var(--gold-light)", fontFamily:"'Nunito',sans-serif" }}>Add {active.child_name}'s photo</div>
-                  <div style={{ fontSize:11, color:"rgba(255,255,255,.28)", fontFamily:"'Nunito',sans-serif" }}>Illustrations will look just like them</div>
+                  <div style={{ fontSize:12, fontWeight:700, color:"var(--gold-light)", fontFamily:"'Nunito',sans-serif", marginBottom:1 }}>Add {active.child_name}'s photo</div>
+                  <div style={{ fontSize:11, color:"rgba(255,255,255,.25)", fontFamily:"'Nunito',sans-serif" }}>Illustrations will look just like them</div>
                 </div>
-                <span style={{ color:"rgba(255,255,255,.15)", fontSize:16 }}>›</span>
-              </div>
-            )}
-            {active.photo_url && (
-              <div style={{ display:"flex", alignItems:"center", gap:10, marginBottom:16, padding:"9px 14px", borderRadius:14, background:"rgba(255,255,255,.03)", border:"1px solid rgba(255,255,255,.06)" }}>
-                <img src={active.photo_url} alt="" style={{ width:34, height:34, borderRadius:"50%", objectFit:"cover", border:"1.5px solid rgba(201,168,76,.35)", flexShrink:0 }} />
-                <div style={{ fontSize:12, color:"rgba(255,255,255,.35)", fontFamily:"'Nunito',sans-serif", flex:1 }}>
-                  Illustrated like <strong style={{ color:"rgba(255,255,255,.65)" }}>{active.child_name}</strong>
-                </div>
-                <button onClick={(e)=>{e.stopPropagation();setEditId(active.id);setPf(active);setScreen("profile");}}
-                  style={{ background:"none", border:"none", color:"rgba(255,255,255,.18)", fontSize:12, cursor:"pointer", padding:"4px 8px", fontFamily:"'Nunito',sans-serif" }}>Edit</button>
+                <span style={{ color:"rgba(255,255,255,.15)", fontSize:14 }}>›</span>
               </div>
             )}
 
-            {/* ── Config ── */}
-            <div style={{ background:"rgba(255,255,255,.03)", border:"1px solid rgba(255,255,255,.07)", borderRadius:22, padding:"18px 16px", marginBottom:14 }}>
-
-              {/* Story type — horizontal pill selector */}
-              <div style={{ display:"flex", background:"rgba(0,0,0,.25)", borderRadius:12, padding:3, marginBottom:14 }}>
-                {[
-                  { id:"adventure", label:"🌙 Adventure" },
-                  { id:"lesson",    label:"✨ Life Lesson" },
-                ].map(t => (
-                  <button key={t.id} onClick={()=>setStoryMode(t.id)}
-                    style={{ flex:1, padding:"10px 8px", borderRadius:10, border:"none", cursor:"pointer", transition:"all .18s",
-                      fontFamily:"'Nunito',sans-serif", fontWeight:700, fontSize:"clamp(12px,3vw,13px)",
-                      WebkitTapHighlightColor:"transparent", touchAction:"manipulation",
-                      background:storyMode===t.id?"rgba(124,77,204,.7)":"transparent",
-                      color:storyMode===t.id?"white":"rgba(255,255,255,.38)",
-                      boxShadow:storyMode===t.id?"0 2px 12px rgba(124,77,204,.4)":"none" }}>
-                    {t.label}
-                  </button>
-                ))}
-              </div>
-
-              {/* Lesson pills */}
-              {storyMode==="lesson" && (
-                <div style={{ marginBottom:14 }}>
-                  <div style={{ display:"flex", gap:6, flexWrap:"wrap" }}>
-                    {LESSONS.map(l => (
-                      <button key={l.id} onClick={()=>setLesson(l.id)}
-                        style={{ padding:"6px 12px", borderRadius:999, fontSize:11, fontFamily:"'Nunito',sans-serif", fontWeight:700, cursor:"pointer", transition:"all .15s",
-                          background:lesson===l.id?"rgba(74,222,128,.15)":"transparent",
-                          border:`1px solid ${lesson===l.id?"rgba(74,222,128,.4)":"rgba(255,255,255,.1)"}`,
-                          color:lesson===l.id?"#86efac":"rgba(255,255,255,.38)" }}>
-                        {l.emoji} {l.label}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {/* Divider */}
-              {storyMode==="lesson" && <div style={{ height:1, background:"rgba(255,255,255,.06)", marginBottom:14 }} />}
-
-              {/* Mood */}
-              <div style={{ display:"flex", gap:6, flexWrap:"wrap" }}>
-                {MOODS.map(m => (
-                  <button key={m.id} onClick={()=>setMood(m.id)}
-                    style={{ padding:"7px 13px", borderRadius:999, fontSize:12, fontFamily:"'Nunito',sans-serif", fontWeight:700, cursor:"pointer", transition:"all .15s", WebkitTapHighlightColor:"transparent",
-                      background:mood===m.id?"rgba(192,132,252,.18)":"transparent",
-                      border:`1px solid ${mood===m.id?"rgba(192,132,252,.45)":"rgba(255,255,255,.1)"}`,
-                      color:mood===m.id?"#e9d5ff":"rgba(255,255,255,.38)" }}>
-                    {m.emoji} {m.label}
-                  </button>
-                ))}
-              </div>
+            {/* ── Story type ── */}
+            <div style={{ display:"flex", gap:6, marginBottom:12 }}>
+              {[{id:"adventure",label:"🌙 Adventure"},{id:"lesson",label:"✨ Life Lesson"}].map(t=>(
+                <button key={t.id} onClick={()=>setStoryMode(t.id)}
+                  style={{ flex:1, padding:"11px 8px", borderRadius:12, cursor:"pointer", transition:"all .15s",
+                    fontFamily:"'Nunito',sans-serif", fontWeight:700, fontSize:"clamp(12px,3vw,13px)",
+                    WebkitTapHighlightColor:"transparent",
+                    background:storyMode===t.id?"rgba(124,77,204,.6)":"rgba(255,255,255,.05)",
+                    border:`1px solid ${storyMode===t.id?"rgba(180,145,255,.4)":"rgba(255,255,255,.07)"}`,
+                    color:storyMode===t.id?"white":"rgba(255,255,255,.32)",
+                    boxShadow:storyMode===t.id?"0 2px 16px rgba(124,77,204,.3)":"none" }}>
+                  {t.label}
+                </button>
+              ))}
             </div>
 
-            {/* ── Generate CTA ── */}
+            {/* Lesson pills */}
+            {storyMode==="lesson" && (
+              <div style={{ display:"flex", gap:6, flexWrap:"wrap", marginBottom:14 }}>
+                {LESSONS.map(l=>(
+                  <button key={l.id} onClick={()=>setLesson(l.id)}
+                    style={{ padding:"6px 12px", borderRadius:999, fontSize:11, fontFamily:"'Nunito',sans-serif", fontWeight:700, cursor:"pointer", transition:"all .12s",
+                      background:lesson===l.id?"rgba(74,222,128,.13)":"transparent",
+                      border:`1px solid ${lesson===l.id?"rgba(74,222,128,.38)":"rgba(255,255,255,.09)"}`,
+                      color:lesson===l.id?"#86efac":"rgba(255,255,255,.33)" }}>
+                    {l.emoji} {l.label}
+                  </button>
+                ))}
+              </div>
+            )}
+
+            {/* Mood pills */}
+            <div style={{ display:"flex", gap:6, flexWrap:"wrap", marginBottom:22 }}>
+              {MOODS.map(m=>(
+                <button key={m.id} onClick={()=>setMood(m.id)}
+                  style={{ padding:"7px 13px", borderRadius:999, fontSize:12, fontFamily:"'Nunito',sans-serif", fontWeight:700, cursor:"pointer", transition:"all .12s", WebkitTapHighlightColor:"transparent",
+                    background:mood===m.id?"rgba(192,132,252,.16)":"transparent",
+                    border:`1px solid ${mood===m.id?"rgba(192,132,252,.42)":"rgba(255,255,255,.09)"}`,
+                    color:mood===m.id?"#e9d5ff":"rgba(255,255,255,.33)" }}>
+                  {m.emoji} {m.label}
+                </button>
+              ))}
+            </div>
+
+            {/* ── CTA ── */}
             <button onClick={generateStory}
-              style={{ width:"100%", padding:"clamp(17px,4vw,20px)", borderRadius:18, border:"none", cursor:"pointer",
-                background: todayStory
-                  ? "linear-gradient(135deg,#1a3a2e,#1e4d3a)"
-                  : "linear-gradient(135deg,#5b21b6,#7c3aed,#8b5cf6)",
-                backgroundSize:"200% 200%", animation: todayStory ? "none" : "gradFlow 4s ease infinite",
+              style={{ width:"100%", padding:"clamp(17px,4vw,20px)", borderRadius:20, border:"none", cursor:"pointer",
+                background: todayStory ? "linear-gradient(135deg,#14532d,#166534)" : "linear-gradient(135deg,#5b21b6,#7c3aed,#9333ea)",
+                backgroundSize:"200% 200%", animation: todayStory?"none":"gradFlow 4s ease infinite",
                 color:"white", fontFamily:"'Nunito',sans-serif", fontWeight:800,
                 fontSize:"clamp(15px,4vw,17px)", letterSpacing:".01em",
-                boxShadow: todayStory
-                  ? "0 4px 20px rgba(30,77,58,.4)"
-                  : "0 8px 32px rgba(91,33,182,.5), 0 2px 8px rgba(0,0,0,.3)",
-                transition:"transform .15s, box-shadow .15s",
-                WebkitTapHighlightColor:"transparent", touchAction:"manipulation",
-                border: todayStory ? "1px solid rgba(74,222,128,.2)" : "none" }}
-              onMouseEnter={e=>{if(!todayStory){e.currentTarget.style.transform="translateY(-2px)";e.currentTarget.style.boxShadow="0 12px 40px rgba(91,33,182,.6), 0 4px 12px rgba(0,0,0,.3)";}}}
-              onMouseLeave={e=>{e.currentTarget.style.transform="";e.currentTarget.style.boxShadow=todayStory?"0 4px 20px rgba(30,77,58,.4)":"0 8px 32px rgba(91,33,182,.5), 0 2px 8px rgba(0,0,0,.3)";}}>
-              {todayStory
-                ? "📖 Read Tonight's Story"
-                : storyMode==="lesson"
-                  ? `✨ Write a story about ${LESSONS.find(l=>l.id===lesson)?.label||"Kindness"}`
-                  : "✨ Generate Tonight's Story"}
+                boxShadow: todayStory ? "0 4px 20px rgba(20,83,45,.35)" : "0 8px 32px rgba(91,33,182,.45), 0 2px 8px rgba(0,0,0,.2)",
+                transition:"transform .15s, box-shadow .15s", WebkitTapHighlightColor:"transparent" }}>
+              {todayStory ? "📖 Read Tonight's Story"
+                : storyMode==="lesson" ? `✨ Write a story about ${LESSONS.find(l=>l.id===lesson)?.label||"Kindness"}`
+                : "✨ Generate Tonight's Story"}
             </button>
 
-            {/* ── Secondary row ── */}
-            <div style={{ display:"flex", gap:8, marginTop:10, marginBottom:8 }}>
-              <button className="btn-soft" style={{ flex:1, fontSize:12, padding:"11px 8px" }} onClick={()=>{setEditId(active.id);setPf(active);setScreen("profile");}}>✏️ Edit Profile</button>
-              {!mobile && <button className="btn-soft" style={{ flex:1, fontSize:12, padding:"11px 8px" }} onClick={()=>{loadLibrary();setScreen("library");}}>📚 Library</button>}
-              {!mobile && <button className="btn-soft" style={{ flex:1, fontSize:12, padding:"11px 8px" }} onClick={()=>setScreen("badges")}>🏅 {badges.length}/{BADGE_DEFS.length}</button>}
+            {/* ── Secondary ── */}
+            <div style={{ display:"flex", gap:8, marginTop:10 }}>
+              <button className="btn-soft" style={{ flex:1, fontSize:12, padding:"10px 8px" }} onClick={()=>{setEditId(active.id);setPf(active);setScreen("profile");}}>✏️ Edit Profile</button>
+              {!mobile && <button className="btn-soft" style={{ flex:1, fontSize:12, padding:"10px 8px" }} onClick={()=>{loadLibrary();setScreen("library");}}>📚 Library</button>}
+              {!mobile && <button className="btn-soft" style={{ flex:1, fontSize:12, padding:"10px 8px" }} onClick={()=>setScreen("badges")}>🏅 {badges.length}/{BADGE_DEFS.length}</button>}
             </div>
 
-            {/* ── Milestone celebration overlay ── */}
+            {/* ── Milestone overlay ── */}
             {streakCelebrate && streakMilestone && (
-              <div style={{ position:"fixed", inset:0, display:"flex", alignItems:"center", justifyContent:"center", zIndex:9999, background:"rgba(0,0,0,.6)", backdropFilter:"blur(10px)" }}>
-                <div style={{ textAlign:"center", animation:"popIn .4s cubic-bezier(.34,1.56,.64,1)", background:"linear-gradient(155deg,rgba(30,10,80,.97),rgba(15,5,40,.99))", border:"1px solid rgba(255,155,40,.3)", borderRadius:28, padding:"40px 44px", boxShadow:"0 0 80px rgba(255,155,40,.2),0 40px 80px rgba(0,0,0,.9)", maxWidth:300, margin:"0 20px" }}>
+              <div style={{ position:"fixed", inset:0, display:"flex", alignItems:"center", justifyContent:"center", zIndex:9999, background:"rgba(0,0,0,.65)", backdropFilter:"blur(12px)" }}>
+                <div style={{ textAlign:"center", animation:"popIn .4s cubic-bezier(.34,1.56,.64,1)", background:"linear-gradient(155deg,rgba(25,8,70,.97),rgba(12,4,35,.99))", border:"1px solid rgba(255,155,40,.25)", borderRadius:28, padding:"44px 48px", boxShadow:"0 0 80px rgba(255,155,40,.15), 0 40px 80px rgba(0,0,0,.9)", maxWidth:300, margin:"0 20px" }}>
                   <div style={{ fontSize:60, marginBottom:14, animation:"float 2s ease-in-out infinite" }}>🔥</div>
-                  <h2 style={{ fontFamily:"'Playfair Display',serif", fontSize:28, marginBottom:8, lineHeight:1.2, background:"linear-gradient(120deg,#ffd700,#ffb347)", WebkitBackgroundClip:"text", WebkitTextFillColor:"transparent", backgroundClip:"text" }}>
-                    {streakMilestone} Nights!
-                  </h2>
-                  <p style={{ color:"rgba(255,255,255,.4)", fontFamily:"'Crimson Pro',serif", fontStyle:"italic", fontSize:15, lineHeight:1.7, marginBottom:22 }}>
-                    {streakMilestone===3 && "Three nights of magic in a row ✨"}
-                    {streakMilestone===7 && "A whole week of bedtime stories 🌙"}
-                    {streakMilestone===30 && "Thirty nights — you're a legend ⭐"}
+                  <h2 style={{ fontFamily:"'Playfair Display',serif", fontSize:28, marginBottom:8, lineHeight:1.2, background:"linear-gradient(120deg,#ffd700,#ffb347)", WebkitBackgroundClip:"text", WebkitTextFillColor:"transparent", backgroundClip:"text" }}>{streakMilestone} Nights!</h2>
+                  <p style={{ color:"rgba(255,255,255,.38)", fontFamily:"'Crimson Pro',serif", fontStyle:"italic", fontSize:15, lineHeight:1.7, marginBottom:22 }}>
+                    {streakMilestone===3?"Three nights of magic in a row ✨":streakMilestone===7?"A whole week of bedtime stories 🌙":"Thirty nights — you're a legend ⭐"}
                   </p>
-                  <button onClick={()=>setStreakCelebrate(false)}
-                    style={{ background:"rgba(255,155,40,.12)", border:"1px solid rgba(255,155,40,.25)", borderRadius:999, padding:"10px 28px", color:"#ffb870", fontSize:14, fontWeight:700, fontFamily:"'Nunito',sans-serif", cursor:"pointer" }}>
+                  <button onClick={()=>setStreakCelebrate(false)} style={{ background:"rgba(255,155,40,.1)", border:"1px solid rgba(255,155,40,.22)", borderRadius:999, padding:"10px 28px", color:"#ffb870", fontSize:14, fontWeight:700, fontFamily:"'Nunito',sans-serif", cursor:"pointer" }}>
                     Keep the magic going 🎉
                   </button>
                 </div>
@@ -2355,7 +2324,21 @@ NO title. Start immediately.`;
                   <button className="btn-book" onClick={generateColoringPage} disabled={coloringLoading} style={{ background:"linear-gradient(135deg,#0d0a1e,#1a1040)", borderColor:"rgba(192,132,252,.3)", color:"#d8b4fe", opacity:coloringLoading?0.6:1 }}>
                     {coloringLoading?"🎨 Generating…":"🖍️ Make a Coloring Page"}
                   </button>
-                  {/* Row 3: nav + utilities */}
+                  {/* Row 3: Sequel CTA */}
+                  {story && !story.is_sequel_of && (
+                    <button onClick={()=>setShowSequelPrompt(true)}
+                      style={{ width:"100%", padding:"15px", borderRadius:18, border:"1.5px solid rgba(192,132,252,.35)",
+                        background:"rgba(124,77,204,.12)", color:"#d8b4fe",
+                        fontFamily:"'Nunito',sans-serif", fontWeight:700, fontSize:14, cursor:"pointer",
+                        display:"flex", alignItems:"center", justifyContent:"center", gap:8,
+                        transition:"all .15s", WebkitTapHighlightColor:"transparent" }}>
+                      <span style={{ fontSize:18 }}>✨</span>
+                      Write a Sequel
+                      <span style={{ fontSize:11, opacity:.6, fontWeight:600 }}>· new adventure</span>
+                    </button>
+                  )}
+
+                  {/* Row 4: nav + utilities */}
                   {mobile ? (
                     <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:8 }}>
                       <button className="btn-soft" style={{ fontSize:13 }} onClick={shareStory}>{copied?"✅ Copied!":"🔗 Share"}</button>
@@ -2371,6 +2354,57 @@ NO title. Start immediately.`;
                 </div>
               </>
             )}
+          </div>
+        )}
+
+        {/* Sequel prompt modal */}
+        {showSequelPrompt && story && (
+          <div style={{ position:"fixed", inset:0, background:"rgba(0,0,0,.75)", backdropFilter:"blur(14px)", zIndex:2000, display:"flex", alignItems:"flex-end", justifyContent:"center", padding:"0 0 env(safe-area-inset-bottom,0px)" }}
+            onClick={()=>setShowSequelPrompt(false)}>
+            <div style={{ background:"linear-gradient(175deg,#1a0a3e,#0d0620)", border:"1px solid rgba(192,132,252,.15)", borderRadius:"24px 24px 0 0", padding:"clamp(20px,4vw,32px)", width:"100%", maxWidth:480, animation:"slideUp .3s ease" }}
+              onClick={e=>e.stopPropagation()}>
+              {/* Handle */}
+              <div style={{ width:40, height:4, borderRadius:99, background:"rgba(255,255,255,.15)", margin:"0 auto 24px" }} />
+
+              {/* Cover preview */}
+              <div style={{ display:"flex", alignItems:"center", gap:16, marginBottom:22 }}>
+                <div style={{ width:56, height:72, borderRadius:10, overflow:"hidden", flexShrink:0, background:"linear-gradient(160deg,#1a0a3e,#0d0520)", boxShadow:"0 4px 20px rgba(0,0,0,.5)" }}>
+                  {(coverImg||imgs[0]) && <img src={coverImg||imgs[0]} alt="" style={{ width:"100%", height:"100%", objectFit:"cover" }} />}
+                </div>
+                <div style={{ flex:1, minWidth:0 }}>
+                  <div style={{ fontSize:11, color:"rgba(255,255,255,.25)", fontFamily:"'Nunito',sans-serif", letterSpacing:".1em", textTransform:"uppercase", marginBottom:5 }}>Continue the adventure</div>
+                  <div style={{ fontFamily:"'Playfair Display',serif", fontStyle:"italic", fontSize:16, color:"rgba(255,255,255,.85)", lineHeight:1.3, marginBottom:3 }}>{title}</div>
+                  <div style={{ fontSize:12, color:"rgba(255,255,255,.3)", fontFamily:"'Nunito',sans-serif" }}>A brand new 14-page sequel</div>
+                </div>
+              </div>
+
+              {/* What to expect */}
+              <div style={{ background:"rgba(192,132,252,.07)", border:"1px solid rgba(192,132,252,.12)", borderRadius:16, padding:"14px 16px", marginBottom:22 }}>
+                <div style={{ fontSize:12, color:"rgba(192,132,252,.7)", fontFamily:"'Nunito',sans-serif", fontWeight:700, marginBottom:8 }}>What you'll get</div>
+                {[
+                  "Same characters and world from this story",
+                  "A brand new adventure — different from tonight's",
+                  "14 pages, fully illustrated, in ~40 seconds",
+                ].map((item,i) => (
+                  <div key={i} style={{ display:"flex", gap:8, alignItems:"flex-start", marginBottom:i<2?6:0 }}>
+                    <span style={{ color:"rgba(192,132,252,.6)", fontSize:12, marginTop:1, flexShrink:0 }}>✦</span>
+                    <span style={{ fontSize:13, color:"rgba(255,255,255,.5)", fontFamily:"'Nunito',sans-serif", lineHeight:1.5 }}>{item}</span>
+                  </div>
+                ))}
+              </div>
+
+              <button onClick={()=>{ setShowSequelPrompt(false); generateSequel(); }}
+                style={{ width:"100%", padding:"17px", borderRadius:18, border:"none", cursor:"pointer",
+                  background:"linear-gradient(135deg,#5b21b6,#7c3aed,#9333ea)", backgroundSize:"200% 200%", animation:"gradFlow 4s ease infinite",
+                  color:"white", fontFamily:"'Nunito',sans-serif", fontWeight:800, fontSize:15,
+                  boxShadow:"0 8px 32px rgba(91,33,182,.45)", marginBottom:10 }}>
+                ✨ Write the Sequel
+              </button>
+              <button onClick={()=>setShowSequelPrompt(false)}
+                style={{ width:"100%", padding:"13px", borderRadius:14, border:"none", background:"transparent", color:"rgba(255,255,255,.28)", fontFamily:"'Nunito',sans-serif", fontSize:14, cursor:"pointer" }}>
+                Maybe later
+              </button>
+            </div>
           </div>
         )}
 
@@ -2591,6 +2625,142 @@ NO title. Start immediately.`;
 
 
         {/* ═══════════════════════════════════════════════════════════════════
+            SETTINGS / ACCOUNT
+        ══════════════════════════════════════════════════════════════════════ */}
+        {screen==="settings" && (() => {
+          const GRP = ({children, style={}}) => (
+            <div style={{ background:"rgba(255,255,255,.04)", borderRadius:20, overflow:"hidden", marginBottom:10, ...style }}>{children}</div>
+          );
+          const ROW = ({icon, label, value, onPress, danger, last=false, badge}) => (
+            <div onClick={onPress} style={{ display:"flex", alignItems:"center", gap:14, padding:"15px 18px",
+              borderBottom:last?"none":"1px solid rgba(255,255,255,.05)",
+              cursor:onPress?"pointer":"default", transition:"background .12s",
+              background:"transparent" }}
+              onMouseEnter={e=>{if(onPress)e.currentTarget.style.background="rgba(255,255,255,.03)";}}
+              onMouseLeave={e=>{e.currentTarget.style.background="transparent";}}>
+              {icon && <div style={{ width:34, height:34, borderRadius:10, background:"rgba(255,255,255,.07)", display:"flex", alignItems:"center", justifyContent:"center", fontSize:17, flexShrink:0 }}>{icon}</div>}
+              <div style={{ flex:1, minWidth:0 }}>
+                <div style={{ fontSize:14, fontWeight:600, fontFamily:"'Nunito',sans-serif", color:danger?"rgba(255,100,100,.8)":"rgba(255,255,255,.82)" }}>{label}</div>
+                {value && <div style={{ fontSize:12, color:"rgba(255,255,255,.3)", fontFamily:"'Nunito',sans-serif", marginTop:1, overflow:"hidden", textOverflow:"ellipsis", whiteSpace:"nowrap" }}>{value}</div>}
+              </div>
+              {badge && <div style={{ fontSize:11, fontWeight:700, fontFamily:"'Nunito',sans-serif", background:badge.bg||"rgba(201,168,76,.15)", color:badge.color||"var(--gold)", padding:"3px 10px", borderRadius:999, flexShrink:0 }}>{badge.text}</div>}
+              {onPress && !danger && <svg width="7" height="12" viewBox="0 0 7 12" fill="none"><path d="M1 1l5 5-5 5" stroke="rgba(255,255,255,.2)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>}
+            </div>
+          );
+          const isActive = sub?.status==="active";
+          const isTrial  = sub?.status==="trial";
+          const openPortal = async () => {
+            try {
+              const r = await fetch("/api/stripe-portal", { method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify({email:user.email,return_url:window.location.href}) });
+              const d = await r.json();
+              if (d.url) window.location.href = d.url;
+              else alert("Could not open billing portal.");
+            } catch { alert("Could not open billing portal. Please try again."); }
+          };
+          const startCheckout = async () => {
+            try {
+              const r = await fetch("/api/stripe-checkout", { method:"POST", headers:{"Content-Type":"application/json"},
+                body:JSON.stringify({ email:user.email, user_id:user.id, child_count:profiles.length, success_url:window.location.href+"?payment=success", cancel_url:window.location.href }) });
+              const d = await r.json();
+              if (d.url) window.location.href = d.url;
+              else alert("Could not start checkout.");
+            } catch { alert("Could not start checkout. Please try again."); }
+          };
+          return (
+          <div className="fade has-bottom-nav" style={{ width:"100%", maxWidth:480 }}>
+
+            {/* Header */}
+            <div style={{ display:"flex", alignItems:"center", gap:14, marginBottom:28 }}>
+              <button onClick={()=>setScreen("home")} style={{ width:36, height:36, borderRadius:"50%", background:"rgba(255,255,255,.07)", border:"none", cursor:"pointer", display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}>
+                <svg width="8" height="14" viewBox="0 0 8 14" fill="none"><path d="M7 1L1 7l6 6" stroke="rgba(255,255,255,.6)" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/></svg>
+              </button>
+              <h2 style={{ fontFamily:"'Playfair Display',serif", fontSize:"clamp(20px,5vw,24px)", fontStyle:"italic", fontWeight:800 }}>Account</h2>
+            </div>
+
+            {/* Profile card */}
+            <div style={{ display:"flex", alignItems:"center", gap:16, padding:"18px 20px", background:"rgba(255,255,255,.04)", borderRadius:20, marginBottom:10 }}>
+              <div style={{ width:48, height:48, borderRadius:"50%", background:"linear-gradient(135deg,#5b21b6,#7c3aed)", display:"flex", alignItems:"center", justifyContent:"center", fontSize:22, flexShrink:0 }}>🌙</div>
+              <div style={{ flex:1, minWidth:0 }}>
+                <div style={{ fontSize:14, fontWeight:700, color:"rgba(255,255,255,.85)", fontFamily:"'Nunito',sans-serif", marginBottom:2 }}>{user?.email}</div>
+                <div style={{ fontSize:12, color:"rgba(255,255,255,.3)", fontFamily:"'Nunito',sans-serif" }}>
+                  Member since {new Date(user?.created_at||Date.now()).toLocaleDateString("en-US",{month:"long",year:"numeric"})}
+                </div>
+              </div>
+            </div>
+
+            {/* Subscription */}
+            <GRP>
+              <ROW icon={isActive?"✅":isTrial?"🕐":"❌"} label={isActive?"Pro Plan Active":isTrial?"Free Trial":"No Subscription"}
+                value={isActive?`$${monthlyPrice().toFixed(2)}/month · renews automatically`:isTrial?`${daysLeft()} days remaining · then $${PRICE_BASE.toFixed(2)}/mo`:"Subscribe to generate stories"}
+                badge={isActive?{text:"Pro",bg:"rgba(74,222,128,.12)",color:"#86efac"}:isTrial?{text:"Trial"}:{text:"Free",bg:"rgba(255,255,255,.07)",color:"rgba(255,255,255,.4)"}} last />
+            </GRP>
+
+            {isActive && (
+              <GRP>
+                <ROW icon="💳" label="Manage Billing" value="Update payment method, invoices, cancel" onPress={openPortal} />
+                <ROW icon="📋" label="Billing History" value="View past invoices" onPress={openPortal} last />
+              </GRP>
+            )}
+            {isTrial && (
+              <button onClick={startCheckout}
+                style={{ width:"100%", padding:"17px", borderRadius:18, border:"none", cursor:"pointer", marginBottom:10,
+                  background:"linear-gradient(135deg,#5b21b6,#7c3aed,#9333ea)", backgroundSize:"200% 200%", animation:"gradFlow 4s ease infinite",
+                  color:"white", fontFamily:"'Nunito',sans-serif", fontWeight:800, fontSize:15,
+                  boxShadow:"0 8px 32px rgba(91,33,182,.45)" }}>
+                ✨ Upgrade to Pro — ${PRICE_BASE.toFixed(2)}/month
+              </button>
+            )}
+
+            {/* Children */}
+            <div style={{ fontSize:11, color:"rgba(255,255,255,.25)", fontFamily:"'Nunito',sans-serif", letterSpacing:".1em", textTransform:"uppercase", marginBottom:8, paddingLeft:4 }}>Children</div>
+            <GRP>
+              {profiles.map((p,i) => (
+                <ROW key={p.id} icon={p.photo_url?<img src={p.photo_url} alt="" style={{width:22,height:22,borderRadius:"50%",objectFit:"cover"}}/>:"👶"}
+                  label={p.child_name} value={`Age ${p.age||"?"} · ${library.filter(s=>s.child_profile_id===p.id).length} stories`}
+                  onPress={()=>{setEditId(p.id);setPf(p);setScreen("profile");}}
+                  last={i===profiles.length-1&&!canAddProfile()} />
+              ))}
+              {canAddProfile() && (
+                <ROW icon="➕" label="Add Child" value="Create a new story profile"
+                  onPress={()=>{setEditId(null);setPf({child_name:"",age:"",stuffed_animal:"",best_friend:"",favorite_animal:"",scared_of:"",favorite_thing:""});setWizStep(0);setScreen("wizard");}}
+                  last />
+              )}
+            </GRP>
+
+            {/* Stats */}
+            <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr 1fr", gap:8, marginBottom:10 }}>
+              {[
+                {label:"Stories", val:library.length},
+                {label:"Night Streak", val:streak},
+                {label:"Badges", val:`${badges.length}/${BADGE_DEFS.length}`},
+              ].map(s => (
+                <div key={s.label} style={{ background:"rgba(255,255,255,.04)", borderRadius:16, padding:"14px 12px", textAlign:"center" }}>
+                  <div style={{ fontFamily:"'Playfair Display',serif", fontSize:22, fontWeight:800, color:"var(--gold-light)", marginBottom:3 }}>{s.val}</div>
+                  <div style={{ fontSize:11, color:"rgba(255,255,255,.3)", fontFamily:"'Nunito',sans-serif" }}>{s.label}</div>
+                </div>
+              ))}
+            </div>
+
+            {/* Misc */}
+            <GRP>
+              <ROW icon="🏅" label="Badges & Achievements" value={`${badges.length} of ${BADGE_DEFS.length} earned`} onPress={()=>setScreen("badges")} />
+              <ROW icon="📚" label="Story Library" value={`${library.length} stories saved`} onPress={()=>{loadLibrary();setScreen("library");}} last />
+            </GRP>
+
+            {/* Sign out */}
+            <GRP>
+              <ROW icon="🚪" label="Sign Out" onPress={logout} danger last />
+            </GRP>
+
+            <p style={{ textAlign:"center", fontSize:11, color:"rgba(255,255,255,.12)", fontFamily:"'Nunito',sans-serif", marginTop:8, marginBottom:4 }}>
+              DreamWeaver · dreamweaverstory.com
+            </p>
+
+          </div>
+          );
+        })()}
+
+                {/* ═══════════════════════════════════════════════════════════════════
             SHARED
         ══════════════════════════════════════════════════════════════════════ */}
         {screen==="shared" && (() => {
@@ -2636,7 +2806,7 @@ NO title. Start immediately.`;
       )}
 
       {/* ── Mobile bottom nav — fixed to bottom of screen ── */}
-      {mobile && ["home","library","badges","story"].includes(screen) && user && (
+      {mobile && ["home","library","badges","story","settings"].includes(screen) && user && (
         <BottomNav screen={screen} setScreen={setScreen} loadLibrary={loadLibrary} />
       )}
 
