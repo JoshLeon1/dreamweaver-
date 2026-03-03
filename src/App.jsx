@@ -1923,7 +1923,7 @@ NO title. Start immediately.`;
             {/* ════════════════════════════════════════════════════════
                 STATS BAR
             ════════════════════════════════════════════════════════ */}
-            <section style={{ padding:"48px clamp(20px,5vw,64px)", borderTop:"1px solid rgba(255,255,255,.05)", borderBottom:"1px solid rgba(255,255,255,.05)", marginBottom:120 }}>
+            <section style={{ padding:"48px clamp(20px,5vw,64px)", borderTop:"1px solid rgba(255,255,255,.1)", borderBottom:"1px solid rgba(255,255,255,.05)", marginBottom:120 }}>
               <div style={{ maxWidth:860, margin:"0 auto", display:"grid", gridTemplateColumns:mobile?"repeat(2,1fr)":"repeat(4,1fr)", gap:mobile?"32px 16px":"0" }}>
                 {[
                   { n:"40s", label:"Story generation" },
@@ -2102,7 +2102,7 @@ NO title. Start immediately.`;
                       "Cancel anytime",
                     ].map(f=>(
                       <div key={f} style={{ display:"flex", alignItems:"center", gap:12 }}>
-                        <span style={{ color:"rgba(201,168,76,.6)", fontSize:12, flexShrink:0 }}>—</span>
+                        <span style={{ color:"rgba(225,195,95,.9)", fontSize:12, flexShrink:0 }}>—</span>
                         <span style={{ color:"rgba(255,255,255,.45)", fontSize:13, fontFamily:"'Nunito',sans-serif" }}>{f}</span>
                       </div>
                     ))}
@@ -2122,7 +2122,7 @@ NO title. Start immediately.`;
             {/* ════════════════════════════════════════════════════════
                 FOOTER
             ════════════════════════════════════════════════════════ */}
-            <footer style={{ padding:"40px clamp(20px,5vw,64px) 60px", borderTop:"1px solid rgba(255,255,255,.05)", display:"flex", justifyContent:"space-between", alignItems:"center", flexWrap:"wrap", gap:16 }}>
+            <footer style={{ padding:"40px clamp(20px,5vw,64px) 60px", borderTop:"1px solid rgba(255,255,255,.1)", display:"flex", justifyContent:"space-between", alignItems:"center", flexWrap:"wrap", gap:16 }}>
               <DreamweaverLogo size={22} showText={true} />
               <p style={{ color:"rgba(255,255,255,.14)", fontSize:12, fontFamily:"'Nunito',sans-serif" }}>© 2025 DreamWeaver · Made for bedtime</p>
             </footer>
@@ -2304,8 +2304,8 @@ NO title. Start immediately.`;
           const nightsLeft   = sub?.status==="trial" ? daysLeft() : null;
 
           /* ── shared row style ── */
-          const ROW = { borderBottom:"1px solid rgba(255,255,255,.05)", padding:"20px 0" };
-          const LBL_SM = { fontSize:11, letterSpacing:".1em", textTransform:"uppercase", color:"rgba(255,255,255,.2)", fontFamily:"'Nunito',sans-serif", fontWeight:700, marginBottom:10, display:"block" };
+          const ROW = { borderBottom:"1px solid rgba(255,255,255,.08)", padding:"24px 0" };
+          const LBL_SM = { fontSize:11, letterSpacing:".1em", textTransform:"uppercase", color:"rgba(255,255,255,.45)", fontFamily:"'Nunito',sans-serif", fontWeight:700, marginBottom:12, display:"block" };
 
           return (
             <div className="fade has-bottom-nav hw-shell" style={{ width:"100%", maxWidth: mobile ? "100%" : 900 }}>
@@ -2319,21 +2319,21 @@ NO title. Start immediately.`;
                 minHeight: mobile ? "auto" : "calc(100vh - 80px)",
                 borderRadius: mobile ? 0 : 16,
                 overflow:"hidden",
-                border: mobile ? "none" : "1px solid rgba(255,255,255,.07)",
-                background: mobile ? "transparent" : "rgba(255,255,255,.018)",
+                border: mobile ? "none" : "1px solid rgba(255,255,255,.13)",
+                background: mobile ? "transparent" : "rgba(255,255,255,.05)",
               }}>
 
                 {/* ── SIDEBAR ─────────────────────────── */}
                 {!mobile && (
                   <div style={{
                     width:220, flexShrink:0,
-                    borderRight:"1px solid rgba(255,255,255,.06)",
+                    borderRight:"1px solid rgba(255,255,255,.1)",
                     display:"flex", flexDirection:"column",
                     padding:"28px 0",
-                    background:"rgba(0,0,0,.25)",
+                    background:"rgba(0,0,0,.45)",
                   }}>
                     {/* App mark */}
-                    <div style={{ padding:"0 20px 24px", borderBottom:"1px solid rgba(255,255,255,.05)" }}>
+                    <div style={{ padding:"0 20px 24px", borderBottom:"1px solid rgba(255,255,255,.1)" }}>
                       <DreamweaverLogo size={22} showText={true} />
                     </div>
 
@@ -2348,7 +2348,7 @@ NO title. Start immediately.`;
                             style={{
                               width:"100%", display:"flex", alignItems:"center", gap:10,
                               padding:"9px 10px", borderRadius:8, marginBottom:2,
-                              background: isActive ? "rgba(255,255,255,.07)" : "transparent",
+                              background: isActive ? "rgba(255,255,255,.11)" : "transparent",
                               border:"none", cursor:"pointer", transition:"background .12s",
                               textAlign:"left", WebkitTapHighlightColor:"transparent",
                             }}
@@ -2367,7 +2367,7 @@ NO title. Start immediately.`;
                             </div>
                             <span style={{
                               fontFamily:"'Nunito',sans-serif", fontSize:13, fontWeight: isActive ? 700 : 500,
-                              color: isActive ? "rgba(255,255,255,.9)" : "rgba(255,255,255,.4)",
+                              color: isActive ? "white" : "rgba(255,255,255,.48)",
                               overflow:"hidden", textOverflow:"ellipsis", whiteSpace:"nowrap",
                             }}>{p.child_name}</span>
                           </button>
@@ -2396,7 +2396,7 @@ NO title. Start immediately.`;
                     </div>
 
                     {/* Bottom nav links */}
-                    <div style={{ padding:"16px 14px 0", borderTop:"1px solid rgba(255,255,255,.05)" }}>
+                    <div style={{ padding:"16px 14px 0", borderTop:"1px solid rgba(255,255,255,.1)" }}>
                       {[
                         { label:"Story Library", icon:"M4 19.5A2.5 2.5 0 0 1 6.5 17H20", onClick:()=>{loadLibrary();setScreen("library");} },
                         { label:"Badges", icon:"M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z", onClick:()=>setScreen("badges") },
@@ -2406,10 +2406,10 @@ NO title. Start immediately.`;
                           style={{ width:"100%", display:"flex", alignItems:"center", gap:10, padding:"9px 10px", borderRadius:8, background:"transparent", border:"none", cursor:"pointer", marginBottom:2, textAlign:"left" }}
                           onMouseEnter={e=>{e.currentTarget.style.background="rgba(255,255,255,.04)";}}
                           onMouseLeave={e=>{e.currentTarget.style.background="transparent";}}>
-                          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.25)" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.45)" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
                             <path d={icon}/>
                           </svg>
-                          <span style={{ fontFamily:"'Nunito',sans-serif", fontSize:12, color:"rgba(255,255,255,.3)", fontWeight:500 }}>{label}</span>
+                          <span style={{ fontFamily:"'Nunito',sans-serif", fontSize:12, color:"rgba(255,255,255,.52)", fontWeight:500 }}>{label}</span>
                         </button>
                       ))}
                     </div>
@@ -2417,7 +2417,7 @@ NO title. Start immediately.`;
                     {/* Trial badge */}
                     {nightsLeft !== null && (
                       <div style={{ margin:"16px 14px 0", padding:"10px 12px", borderRadius:8, background:"rgba(201,168,76,.05)", border:"1px solid rgba(201,168,76,.1)" }}>
-                        <div style={{ fontSize:11, fontWeight:700, color:"rgba(201,168,76,.6)", fontFamily:"'Nunito',sans-serif", marginBottom:2 }}>{nightsLeft} nights left</div>
+                        <div style={{ fontSize:11, fontWeight:700, color:"rgba(225,195,95,.9)", fontFamily:"'Nunito',sans-serif", marginBottom:2 }}>{nightsLeft} nights left</div>
                         <div style={{ fontSize:10, color:"rgba(255,255,255,.2)", fontFamily:"'Nunito',sans-serif" }}>Free trial</div>
                       </div>
                     )}
@@ -2511,7 +2511,7 @@ NO title. Start immediately.`;
                         </div>
                         <div style={{ flex:1, minWidth:0 }}>
                           <div style={{ fontSize:10, letterSpacing:".1em", textTransform:"uppercase", color:"rgba(255,255,255,.2)", fontFamily:"'Nunito',sans-serif", marginBottom:3 }}>Last night</div>
-                          <div style={{ fontFamily:"'Playfair Display',serif", fontSize:14, fontStyle:"italic", color:"rgba(255,255,255,.65)", whiteSpace:"nowrap", overflow:"hidden", textOverflow:"ellipsis" }}>{lastStory.title||"Your last story"}</div>
+                          <div style={{ fontFamily:"'Playfair Display',serif", fontSize:14, fontStyle:"italic", color:"rgba(255,255,255,.82)", whiteSpace:"nowrap", overflow:"hidden", textOverflow:"ellipsis" }}>{lastStory.title||"Your last story"}</div>
                         </div>
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.15)" strokeWidth="2" strokeLinecap="round"><path d="M9 18l6-6-6-6"/></svg>
                       </div>
@@ -2528,7 +2528,7 @@ NO title. Start immediately.`;
                           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.2)" strokeWidth="1.8" strokeLinecap="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
                         </div>
                         <div style={{ flex:1 }}>
-                          <div style={{ fontFamily:"'Nunito',sans-serif", fontSize:13, fontWeight:600, color:"rgba(255,255,255,.55)", marginBottom:2 }}>Add a photo of {active.child_name}</div>
+                          <div style={{ fontFamily:"'Nunito',sans-serif", fontSize:13, fontWeight:600, color:"rgba(255,255,255,.78)", marginBottom:2 }}>Add a photo of {active.child_name}</div>
                           <div style={{ fontSize:11, color:"rgba(255,255,255,.2)", fontFamily:"'Nunito',sans-serif" }}>The hero will look just like them</div>
                         </div>
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.15)" strokeWidth="2" strokeLinecap="round"><path d="M9 18l6-6-6-6"/></svg>
@@ -2543,14 +2543,14 @@ NO title. Start immediately.`;
                           <button key={t.id} onClick={()=>setStoryMode(t.id)}
                             style={{
                               padding:"14px 16px", borderRadius:8, cursor:"pointer",
-                              background: storyMode===t.id ? "rgba(255,255,255,.07)" : "transparent",
+                              background: storyMode===t.id ? "rgba(255,255,255,.1)" : "rgba(255,255,255,.03)",
                               border: `1px solid ${storyMode===t.id ? "rgba(255,255,255,.14)" : "rgba(255,255,255,.06)"}`,
                               textAlign:"left", transition:"all .14s", WebkitTapHighlightColor:"transparent",
                             }}
                             onMouseEnter={e=>{ if(storyMode!==t.id) e.currentTarget.style.background="rgba(255,255,255,.03)"; }}
                             onMouseLeave={e=>{ if(storyMode!==t.id) e.currentTarget.style.background="transparent"; }}>
-                            <div style={{ fontFamily:"'Nunito',sans-serif", fontWeight:700, fontSize:13, color: storyMode===t.id ? "rgba(255,255,255,.9)" : "rgba(255,255,255,.35)", marginBottom:3 }}>{t.label}</div>
-                            <div style={{ fontFamily:"'Nunito',sans-serif", fontSize:11, color: storyMode===t.id ? "rgba(255,255,255,.35)" : "rgba(255,255,255,.18)" }}>{t.sub}</div>
+                            <div style={{ fontFamily:"'Nunito',sans-serif", fontWeight:700, fontSize:13, color: storyMode===t.id ? "white" : "rgba(255,255,255,.5)", marginBottom:3 }}>{t.label}</div>
+                            <div style={{ fontFamily:"'Nunito',sans-serif", fontSize:11, color: storyMode===t.id ? "rgba(255,255,255,.55)" : "rgba(255,255,255,.28)" }}>{t.sub}</div>
                           </button>
                         ))}
                       </div>
@@ -2565,10 +2565,10 @@ NO title. Start immediately.`;
                             <button key={l.id} onClick={()=>setLesson(l.id)}
                               style={{
                                 padding:"7px 14px", borderRadius:6, cursor:"pointer",
-                                background: lesson===l.id ? "rgba(255,255,255,.08)" : "transparent",
+                                background: lesson===l.id ? "rgba(255,255,255,.1)" : "rgba(255,255,255,.03)",
                                 border:`1px solid ${lesson===l.id ? "rgba(255,255,255,.16)" : "rgba(255,255,255,.07)"}`,
                                 fontFamily:"'Nunito',sans-serif", fontWeight:600, fontSize:12,
-                                color: lesson===l.id ? "rgba(255,255,255,.85)" : "rgba(255,255,255,.3)",
+                                color: lesson===l.id ? "white" : "rgba(255,255,255,.48)",
                                 transition:"all .12s", WebkitTapHighlightColor:"transparent",
                               }}>
                               {l.emoji} {l.label}
@@ -2586,10 +2586,10 @@ NO title. Start immediately.`;
                           <button key={m.id} onClick={()=>setMood(m.id)}
                             style={{
                               padding:"7px 14px", borderRadius:6, cursor:"pointer",
-                              background: mood===m.id ? "rgba(255,255,255,.08)" : "transparent",
+                              background: mood===m.id ? "rgba(255,255,255,.1)" : "rgba(255,255,255,.03)",
                               border:`1px solid ${mood===m.id ? "rgba(255,255,255,.16)" : "rgba(255,255,255,.07)"}`,
                               fontFamily:"'Nunito',sans-serif", fontWeight:600, fontSize:12,
-                              color: mood===m.id ? "rgba(255,255,255,.85)" : "rgba(255,255,255,.3)",
+                              color: mood===m.id ? "white" : "rgba(255,255,255,.48)",
                               transition:"all .12s", WebkitTapHighlightColor:"transparent",
                             }}>
                             {m.emoji} {m.label}
@@ -2606,7 +2606,7 @@ NO title. Start immediately.`;
                         { value: badges.length, label:"badges" },
                       ].map(({value,label},i)=>(
                         <div key={i} style={{ flex:1, paddingRight:24, borderRight: i<2 ? "1px solid rgba(255,255,255,.05)" : "none", paddingLeft: i>0 ? 24 : 0 }}>
-                          <div style={{ fontFamily:"'Playfair Display',serif", fontSize:28, fontWeight:800, color:"rgba(255,255,255,.7)", letterSpacing:"-.02em", lineHeight:1, marginBottom:4 }}>{value}</div>
+                          <div style={{ fontFamily:"'Playfair Display',serif", fontSize:28, fontWeight:800, color:"rgba(255,255,255,.9)", letterSpacing:"-.02em", lineHeight:1, marginBottom:4 }}>{value}</div>
                           <div style={{ fontSize:10, letterSpacing:".08em", textTransform:"uppercase", color:"rgba(255,255,255,.2)", fontFamily:"'Nunito',sans-serif" }}>{label}</div>
                         </div>
                       ))}
@@ -2627,7 +2627,7 @@ NO title. Start immediately.`;
                   {/* ── STICKY CTA ── */}
                   <div style={{
                     flexShrink:0, padding: mobile ? "16px 20px calc(16px + env(safe-area-inset-bottom,0px))" : "20px 32px",
-                    borderTop:"1px solid rgba(255,255,255,.05)",
+                    borderTop:"1px solid rgba(255,255,255,.1)",
                     background: mobile ? "rgba(7,5,14,.95)" : "rgba(0,0,0,.2)",
                     backdropFilter:"blur(12px)",
                   }}>
@@ -2635,8 +2635,8 @@ NO title. Start immediately.`;
                       style={{
                         width:"100%", padding: mobile ? "16px" : "15px",
                         borderRadius:10, border:"none", cursor:"pointer",
-                        background: todayStory ? "rgba(255,255,255,.06)" : "rgba(255,255,255,.95)",
-                        color: todayStory ? "rgba(255,255,255,.5)" : "#0a0812",
+                        background: todayStory ? "rgba(255,255,255,.05)" : "linear-gradient(135deg,#e8c96a 0%,#c9a030 100%)",
+                        color: todayStory ? "rgba(255,255,255,.4)" : "#1a0e00",
                         fontFamily:"'Nunito',sans-serif", fontWeight:800,
                         fontSize:15, letterSpacing:".01em",
                         transition:"all .15s", WebkitTapHighlightColor:"transparent",
