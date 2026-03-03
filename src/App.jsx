@@ -600,6 +600,16 @@ function SharedBook({ pages, imgs, title, coverImg, mobile }) {
     else if (dir === "back" && spread > min) setSpread(s => s - 1);
     else if (typeof dir === "number") setSpread(dir);
   };
+  // Keyboard arrow navigation
+  useEffect(() => {
+    if (mobile) return;
+    const onKey = (e) => {
+      if (e.key === "ArrowRight") handleFlip("forward");
+      if (e.key === "ArrowLeft")  handleFlip("back");
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [spread, pages.length, coverImg, mobile]);
   return <OpenBook pages={pages} imgs={imgs} spread={spread} onFlip={handleFlip} title={title} mobile={mobile} coverImg={coverImg} />;
 }
 
@@ -859,7 +869,7 @@ function OpenBook({ pages, imgs, spread, onFlip, title, mobile=false, coverImg=n
 
     const MobilePage = ({ pageIdx }) => (
       <div style={{ display:"flex", flexDirection:"column", background:"linear-gradient(175deg,#fefcf7,#fdf9f0)", borderRadius:16, overflow:"hidden", boxShadow:"0 20px 60px rgba(0,0,0,.7), 0 0 0 1px rgba(255,255,255,.06)" }}>
-        <div style={{ width:"100%", aspectRatio:"4/3", position:"relative", overflow:"hidden" }}>
+        <div style={{ width:"100%", aspectRatio:"3/2", position:"relative", overflow:"hidden" }}>
           {imgs[pageIdx]
             ? <img src={imgs[pageIdx]} alt="" style={{ width:"100%", height:"100%", objectFit:"cover", display:"block" }} />
             : <div className="skeleton" style={{ width:"100%", height:"100%" }} />}
@@ -923,7 +933,7 @@ function OpenBook({ pages, imgs, spread, onFlip, title, mobile=false, coverImg=n
 
   // ── DESKTOP: two-page spread ───────────────────────────────────────────────
   return (
-    <div style={{ width:"100%", maxWidth:"min(96vw,1240px)", margin:"0 auto" }}>
+    <div style={{ width:"100%", maxWidth:"min(88vw,820px)", margin:"0 auto", padding:"0 64px", boxSizing:"border-box" }}>
       {title && <div style={{ textAlign:"center", marginBottom:16 }}>
         <h2 style={{ fontFamily:"'Playfair Display',serif", fontSize:"clamp(16px,2.2vw,26px)", fontStyle:"italic", color:"var(--gold-light)", textShadow:"0 2px 20px rgba(200,170,80,.3)" }}>{title}</h2>
       </div>}
@@ -932,15 +942,21 @@ function OpenBook({ pages, imgs, spread, onFlip, title, mobile=false, coverImg=n
         <div style={{ display:"flex", position:"relative", borderRadius:16,
           boxShadow:"0 80px 160px rgba(0,0,0,.85), 0 30px 80px rgba(0,0,0,.6), 0 0 0 1px rgba(255,255,255,.04)",
         }}>
-          {/* LEFT PAGE */}
+          {/* LEFT PAGE — click anywhere to go back */}
           <div
             className={flipClass==="page-flip-back" ? "page-flip-back" : (enterClass==="page-enter-back" ? "page-enter-back" : "")}
+            onClick={()=>{ if(!animating && !(coverImg?spread===-1:spread===0)) onFlip("back"); }}
             style={{ flex:1, display:"flex", position:"relative", overflow:"hidden",
               transformOrigin:"right center", transformStyle:"preserve-3d",
               borderRadius:"14px 0 0 14px",
               boxShadow:"inset -8px 0 20px rgba(0,0,0,.2)",
+              cursor:(coverImg?spread===-1:spread===0)||animating?"default":"w-resize",
             }}>
             <PageContent idx={li} side="left" />
+            {/* Click hint arrow — left page */}
+            {!((coverImg?spread===-1:spread===0)) && !animating && (
+              <div style={{ position:"absolute", left:10, top:"50%", transform:"translateY(-50%)", opacity:0, transition:"opacity .2s", pointerEvents:"none" }} className="page-click-hint">‹</div>
+            )}
           </div>
 
           {/* SPINE */}
@@ -952,32 +968,71 @@ function OpenBook({ pages, imgs, spread, onFlip, title, mobile=false, coverImg=n
             <div style={{ position:"absolute", top:0, bottom:0, left:"30%", width:1, background:"linear-gradient(180deg,transparent 5%,rgba(255,255,255,.08) 50%,transparent 95%)" }} />
           </div>
 
-          {/* RIGHT PAGE */}
+          {/* RIGHT PAGE — click anywhere to go forward */}
           <div
             className={flipClass==="page-flip-forward" ? "page-flip-forward" : (enterClass==="page-enter-forward" ? "page-enter-forward" : "")}
+            onClick={()=>{ if(!animating && spread<totalSpreads-1) onFlip("forward"); }}
             style={{ flex:1, display:"flex", position:"relative", overflow:"hidden",
               transformOrigin:"left center", transformStyle:"preserve-3d",
               borderRadius:"0 14px 14px 0",
               boxShadow:"inset 8px 0 20px rgba(0,0,0,.16)",
+              cursor:spread>=totalSpreads-1||animating?"default":"e-resize",
             }}>
             <PageContent idx={ri} side="right" />
+            {/* Click hint arrow — right page */}
+            {spread<totalSpreads-1 && !animating && (
+              <div style={{ position:"absolute", right:10, top:"50%", transform:"translateY(-50%)", opacity:0, transition:"opacity .2s", pointerEvents:"none" }} className="page-click-hint">›</div>
+            )}
           </div>
         </div>
       </div>
 
-      {/* Navigation */}
-      <div style={{ display:"flex", alignItems:"center", justifyContent:"center", gap:16, marginTop:22 }}>
-        <button className="btn-book" disabled={(coverImg?spread===-1:spread===0)||animating} onClick={()=>onFlip("back")}>← Prev</button>
-        <div style={{ display:"flex", gap:7, alignItems:"center" }}>
-          {Array.from({ length: totalSpreads }).map((_,i) => (
-            <div key={i} onClick={()=>!animating&&onFlip(i)}
-              style={{ width:i===spread?24:7, height:7, borderRadius:99, cursor:animating?"default":"pointer",
-                background:i===spread?"var(--gold)":"rgba(255,255,255,.18)",
-                transition:"all .3s", boxShadow:i===spread?"0 0 12px rgba(201,168,76,.6)":"none" }} />
-          ))}
-        </div>
-        <button className="btn-book" disabled={spread>=totalSpreads-1||animating} onClick={()=>onFlip("forward")}>Next →</button>
+      {/* Navigation — floating arrows + dots */}
+      <div style={{ position:"relative", marginTop:0 }}>
+        {/* Floating left arrow */}
+        <button
+          disabled={(coverImg?spread===-1:spread===0)||animating}
+          onClick={()=>onFlip("back")}
+          style={{ position:"absolute", left:-56, top:"50%", transform:"translateY(-50%)",
+            width:44, height:44, borderRadius:"50%", border:"1px solid rgba(255,255,255,.12)",
+            background:"rgba(255,255,255,.06)", backdropFilter:"blur(8px)",
+            color:"rgba(255,255,255,.6)", fontSize:20, cursor:(coverImg?spread===-1:spread===0)||animating?"not-allowed":"pointer",
+            display:"flex", alignItems:"center", justifyContent:"center",
+            opacity:(coverImg?spread===-1:spread===0)||animating?0.25:1,
+            transition:"all .15s", WebkitTapHighlightColor:"transparent" }}
+          onMouseEnter={e=>{ if(!e.currentTarget.disabled) { e.currentTarget.style.background="rgba(255,255,255,.12)"; e.currentTarget.style.borderColor="rgba(255,255,255,.25)"; }}}
+          onMouseLeave={e=>{ e.currentTarget.style.background="rgba(255,255,255,.06)"; e.currentTarget.style.borderColor="rgba(255,255,255,.12)"; }}>
+          ‹
+        </button>
+        {/* Floating right arrow */}
+        <button
+          disabled={spread>=totalSpreads-1||animating}
+          onClick={()=>onFlip("forward")}
+          style={{ position:"absolute", right:-56, top:"50%", transform:"translateY(-50%)",
+            width:44, height:44, borderRadius:"50%", border:"1px solid rgba(255,255,255,.12)",
+            background:"rgba(255,255,255,.06)", backdropFilter:"blur(8px)",
+            color:"rgba(255,255,255,.6)", fontSize:20, cursor:spread>=totalSpreads-1||animating?"not-allowed":"pointer",
+            display:"flex", alignItems:"center", justifyContent:"center",
+            opacity:spread>=totalSpreads-1||animating?0.25:1,
+            transition:"all .15s", WebkitTapHighlightColor:"transparent" }}
+          onMouseEnter={e=>{ if(!e.currentTarget.disabled) { e.currentTarget.style.background="rgba(255,255,255,.12)"; e.currentTarget.style.borderColor="rgba(255,255,255,.25)"; }}}
+          onMouseLeave={e=>{ e.currentTarget.style.background="rgba(255,255,255,.06)"; e.currentTarget.style.borderColor="rgba(255,255,255,.12)"; }}>
+          ›
+        </button>
       </div>
+      {/* Spread dots — below book */}
+      <div style={{ display:"flex", gap:7, alignItems:"center", justifyContent:"center", marginTop:18 }}>
+        {Array.from({ length: totalSpreads }).map((_,i) => (
+          <div key={i} onClick={()=>!animating&&onFlip(i)}
+            style={{ width:i===spread?24:7, height:7, borderRadius:99, cursor:animating?"default":"pointer",
+              background:i===spread?"var(--gold)":"rgba(255,255,255,.18)",
+              transition:"all .3s", boxShadow:i===spread?"0 0 12px rgba(201,168,76,.6)":"none" }} />
+        ))}
+      </div>
+      {/* Keyboard hint */}
+      <p style={{ textAlign:"center", marginTop:10, fontSize:11, color:"rgba(255,255,255,.15)", fontFamily:"'Nunito',sans-serif" }}>
+        Click a page · or use ← → arrow keys
+      </p>
     </div>
   );
 }
@@ -2446,7 +2501,7 @@ NO title. Start immediately.`;
             STORY
         ══════════════════════════════════════════════════════════════════════ */}
         {screen==="story" && (
-          <div className="fade has-bottom-nav" style={{ maxWidth:"min(98vw,1320px)", width:"100%", paddingBottom:20 }}>
+          <div className="fade has-bottom-nav" style={{ maxWidth:"min(96vw,960px)", width:"100%", paddingBottom:20 }}>
             {(storyPhase==="text" || storyPhase==="idle") && <MoonLoader text="Writing your story…" childName={active?.child_name||""} />}
             {storyPhase==="illustrating" && <IllustrationLoader total={pages.length} loaded={imgsLoaded} title={title} imgs={imgs} />}
             {storyPhase==="ready" && pages.length>0 && (
