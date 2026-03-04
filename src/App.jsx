@@ -422,6 +422,264 @@ label{display:block;font-size:11px;font-weight:700;color:var(--text-3);
   .feat-card{width:128px;padding:16px 12px}
   .sel-pill{font-size:13px;padding:9px 14px}
 }
+
+
+/* ──────────────────────────────────────────────────────────────────────────
+   Builder (Wizard) — cleaner SaaS-style UI
+────────────────────────────────────────────────────────────────────────── */
+.builder-shell{
+  width:100%;
+  max-width:980px;
+  margin:0 auto;
+  display:flex;
+  gap:22px;
+  align-items:flex-start;
+  padding:18px 12px 0;
+  min-height:80vh;
+}
+.builder-left{flex:1; min-width:340px;}
+.builder-right{width:380px; position:sticky; top:24px;}
+.builder-top{margin:6px 0 18px;}
+.builder-kicker{
+  display:inline-flex;
+  gap:8px;
+  align-items:center;
+  padding:6px 10px;
+  border-radius:999px;
+  background:rgba(255,255,255,.05);
+  border:1px solid rgba(255,255,255,.08);
+  color:rgba(255,255,255,.7);
+  font-size:12px;
+  font-weight:700;
+  letter-spacing:.04em;
+  text-transform:uppercase;
+  font-family:'Nunito',sans-serif;
+}
+.builder-title{
+  margin-top:12px;
+  font-family:'Playfair Display',serif;
+  font-size:clamp(26px,4vw,34px);
+  line-height:1.1;
+  color:rgba(255,255,255,.92);
+}
+.builder-name{color:var(--gold); text-shadow:0 0 24px rgba(201,168,76,.12);}
+.builder-subtitle{
+  margin-top:10px;
+  color:rgba(255,255,255,.45);
+  font-size:14px;
+}
+.builder-progress{margin-top:16px;}
+.builder-progress-row{
+  display:flex;
+  justify-content:space-between;
+  color:rgba(255,255,255,.32);
+  font-size:13px;
+  margin-bottom:10px;
+}
+.builder-progress-track{
+  height:4px;
+  border-radius:999px;
+  background:rgba(255,255,255,.07);
+  overflow:hidden;
+}
+.builder-progress-fill{
+  height:100%;
+  border-radius:999px;
+  background:linear-gradient(90deg,#5a3a9e,#a07ff0);
+  transition:width .4s ease;
+}
+
+.builder-card{
+  background:rgba(255,255,255,.045);
+  border:1px solid rgba(255,255,255,.075);
+  border-radius:22px;
+  padding:18px 18px 16px;
+  box-shadow:0 18px 60px rgba(0,0,0,.35);
+}
+.builder-stephead{
+  display:flex;
+  gap:14px;
+  align-items:flex-start;
+  margin-bottom:14px;
+}
+.builder-emoji{
+  width:52px;
+  height:52px;
+  border-radius:18px;
+  display:grid;
+  place-items:center;
+  background:rgba(255,255,255,.05);
+  border:1px solid rgba(255,255,255,.08);
+  font-size:26px;
+  flex-shrink:0;
+}
+.builder-question{
+  font-family:'Playfair Display',serif;
+  font-size:clamp(18px,3vw,22px);
+  color:rgba(255,255,255,.92);
+}
+.builder-hint{
+  margin-top:4px;
+  color:rgba(255,255,255,.38);
+  font-size:13px;
+}
+.builder-input{
+  width:100%;
+  margin-top:10px;
+  margin-bottom:14px;
+  padding:14px 14px;
+  border-radius:14px;
+  background:rgba(0,0,0,.18);
+  border:1px solid rgba(255,255,255,.1);
+  color:rgba(255,255,255,.92);
+  font-size:15px;
+  outline:none;
+}
+.builder-input:focus{
+  border-color:rgba(160,127,240,.65);
+  box-shadow:0 0 0 4px rgba(160,127,240,.12);
+}
+.builder-actions{display:flex; gap:10px; margin-top:2px;}
+.builder-btn{padding:14px 16px;}
+.builder-meta{
+  margin-top:12px;
+  color:rgba(255,255,255,.28);
+  font-size:12px;
+}
+.builder-meta-strong{color:rgba(255,255,255,.55); font-weight:700;}
+
+.builder-photo-grid{
+  display:grid;
+  grid-template-columns: 1fr 1fr;
+  gap:16px;
+  align-items:start;
+}
+@media (max-width: 980px){
+  .builder-shell{max-width:620px;}
+  .builder-right{display:none;}
+  .builder-photo-grid{grid-template-columns:1fr;}
+}
+
+.builder-photo-title{
+  font-family:'Playfair Display',serif;
+  font-size:20px;
+  color:rgba(255,255,255,.92);
+}
+.builder-photo-sub{
+  margin-top:6px;
+  color:rgba(255,255,255,.42);
+  font-size:13px;
+}
+
+.dropzone{display:block; width:100%; cursor:pointer;}
+.file-input{display:none;}
+.dropzone-inner{
+  border:2px dashed rgba(255,255,255,.16);
+  border-radius:18px;
+  padding:26px 18px;
+  background:rgba(255,255,255,.03);
+  transition:transform .2s ease, border-color .2s ease, background .2s ease;
+  text-align:center;
+}
+.dropzone:hover .dropzone-inner{
+  transform:translateY(-1px);
+  border-color:rgba(160,127,240,.38);
+  background:rgba(160,127,240,.06);
+}
+.dropzone-icon{font-size:30px; margin-bottom:8px;}
+.dropzone-text{color:rgba(255,255,255,.48); font-size:14px; font-weight:700;}
+.dropzone-sub{color:rgba(255,255,255,.28); font-size:12px; margin-top:6px;}
+
+.photo-picked{
+  margin-top:14px;
+  text-align:center;
+  padding:18px 14px;
+  border-radius:18px;
+  border:1px solid rgba(255,255,255,.08);
+  background:rgba(255,255,255,.03);
+}
+.photo-picked-img{
+  width:120px; height:120px;
+  border-radius:50%;
+  object-fit:cover;
+  border:3px solid rgba(201,168,76,.5);
+  box-shadow:0 0 24px rgba(201,168,76,.18);
+}
+.photo-picked-status{
+  margin-top:10px;
+  color:rgba(180,143,255,.85);
+  font-size:13px;
+  font-weight:700;
+}
+.photo-picked-quote{
+  margin-top:10px;
+  color:rgba(255,255,255,.42);
+  font-size:12px;
+  font-style:italic;
+}
+
+.builder-minihelp{
+  border-radius:18px;
+  border:1px solid rgba(255,255,255,.08);
+  background:rgba(255,255,255,.03);
+  padding:16px 14px;
+}
+.builder-minihelp-title{font-weight:800; color:rgba(255,255,255,.78); font-size:13px; margin-bottom:10px;}
+.builder-minihelp-list{list-style:none; display:grid; gap:8px; color:rgba(255,255,255,.42); font-size:13px;}
+.builder-minihelp-list li::before{content:"•"; color:rgba(201,168,76,.7); margin-right:10px;}
+.builder-minihelp-note{margin-top:12px; color:rgba(255,255,255,.28); font-size:12px; line-height:1.35;}
+
+.preview-card{
+  border-radius:22px;
+  padding:18px 16px;
+  border:1px solid rgba(255,255,255,.08);
+  background:rgba(255,255,255,.04);
+  box-shadow:0 18px 60px rgba(0,0,0,.35);
+}
+.preview-top{display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;}
+.preview-title{font-weight:900; font-size:13px; letter-spacing:.02em; color:rgba(255,255,255,.8); font-family:'Nunito',sans-serif;}
+.preview-pill{
+  padding:6px 10px;
+  border-radius:999px;
+  font-size:12px;
+  font-weight:800;
+  color:rgba(255,255,255,.65);
+  background:rgba(0,0,0,.2);
+  border:1px solid rgba(255,255,255,.08);
+}
+.preview-block{margin-bottom:12px;}
+.preview-label{color:rgba(255,255,255,.28); font-size:12px; margin-bottom:6px;}
+.preview-value{
+  color:rgba(255,255,255,.9);
+  font-weight:800;
+  font-size:14px;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+}
+.preview-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:10px 12px;
+  margin-top:10px;
+}
+.preview-divider{height:1px; background:rgba(255,255,255,.07); margin:14px 0;}
+.preview-chips{display:flex; flex-wrap:wrap; gap:8px; margin-top:8px;}
+.chip{
+  padding:7px 10px;
+  border-radius:999px;
+  font-size:12px;
+  font-weight:800;
+  color:rgba(255,255,255,.72);
+  background:rgba(255,255,255,.04);
+  border:1px solid rgba(255,255,255,.08);
+}
+.preview-note{
+  margin-top:12px;
+  color:rgba(255,255,255,.32);
+  font-size:12px;
+  line-height:1.4;
+}
 `;
 
 
@@ -2189,73 +2447,195 @@ NO title. Start immediately.`;
         )}
 
         {screen==="wizard" && (
-          <div className="fade" style={{ maxWidth:420, width:"100%", display:"flex", flexDirection:"column", justifyContent:"center", minHeight:"80vh" }}>
-            {/* Progress */}
-            <div style={{ marginBottom:24 }}>
-              <div style={{ display:"flex", justifyContent:"space-between", marginBottom:10 }}>
-                <span style={{ color:"rgba(255,255,255,.35)", fontSize:13 }}>Step {wizStep+1} of {WIZARD_STEPS.length}</span>
-                <span style={{ color:"rgba(255,255,255,.25)", fontSize:13 }}>{Math.round(((wizStep+1)/WIZARD_STEPS.length)*100)}%</span>
-              </div>
-              <div style={{ height:3, background:"rgba(255,255,255,.07)", borderRadius:99 }}>
-                <div style={{ height:"100%", borderRadius:99, background:"linear-gradient(90deg,#5a3a9e,#a07ff0)", width:`${((wizStep+1)/WIZARD_STEPS.length)*100}%`, transition:"width .4s ease" }} />
-              </div>
-            </div>
-            <div className="form-card">
-              <div style={{ textAlign:"center", marginBottom:22 }}>
-                <div style={{ fontSize:"clamp(36px,9vw,46px)", marginBottom:12 }}>{WIZARD_STEPS[wizStep].emoji}</div>
-                <h2 style={{ fontFamily:"'Playfair Display',serif", fontSize:"clamp(18px,4.5vw,22px)", lineHeight:1.35, marginBottom:6 }}>{WIZARD_STEPS[wizStep].label}</h2>
-                <p style={{ color:"rgba(255,255,255,.28)", fontSize:13 }}>{WIZARD_STEPS[wizStep].hint}</p>
-              </div>
-              {err && <p className="err" style={{ marginBottom:12 }}>{err}</p>}
-              {wizStep < WIZARD_STEPS.length ? (
-                <>
-                  <input style={{ marginBottom:18 }} type={WIZARD_STEPS[wizStep].type||"text"} placeholder={WIZARD_STEPS[wizStep].placeholder} value={pf[WIZARD_STEPS[wizStep].key]||""} onChange={e=>setPf({...pf,[WIZARD_STEPS[wizStep].key]:e.target.value})} onKeyDown={e=>e.key==="Enter"&&wizNext()} autoFocus />
-                  <div style={{ display:"flex", gap:10 }}>
-                    {wizStep>0 && <button className="btn-soft" style={{ flexShrink:0, width:"auto", padding:"14px 18px" }} onClick={()=>setWizStep(wizStep-1)}>← Back</button>}
-                    <button className="btn-solid" style={{ flex:1 }} onClick={wizNext}>Next →</button>
-                  </div>
-                </>
-              ) : (
-                /* Photo step - final step */
-                <div style={{ textAlign:"center" }}>
-                  <div style={{ fontSize:48, marginBottom:12 }}>📸</div>
-                  <h2 style={{ fontFamily:"'Playfair Display',serif", fontSize:"clamp(18px,4.5vw,22px)", marginBottom:6 }}>Add a photo of {pf.child_name||"your child"}</h2>
-                  <p style={{ color:"rgba(255,255,255,.35)", fontSize:13, marginBottom:20 }}>We'll use it to make the illustrations look like them ✨</p>
-
-                  {photoPreview ? (
-                    <div style={{ marginBottom:20 }}>
-                      <img src={photoPreview} alt="child" style={{ width:120, height:120, borderRadius:"50%", objectFit:"cover", border:"3px solid rgba(201,168,76,.5)", boxShadow:"0 0 24px rgba(201,168,76,.2)" }} />
-                      {photoAnalyzing && <p style={{ color:"rgba(180,143,255,.8)", fontSize:13, marginTop:10 }}>✨ Capturing their look…</p>}
-                      {!photoAnalyzing && pf.character_card && <p style={{ color:"rgba(255,255,255,.4)", fontSize:12, marginTop:10, fontStyle:"italic" }}>"{pf.character_card.slice(0,80)}…"</p>}
-                      <button className="btn-soft" style={{ marginTop:12, fontSize:12 }} onClick={()=>{setPhotoPreview(null);setPhotoFile(null);setPf(p=>({...p,character_card:""}));}}>Remove photo</button>
-                    </div>
-                  ) : (
-                    <label style={{ display:"block", marginBottom:16, cursor:"pointer" }}>
-                      <div style={{ border:"2px dashed rgba(255,255,255,.15)", borderRadius:16, padding:"28px 20px", background:"rgba(255,255,255,.03)", transition:"all .2s" }}
-                        onDragOver={e=>e.preventDefault()}
-                        onDrop={e=>{e.preventDefault();const f=e.dataTransfer.files[0];if(f&&f.type.startsWith("image/"))handlePhotoUpload(f);}}>
-                        <div style={{ fontSize:32, marginBottom:8 }}>🖼️</div>
-                        <p style={{ color:"rgba(255,255,255,.4)", fontSize:14 }}>Tap to upload or drag a photo</p>
-                        <p style={{ color:"rgba(255,255,255,.2)", fontSize:12, marginTop:4 }}>Works best with a clear face photo</p>
-                      </div>
-                      <input type="file" accept="image/*" capture="user" style={{ display:"none" }} onChange={e=>{const f=e.target.files?.[0];if(f)handlePhotoUpload(f);}} />
-                    </label>
-                  )}
-
-                  <div style={{ display:"flex", gap:10, marginBottom:10 }}>
-                    <button className="btn-soft" style={{ flexShrink:0, width:"auto", padding:"14px 18px" }} onClick={()=>setWizStep(WIZARD_STEPS.length-1)}>← Back</button>
-                    <button className="btn-solid" style={{ flex:1 }} onClick={saveProfile} disabled={photoAnalyzing || !photoPreview}>
-                      {photoAnalyzing ? "✨ Analyzing…" : "Start telling stories ✨"}
-                    </button>
-                  </div>
-                  <button className="btn-soft" style={{ width:"100%", opacity:.7 }} onClick={saveProfile}>
-                    Skip for now — add photo later
-                  </button>
+          <div className="builder-shell fade">
+            <div className="builder-left">
+              <div className="builder-top">
+                <div className="builder-kicker">DreamWeaver Builder</div>
+                <div className="builder-title">
+                  Build tonight’s story for <span className="builder-name">{pf.child_name?.trim() ? pf.child_name.trim() : "your child"}</span>
                 </div>
-              )}
+                <div className="builder-subtitle">Answer a few quick questions — we’ll personalize every page.</div>
+
+                {/* Progress */}
+                <div className="builder-progress">
+                  <div className="builder-progress-row">
+                    <span>Step {Math.min(wizStep+1, WIZARD_STEPS.length)} of {WIZARD_STEPS.length}</span>
+                    <span>{Math.round(((Math.min(wizStep+1, WIZARD_STEPS.length))/WIZARD_STEPS.length)*100)}%</span>
+                  </div>
+                  <div className="builder-progress-track">
+                    <div className="builder-progress-fill" style={{ width:`${((Math.min(wizStep+1, WIZARD_STEPS.length))/WIZARD_STEPS.length)*100}%` }} />
+                  </div>
+                </div>
+              </div>
+
+              <div className="builder-card">
+                <div className="builder-stephead">
+                  <div className="builder-emoji">{WIZARD_STEPS[Math.min(wizStep, WIZARD_STEPS.length-1)].emoji}</div>
+                  <div>
+                    <div className="builder-question">{WIZARD_STEPS[Math.min(wizStep, WIZARD_STEPS.length-1)].label}</div>
+                    <div className="builder-hint">{WIZARD_STEPS[Math.min(wizStep, WIZARD_STEPS.length-1)].hint}</div>
+                  </div>
+                </div>
+
+                {err && <p className="err" style={{ marginTop:12 }}>{err}</p>}
+
+                {wizStep < WIZARD_STEPS.length ? (
+                  <>
+                    <input
+                      className="builder-input"
+                      type={WIZARD_STEPS[wizStep].type||"text"}
+                      placeholder={WIZARD_STEPS[wizStep].placeholder}
+                      value={pf[WIZARD_STEPS[wizStep].key]||""}
+                      onChange={e=>setPf({...pf,[WIZARD_STEPS[wizStep].key]:e.target.value})}
+                      onKeyDown={e=>e.key==="Enter"&&wizNext()}
+                      autoFocus
+                    />
+
+                    <div className="builder-actions">
+                      {wizStep>0 ? (
+                        <button className="btn-soft builder-btn" onClick={wizBack}>Back</button>
+                      ) : (
+                        <button className="btn-soft builder-btn" onClick={()=>setScreen("home")}>Skip</button>
+                      )}
+                      <button className="btn-cta builder-btn" onClick={wizNext}>
+                        Continue <span aria-hidden>→</span>
+                      </button>
+                    </div>
+
+                    <div className="builder-meta">
+                      Tip: You can change this later in <span className="builder-meta-strong">Profiles</span>.
+                    </div>
+                  </>
+                ) : (
+                  <div className="fade">
+                    <div className="builder-photo-grid">
+                      <div>
+                        <div className="builder-photo-title">Add a photo (optional)</div>
+                        <div className="builder-photo-sub">We’ll use it to make illustrations feel consistent.</div>
+
+                        {photoPreview ? (
+                          <div className="photo-picked">
+                            <img className="photo-picked-img" src={photoPreview} alt="child" />
+                            {photoAnalyzing && <div className="photo-picked-status">✨ Capturing their look…</div>}
+                            {!photoAnalyzing && pf.character_card && (
+                              <div className="photo-picked-quote">“{pf.character_card.slice(0, 90)}…”</div>
+                            )}
+                            <button
+                              className="btn-soft"
+                              style={{ marginTop:12, fontSize:12 }}
+                              onClick={()=>{setPhotoPreview(null);setPhotoFile(null);setPf(p=>({...p,character_card:""}));}}
+                            >
+                              Remove photo
+                            </button>
+                          </div>
+                        ) : (
+                          <label className="dropzone" style={{ marginTop:14 }}>
+                            <div
+                              className="dropzone-inner"
+                              onDragOver={e=>e.preventDefault()}
+                              onDrop={e=>{e.preventDefault();const f=e.dataTransfer.files[0];if(f&&f.type.startsWith("image/"))handlePhotoUpload(f);}}
+                            >
+                              <div className="dropzone-icon">🖼️</div>
+                              <div className="dropzone-text">Tap to upload or drag a photo</div>
+                              <div className="dropzone-sub">Works best with a clear face photo</div>
+                            </div>
+                            <input
+                              className="file-input"
+                              type="file"
+                              accept="image/*"
+                              capture="user"
+                              onChange={e=>{const f=e.target.files?.[0];if(f)handlePhotoUpload(f);}}
+                            />
+                          </label>
+                        )}
+
+                        <div className="builder-actions" style={{ marginTop:16 }}>
+                          <button className="btn-soft builder-btn" onClick={()=>setWizStep(WIZARD_STEPS.length-1)}>Back</button>
+                          <button className="btn-solid builder-btn" onClick={saveProfile} disabled={photoAnalyzing || !photoPreview}>
+                            {photoAnalyzing ? "✨ Analyzing…" : "Start telling stories ✨"}
+                          </button>
+                        </div>
+
+                        <button className="btn-soft" style={{ width:"100%", marginTop:10, opacity:.75 }} onClick={saveProfile}>
+                          Skip for now — add photo later
+                        </button>
+                      </div>
+
+                      <div className="builder-minihelp">
+                        <div className="builder-minihelp-title">What makes a great photo?</div>
+                        <ul className="builder-minihelp-list">
+                          <li>Face visible, good lighting</li>
+                          <li>Neutral background</li>
+                          <li>One person in frame</li>
+                        </ul>
+                        <div className="builder-minihelp-note">We never share your photos. They’re only used to personalize your books.</div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
             </div>
+
+            {/* Preview (desktop) */}
+            {!mobile && !tablet && (
+              <div className="builder-right">
+                <div className="preview-card">
+                  <div className="preview-top">
+                    <div className="preview-title">Live preview</div>
+                    <div className="preview-pill">{STORY_PAGES}-page book</div>
+                  </div>
+
+                  <div className="preview-block">
+                    <div className="preview-label">Hero</div>
+                    <div className="preview-value">{pf.child_name?.trim() ? pf.child_name.trim() : "Your child"}</div>
+                  </div>
+
+                  <div className="preview-grid">
+                    <div className="preview-block">
+                      <div className="preview-label">Age</div>
+                      <div className="preview-value">{pf.age || "—"}</div>
+                    </div>
+                    <div className="preview-block">
+                      <div className="preview-label">Best friend</div>
+                      <div className="preview-value">{pf.best_friend || "—"}</div>
+                    </div>
+                    <div className="preview-block">
+                      <div className="preview-label">Stuffed animal</div>
+                      <div className="preview-value">{pf.stuffed_animal || "—"}</div>
+                    </div>
+                    <div className="preview-block">
+                      <div className="preview-label">Favorite animal</div>
+                      <div className="preview-value">{pf.favorite_animal || "—"}</div>
+                    </div>
+                    <div className="preview-block">
+                      <div className="preview-label">Scared of</div>
+                      <div className="preview-value">{pf.scared_of || "—"}</div>
+                    </div>
+                    <div className="preview-block">
+                      <div className="preview-label">Favorite thing</div>
+                      <div className="preview-value">{pf.favorite_thing || "—"}</div>
+                    </div>
+                  </div>
+
+                  <div className="preview-divider" />
+
+                  <div className="preview-block">
+                    <div className="preview-label">Tonight’s vibe</div>
+                    <div className="preview-chips">
+                      <span className="chip">{MOODS.find(x=>x.id===mood)?.emoji} {MOODS.find(x=>x.id===mood)?.label}</span>
+                      <span className="chip">{storyMode==="adventure" ? "🏔️ Adventure" : storyMode==="bedtime" ? "🌙 Bedtime" : "📚 Classic"}</span>
+                      <span className="chip">{LESSONS.find(x=>x.id===lesson)?.emoji} {LESSONS.find(x=>x.id===lesson)?.label}</span>
+                    </div>
+                  </div>
+
+                  <div className="preview-note">
+                    You’ll tweak mood, mode, and lesson before generating each story.
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
-        )}
+        )})}
 
         {/* ═══════════════════════════════════════════════════════════════════
             HOME
