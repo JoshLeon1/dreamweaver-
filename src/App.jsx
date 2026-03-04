@@ -1770,7 +1770,7 @@ NO title. Start immediately.`;
                         </div>
                         {!mobile && (
                           <div style={{ fontFamily:"'Nunito',sans-serif", fontSize:13, color:"rgba(255,255,255,.35)" }}>
-                            {childStories} stories · {badges.length} badges{streak>0 ? ` · 🔥 ${streak} streak` : ""}
+                            {childStories} stories · {badges.length} badges{streak > 0 ? (<> · 🔥 {streak} streak</>) : null}
                           </div>
                         )}
                       </div>
