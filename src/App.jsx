@@ -1092,6 +1092,14 @@ export default function App() {
   const hasAccess = () => { if (!sub) return true; // allow while loading - server will catch expired
     if (sub.status==="active") return true; if (sub.status==="trial"&&new Date(sub.trial_ends_at)>new Date()) return true; return false; };
   const daysLeft = () => sub ? Math.max(0,Math.ceil((new Date(sub.trial_ends_at)-new Date())/86400000)) : 0;
+  const [paymentSuccess, setPaymentSuccess] = React.useState(false);
+  React.useEffect(()=>{
+    if(window.location.search.includes("payment=success")){
+      setPaymentSuccess(true);
+      window.history.replaceState({},"",window.location.pathname);
+      setTimeout(()=>setPaymentSuccess(false), 5000);
+    }
+  },[]);
 
   // Pricing: $5.99 first child, $2.99 each additional
   const monthlyPrice = () => profiles.length <= 1 ? PRICE_BASE : PRICE_BASE + (profiles.length - 1) * PRICE_PER_EXTRA;
@@ -2616,6 +2624,20 @@ NO title. Start immediately.`;
 
         {/* Sequel prompt modal */}
         {/* ── Already-have-story-today modal ── */}
+        {/* Payment success toast */}
+        {paymentSuccess && (
+          <div style={{ position:"fixed", top:24, left:"50%", transform:"translateX(-50%)", zIndex:10001,
+            background:"linear-gradient(135deg,#14532d,#166534)", border:"1px solid rgba(74,222,128,.3)",
+            borderRadius:14, padding:"14px 22px", display:"flex", alignItems:"center", gap:12,
+            boxShadow:"0 8px 32px rgba(0,0,0,.5)", animation:"fadeUp .4s ease", whiteSpace:"nowrap" }}>
+            <span style={{ fontSize:22 }}>🎉</span>
+            <div>
+              <div style={{ fontFamily:"'Nunito',sans-serif", fontWeight:800, fontSize:14, color:"#bbf7d0" }}>You're subscribed!</div>
+              <div style={{ fontFamily:"'Nunito',sans-serif", fontSize:12, color:"rgba(187,247,208,.65)", marginTop:2 }}>Stories are now unlocked for your family.</div>
+            </div>
+          </div>
+        )}
+
         {showTomorrowModal && (
           <div style={{ position:"fixed", inset:0, background:"rgba(0,0,0,.75)", backdropFilter:"blur(14px)", zIndex:2000, display:"flex", alignItems:"flex-end", justifyContent:"center", padding:"0 0 env(safe-area-inset-bottom,0px)" }}
             onClick={()=>setShowTomorrowModal(null)}>
@@ -2967,7 +2989,7 @@ NO title. Start immediately.`;
           const isTrial  = sub?.status==="trial";
           const openPortal = async () => {
             try {
-              const r = await fetch("/api/stripe-portal", { method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify({email:user.email,return_url:window.location.href}) });
+              const r = await fetch("/api/stripe-portal", { method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify({email:user.email,user_id:user.id,return_url:window.location.href}) });
               const d = await r.json();
               if (d.url) window.location.href = d.url;
               else alert("Could not open billing portal.");
@@ -3034,31 +3056,93 @@ NO title. Start immediately.`;
               ))}
             </div>
 
-            {/* Subscription */}
-            <SGroup>
-              <SRow icon={isActive?"✅":isTrial?"🕐":"❌"}
-                label={isActive?"Pro Plan Active":isTrial?"Free Trial":"No Subscription"}
-                value={isActive?`$${monthlyPrice().toFixed(2)}/month · renews automatically`:isTrial?`${daysLeft()} nights remaining · then $${PRICE_BASE.toFixed(2)}/mo`:"Subscribe to generate stories"}
-                badge={isActive?{text:"Pro",bg:"rgba(74,222,128,.1)",color:"#86efac",border:"rgba(74,222,128,.25)"}:isTrial?{text:"Trial"}:{text:"Free",bg:"rgba(255,255,255,.06)",color:"rgba(255,255,255,.4)",border:"rgba(255,255,255,.12)"}}
-                last />
-            </SGroup>
+            {/* Subscription card */}
+            <div style={{ borderRadius:14, border:"1px solid rgba(255,255,255,.08)", overflow:"hidden", marginBottom:12 }}>
+              {/* Status bar */}
+              <div style={{ padding:"16px 18px", display:"flex", alignItems:"center", justifyContent:"space-between", borderBottom:"1px solid rgba(255,255,255,.05)" }}>
+                <div style={{ display:"flex", alignItems:"center", gap:12 }}>
+                  <div style={{ width:8, height:8, borderRadius:"50%", background:isActive?"#4ade80":isTrial?"#fbbf24":"#f87171", boxShadow:`0 0 8px ${isActive?"rgba(74,222,128,.6)":isTrial?"rgba(251,191,36,.5)":"rgba(248,113,113,.5)"}` }} />
+                  <div>
+                    <div style={{ fontFamily:"'Nunito',sans-serif", fontSize:14, fontWeight:700, color:"var(--text-1)" }}>
+                      {isActive ? "Pro Plan" : isTrial ? "Free Trial" : "No active plan"}
+                    </div>
+                    <div style={{ fontFamily:"'Nunito',sans-serif", fontSize:12, color:"var(--text-3)", marginTop:2 }}>
+                      {isActive
+                        ? `$${monthlyPrice().toFixed(2)}/month · ${sub?.cancel_at_period_end ? "cancels" : "renews"} ${sub?.current_period_end ? new Date(sub.current_period_end).toLocaleDateString("en-US",{month:"short",day:"numeric",year:"numeric"}) : ""}`
+                        : isTrial
+                          ? `${daysLeft()} nights remaining · then $${PRICE_BASE.toFixed(2)}/mo`
+                          : "Subscribe to generate stories"}
+                    </div>
+                  </div>
+                </div>
+                <div style={{ fontSize:11, fontWeight:700, fontFamily:"'Nunito',sans-serif", padding:"3px 10px", borderRadius:999,
+                  background:isActive?"rgba(74,222,128,.1)":isTrial?"rgba(251,191,36,.1)":"rgba(255,255,255,.06)",
+                  color:isActive?"#86efac":isTrial?"#fde68a":"var(--text-3)",
+                  border:`1px solid ${isActive?"rgba(74,222,128,.25)":isTrial?"rgba(251,191,36,.2)":"rgba(255,255,255,.1)"}` }}>
+                  {isActive ? "Active" : isTrial ? "Trial" : "Inactive"}
+                </div>
+              </div>
+
+              {/* Details rows */}
+              {isActive && (
+                <>
+                  <div style={{ padding:"12px 18px", display:"flex", justifyContent:"space-between", borderBottom:"1px solid rgba(255,255,255,.04)" }}>
+                    <span style={{ fontSize:13, color:"var(--text-3)", fontFamily:"'Nunito',sans-serif" }}>Plan price</span>
+                    <span style={{ fontSize:13, fontWeight:700, color:"var(--text-2)", fontFamily:"'Nunito',sans-serif" }}>${monthlyPrice().toFixed(2)}/month</span>
+                  </div>
+                  <div style={{ padding:"12px 18px", display:"flex", justifyContent:"space-between", borderBottom:"1px solid rgba(255,255,255,.04)" }}>
+                    <span style={{ fontSize:13, color:"var(--text-3)", fontFamily:"'Nunito',sans-serif" }}>
+                      {sub?.cancel_at_period_end ? "Access until" : "Next billing date"}
+                    </span>
+                    <span style={{ fontSize:13, fontWeight:700, color:sub?.cancel_at_period_end?"#f87171":"var(--text-2)", fontFamily:"'Nunito',sans-serif" }}>
+                      {sub?.current_period_end
+                        ? new Date(sub.current_period_end).toLocaleDateString("en-US",{weekday:"short",month:"long",day:"numeric",year:"numeric"})
+                        : "—"}
+                    </span>
+                  </div>
+                  <div style={{ padding:"12px 18px", display:"flex", justifyContent:"space-between", borderBottom:"1px solid rgba(255,255,255,.04)" }}>
+                    <span style={{ fontSize:13, color:"var(--text-3)", fontFamily:"'Nunito',sans-serif" }}>Children</span>
+                    <span style={{ fontSize:13, fontWeight:700, color:"var(--text-2)", fontFamily:"'Nunito',sans-serif" }}>{profiles.length}</span>
+                  </div>
+                  {sub?.cancel_at_period_end && (
+                    <div style={{ padding:"12px 18px", background:"rgba(248,113,113,.05)", borderBottom:"1px solid rgba(255,255,255,.04)" }}>
+                      <div style={{ fontSize:12, color:"rgba(248,113,113,.8)", fontFamily:"'Nunito',sans-serif", lineHeight:1.5 }}>
+                        ⚠️ Your plan is set to cancel. Stories will stop generating after {sub?.current_period_end ? new Date(sub.current_period_end).toLocaleDateString("en-US",{month:"long",day:"numeric"}) : "the end of the period"}. You can reactivate anytime via Manage Billing.
+                      </div>
+                    </div>
+                  )}
+                  <div style={{ padding:"12px 18px", display:"flex", gap:8 }}>
+                    <button onClick={openPortal} style={{ flex:1, padding:"10px", borderRadius:10, background:"var(--surface-1)", border:"1px solid var(--border-1)", color:"var(--text-2)", fontFamily:"'Nunito',sans-serif", fontWeight:700, fontSize:13, cursor:"pointer", transition:"all .15s" }}
+                      onMouseEnter={e=>e.currentTarget.style.background="var(--surface-2)"} onMouseLeave={e=>e.currentTarget.style.background="var(--surface-1)"}>
+                      💳 Manage Billing
+                    </button>
+                    <button onClick={openPortal} style={{ flex:1, padding:"10px", borderRadius:10, background:"var(--surface-1)", border:"1px solid var(--border-1)", color:"var(--text-2)", fontFamily:"'Nunito',sans-serif", fontWeight:700, fontSize:13, cursor:"pointer", transition:"all .15s" }}
+                      onMouseEnter={e=>e.currentTarget.style.background="var(--surface-2)"} onMouseLeave={e=>e.currentTarget.style.background="var(--surface-1)"}>
+                      📋 Invoices
+                    </button>
+                  </div>
+                </>
+              )}
+            </div>
 
             {isTrial && (
               <button onClick={startCheckout}
                 style={{ width:"100%", padding:"16px", borderRadius:14, border:"none", cursor:"pointer", marginBottom:12,
-                  background:"linear-gradient(135deg, #d4a842 0%, #c49030 50%, #a87820 100%)",
-                  color:"#1a0d00", fontFamily:"'Nunito',sans-serif", fontWeight:800, fontSize:15,
-                  boxShadow:"0 6px 28px rgba(180,130,30,.4)" }}>
+                  background:"linear-gradient(135deg,#d4a842,#b88a20)",
+                  color:"#130c00", fontFamily:"'Nunito',sans-serif", fontWeight:800, fontSize:15,
+                  boxShadow:"0 4px 24px rgba(180,130,30,.4)" }}>
                 ✨ Upgrade to Pro — ${PRICE_BASE.toFixed(2)}/month
               </button>
             )}
-
-            {isActive && (
-              <SGroup>
-                <SRow icon="💳" label="Manage Billing" value="Update payment, invoices, cancel" onPress={openPortal} />
-                <SRow icon="📋" label="Billing History" value="View past invoices" onPress={openPortal} last />
-              </SGroup>
-            )}
+            {!sub || sub.status==="canceled" ? (
+              <button onClick={startCheckout}
+                style={{ width:"100%", padding:"16px", borderRadius:14, border:"none", cursor:"pointer", marginBottom:12,
+                  background:"linear-gradient(135deg,#d4a842,#b88a20)",
+                  color:"#130c00", fontFamily:"'Nunito',sans-serif", fontWeight:800, fontSize:15,
+                  boxShadow:"0 4px 24px rgba(180,130,30,.4)" }}>
+                ✨ Subscribe — ${PRICE_BASE.toFixed(2)}/month
+              </button>
+            ) : null}
 
             {/* Children */}
             <div style={{ fontSize:11, color:"rgba(255,255,255,.28)", fontFamily:"'Nunito',sans-serif", letterSpacing:".1em", textTransform:"uppercase", marginBottom:8, paddingLeft:2, fontWeight:700 }}>Children</div>
