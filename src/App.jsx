@@ -54,6 +54,8 @@ const STARS = Array.from({ length: 70 }, (_, i) => ({
 
 const MOON_FRAMES = ["🌑","🌒","🌓","🌔","🌕","🌖","🌗","🌘"];
 const todayStr = () => new Date().toISOString().slice(0, 10);
+const tomorrowStr = () => { const d=new Date(); d.setDate(d.getDate()+1); return d.toISOString().slice(0,10); };
+const prettyTomorrow = () => { const h=new Date().getHours(); return h<17?"tomorrow morning":"tomorrow night"; };
 const getSharedId = () => new URLSearchParams(window.location.search).get("story");
 const isMobile = () => typeof window !== "undefined" && window.innerWidth < 700;
 const isTablet = () => typeof window !== "undefined" && window.innerWidth >= 700 && window.innerWidth < 1024;
@@ -1248,15 +1250,8 @@ export default function App() {
     const { data: todayStory } = await supabase.from("stories")
       .select("id").eq("user_id", user.id).eq("child_profile_id", active.id).eq("story_date", todayStr()).maybeSingle();
     if (todayStory) {
-      // Already have one today — load it instead of generating a new one
-      const { data: full } = await supabase.from("stories").select("*").eq("id", todayStory.id).single();
-      if (full) {
-        const ps = full.text.split("\n\n✦\n\n");
-        setPages(ps); setTitle(full.title||""); setImgs(full.page_images||[]);
-        setCoverImg(full.cover_image||null); setSpread(full.cover_image?-1:0);
-        setStory(full); setStoryPhase("ready"); setScreen("story");
-        try { localStorage.setItem("dw_last_story",full.id); localStorage.setItem("dw_last_screen","story"); } catch {}
-      }
+      // Already have one today — show friendly "come back tomorrow" modal
+      setShowTomorrowModal("story");
       return;
     }
     setStoryPhase("text"); setScreen("story"); try { localStorage.setItem("dw_last_screen","story"); } catch {}
@@ -1433,9 +1428,12 @@ NO title. Start immediately.`;
       const ps = rawText.split("[PAGE]").map(p => p.trim()).filter(p => p.length > 5).slice(0, 14);
       const fullText = ps.join("\n\n✦\n\n");
       const sequelTitle = rawTitle.trim();
-      // Save as new story for today
-      const payload = { user_id:user.id, story_date:todayStr(), text:fullText, title:sequelTitle, child_profile_id:active.id, page_images:[], cover_image:null, is_sequel_of:story.id };
+      // Save as tomorrow's story (queue it)
+      const sequelDate = library.some(s=>s.story_date===tomorrowStr()&&s.child_profile_id===active.id) ? todayStr() : tomorrowStr();
+      const payload = { user_id:user.id, story_date:sequelDate, text:fullText, title:sequelTitle, child_profile_id:active.id, page_images:[], cover_image:null, is_sequel_of:story.id };
       const { data:saved } = await supabase.from("stories").insert(payload).select().single();
+      // Show queued confirmation — don't navigate, just let images generate in background
+      setShowTomorrowModal("sequel");
       setTitle(sequelTitle); setPages(ps); setImgs([]); setImgsLoaded(0); setCoverImg(null); setSpread(-1); setStory(saved); setStoryPhase("ready");
       // Generate cover + images
       const coverPrompt = `No text, no letters, no words, no numbers, no writing, no labels anywhere in this image. A child with a stuffed animal on a ${m.prompt} adventure. Soft watercolor pastel art, dreamy storybook illustration, magical glowing light, beautiful night sky. Pure illustration only. No typography of any kind.`;
@@ -1502,6 +1500,7 @@ NO title. Start immediately.`;
 
   const [showShareCard, setShowShareCard] = useState(false);
   const [showSequelPrompt, setShowSequelPrompt] = useState(false);
+  const [showTomorrowModal, setShowTomorrowModal] = useState(null); // null | "story" | "sequel"
 
   const shareStory = async () => {
     setShowShareCard(true);
@@ -2616,6 +2615,65 @@ NO title. Start immediately.`;
         )}
 
         {/* Sequel prompt modal */}
+        {/* ── Already-have-story-today modal ── */}
+        {showTomorrowModal && (
+          <div style={{ position:"fixed", inset:0, background:"rgba(0,0,0,.75)", backdropFilter:"blur(14px)", zIndex:2000, display:"flex", alignItems:"flex-end", justifyContent:"center", padding:"0 0 env(safe-area-inset-bottom,0px)" }}
+            onClick={()=>setShowTomorrowModal(null)}>
+            <div style={{ background:"linear-gradient(175deg,#120828,#0d0618)", border:"1px solid rgba(255,255,255,.09)", borderRadius:"24px 24px 0 0", padding:"clamp(20px,4vw,32px)", width:"100%", maxWidth:480, animation:"slideUp .3s ease" }}
+              onClick={e=>e.stopPropagation()}>
+              {/* Handle */}
+              <div style={{ width:40, height:4, borderRadius:99, background:"rgba(255,255,255,.12)", margin:"0 auto 28px" }} />
+
+              {showTomorrowModal === "story" ? (
+                <>
+                  <div style={{ textAlign:"center", marginBottom:28 }}>
+                    <div style={{ fontSize:52, marginBottom:16, filter:"drop-shadow(0 0 24px rgba(200,165,55,.5))", animation:"float 4s ease-in-out infinite", display:"inline-block" }}>🌙</div>
+                    <div style={{ fontFamily:"'Playfair Display',serif", fontSize:24, fontWeight:800, letterSpacing:"-.02em", marginBottom:10, lineHeight:1.2 }}>
+                      Tonight's story is ready
+                    </div>
+                    <div style={{ fontFamily:"'Crimson Pro',serif", fontStyle:"italic", fontSize:16, color:"rgba(255,255,255,.45)", lineHeight:1.7 }}>
+                      {active?.child_name} already has a story for tonight.<br/>
+                      A brand new one will be waiting {prettyTomorrow()}.
+                    </div>
+                  </div>
+                  <div style={{ display:"flex", flexDirection:"column", gap:10 }}>
+                    <button className="btn-cta full" style={{ fontSize:15 }}
+                      onClick={()=>{ setShowTomorrowModal(null);
+                        const s=library.find(x=>x.story_date===todayStr()&&x.child_profile_id===active?.id);
+                        if(s){const ps=s.text.split("\n\n✦\n\n");setPages(ps);setTitle(s.title||"");setImgs(s.page_images||[]);setCoverImg(s.cover_image||null);setSpread(s.cover_image?-1:0);setStory(s);setStoryPhase("ready");setScreen("story");try{localStorage.setItem("dw_last_story",s.id);}catch{}} }}>
+                      📖  Read tonight's story
+                    </button>
+                    <button className="btn-soft" onClick={()=>setShowTomorrowModal(null)}>
+                      Back
+                    </button>
+                  </div>
+                </>
+              ) : (
+                <>
+                  <div style={{ textAlign:"center", marginBottom:28 }}>
+                    <div style={{ fontSize:52, marginBottom:16, filter:"drop-shadow(0 0 24px rgba(120,80,220,.5))", display:"inline-block" }}>✨</div>
+                    <div style={{ fontFamily:"'Playfair Display',serif", fontSize:24, fontWeight:800, letterSpacing:"-.02em", marginBottom:10, lineHeight:1.2 }}>
+                      Sequel queued!
+                    </div>
+                    <div style={{ fontFamily:"'Crimson Pro',serif", fontStyle:"italic", fontSize:16, color:"rgba(255,255,255,.45)", lineHeight:1.7 }}>
+                      The next adventure is being written and will be waiting for {active?.child_name} {prettyTomorrow()}.
+                    </div>
+                  </div>
+                  <div style={{ background:"rgba(201,168,76,.06)", border:"1px solid rgba(201,168,76,.18)", borderRadius:14, padding:"16px 18px", marginBottom:20, display:"flex", alignItems:"center", gap:14 }}>
+                    <div style={{ fontSize:28, flexShrink:0 }}>🌅</div>
+                    <div style={{ fontFamily:"'Nunito',sans-serif", fontSize:13, color:"rgba(255,255,255,.5)", lineHeight:1.6 }}>
+                      Come back {prettyTomorrow()} to read the next chapter of <em style={{ color:"var(--gold-light)", fontStyle:"italic" }}>{title}</em>.
+                    </div>
+                  </div>
+                  <button className="btn-cta full" style={{ fontSize:15 }} onClick={()=>setShowTomorrowModal(null)}>
+                    Can't wait! 🌙
+                  </button>
+                </>
+              )}
+            </div>
+          </div>
+        )}
+
         {showSequelPrompt && story && (
           <div style={{ position:"fixed", inset:0, background:"rgba(0,0,0,.75)", backdropFilter:"blur(14px)", zIndex:2000, display:"flex", alignItems:"flex-end", justifyContent:"center", padding:"0 0 env(safe-area-inset-bottom,0px)" }}
             onClick={()=>setShowSequelPrompt(false)}>
