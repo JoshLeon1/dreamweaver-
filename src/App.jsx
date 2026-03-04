@@ -1895,8 +1895,12 @@ NO title. Start immediately.`;
                             <div style={{ flex:1 }}>
                               <div style={{ fontFamily:"'Nunito',sans-serif", fontSize:14, fontWeight:900, color:"rgba(255,255,255,.85)", marginBottom:6 }}>
                                 {storyMode==="lesson"
-                                  ? `Lesson: ${selLesson?.label || "Kindness"} · Mood: ${selMood?.label || "Magical"}`
-                                  : `Mood: ${selMood?.label || "Magical"} adventure`}
+                                  ? (<>
+                                      {"Lesson: "}{selLesson?.label || "Kindness"}{" · Mood: "}{selMood?.label || "Magical"}
+                                    </>)
+                                  : (<>
+                                      {"Mood: "}{selMood?.label || "Magical"}{" adventure"}
+                                    </>)}
                               </div>
                               <div style={{ fontFamily:"'Nunito',sans-serif", fontSize:12, color:"rgba(255,255,255,.35)", lineHeight:1.55 }}>
                                 We'll write and illustrate a full bedtime book starring {active.child_name}.
