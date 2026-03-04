@@ -115,405 +115,310 @@ const CSS = `
 
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 
-:root {
-  --night: #07050e;
-  --cream: #fdf8ef;
-  --ink: #1a0f2e;
-  --gold: #c9a84c;
-  --gold-light: #e8c96a;
-  --spine-dark: #1a0802;
-  --spine-mid: #5c2e0e;
-  --spine-light: #8b4a14;
-  --purple: #7c4dcc;
-  --purple-light: #b08fff;
+:root{
+  --night:#07050d;
+  --surface-1:rgba(255,255,255,.04);
+  --surface-2:rgba(255,255,255,.07);
+  --surface-3:rgba(255,255,255,.11);
+  --border-1:rgba(255,255,255,.07);
+  --border-2:rgba(255,255,255,.12);
+  --border-3:rgba(255,255,255,.2);
+  --gold:#c9a84c;
+  --gold-light:#e8c96a;
+  --gold-dim:rgba(201,168,76,.15);
+  --gold-border:rgba(201,168,76,.3);
+  --text-1:rgba(255,255,255,.92);
+  --text-2:rgba(255,255,255,.55);
+  --text-3:rgba(255,255,255,.3);
+  --text-4:rgba(255,255,255,.18);
+  --purple:#6b35c8;
+  --purple-light:#b08fff;
+  --spine-dark:#1a0802;--spine-mid:#5c2e0e;--spine-light:#8b4a14;
+  --cream:#fdf8ef;
+  --r-sm:8px;--r-md:12px;--r-lg:16px;--r-xl:20px;--r-2xl:24px;
 }
 
 html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
-body{background:var(--night);min-height:100vh;font-family:'Nunito',sans-serif;color:white;overflow-x:hidden;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;-webkit-tap-highlight-color:transparent}
+body{
+  background:var(--night);min-height:100vh;
+  font-family:'Nunito',sans-serif;color:var(--text-1);
+  overflow-x:hidden;-webkit-font-smoothing:antialiased;
+  -moz-osx-font-smoothing:grayscale;-webkit-tap-highlight-color:transparent;
+}
 
+/* ── Animations ── */
 @keyframes twinkle{0%,100%{opacity:.04;transform:scale(.5)}50%{opacity:.85;transform:scale(1.3)}}
-@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-11px)}}
-@keyframes fadeUp{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:translateY(0)}}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-9px)}}
+@keyframes fadeUp{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
 @keyframes fadeIn{from{opacity:0}to{opacity:1}}
-@keyframes gradFlow{0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}}
-@keyframes starFloat{0%{opacity:.3;transform:translateY(0) scale(1)}100%{opacity:.9;transform:translateY(-8px) scale(1.3)}}
-@keyframes btnPulse{0%,100%{box-shadow:0 6px 32px rgba(130,80,240,.45)}50%{box-shadow:0 6px 32px rgba(130,80,240,.45),0 0 40px rgba(160,100,255,.35)}}
 @keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
 @keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
-/* Page turn — perspective slide that doesn't clip */
-/* Mobile swipe page turn */
-@keyframes mobileExitForward{
-  from { transform:translateX(0);    opacity:1; }
-  to   { transform:translateX(-100%); opacity:0.4; }
-}
-@keyframes mobileEnterForward{
-  from { transform:translateX(100%); opacity:0.4; }
-  to   { transform:translateX(0);    opacity:1; }
-}
-@keyframes mobileExitBack{
-  from { transform:translateX(0);   opacity:1; }
-  to   { transform:translateX(100%); opacity:0.4; }
-}
-@keyframes mobileEnterBack{
-  from { transform:translateX(-100%); opacity:0.4; }
-  to   { transform:translateX(0);    opacity:1; }
-}
-@keyframes pageExitForward{
-  0%   { transform:perspective(1200px) translateX(0%) rotateY(0deg) scaleX(1); opacity:1; }
-  40%  { transform:perspective(1200px) translateX(-8%) rotateY(-25deg) scaleX(0.92); opacity:1; }
-  100% { transform:perspective(1200px) translateX(-100%) rotateY(-35deg) scaleX(0.85); opacity:0; }
-}
-@keyframes pageEnterForward{
-  0%   { transform:perspective(1200px) translateX(100%) rotateY(35deg) scaleX(0.85); opacity:0; }
-  60%  { transform:perspective(1200px) translateX(8%) rotateY(25deg) scaleX(0.92); opacity:1; }
-  100% { transform:perspective(1200px) translateX(0%) rotateY(0deg) scaleX(1); opacity:1; }
-}
-@keyframes pageExitBack{
-  0%   { transform:perspective(1200px) translateX(0%) rotateY(0deg) scaleX(1); opacity:1; }
-  40%  { transform:perspective(1200px) translateX(8%) rotateY(25deg) scaleX(0.92); opacity:1; }
-  100% { transform:perspective(1200px) translateX(100%) rotateY(35deg) scaleX(0.85); opacity:0; }
-}
-@keyframes pageEnterBack{
-  0%   { transform:perspective(1200px) translateX(-100%) rotateY(-35deg) scaleX(0.85); opacity:0; }
-  60%  { transform:perspective(1200px) translateX(-8%) rotateY(-25deg) scaleX(0.92); opacity:1; }
-  100% { transform:perspective(1200px) translateX(0%) rotateY(0deg) scaleX(1); opacity:1; }
-}
-@keyframes coverOpen{
-  0%   { transform:perspective(1200px) rotateY(0deg) scaleX(1); opacity:1; }
-  50%  { transform:perspective(1200px) rotateY(-20deg) scaleX(0.9); opacity:0.8; }
-  100% { transform:perspective(1200px) rotateY(-40deg) scaleX(0.75); opacity:0; }
-}
-@keyframes pulse{0%,100%{opacity:.6;transform:scale(1)}50%{opacity:1;transform:scale(1.05)}}
+@keyframes pulse{0%,100%{opacity:.6;transform:scale(1)}50%{opacity:1;transform:scale(1.04)}}
 @keyframes orb{0%,100%{transform:translate(0,0) scale(1)}33%{transform:translate(20px,-15px) scale(1.05)}66%{transform:translate(-10px,20px) scale(.97)}}
+@keyframes slideUp{from{transform:translateY(28px);opacity:0}to{transform:translateY(0);opacity:1}}
+@keyframes popIn{0%{transform:scale(.88);opacity:0}100%{transform:scale(1);opacity:1}}
+@keyframes goldPulse{0%,100%{box-shadow:0 6px 28px rgba(180,130,30,.38)}50%{box-shadow:0 6px 36px rgba(180,130,30,.6)}}
+@keyframes starFloat{0%{opacity:.3;transform:translateY(0) scale(1)}100%{opacity:.9;transform:translateY(-8px) scale(1.3)}}
+/* page-turn */
+@keyframes mobileExitForward{from{transform:translateX(0);opacity:1}to{transform:translateX(-100%);opacity:.4}}
+@keyframes mobileEnterForward{from{transform:translateX(100%);opacity:.4}to{transform:translateX(0);opacity:1}}
+@keyframes mobileExitBack{from{transform:translateX(0);opacity:1}to{transform:translateX(100%);opacity:.4}}
+@keyframes mobileEnterBack{from{transform:translateX(-100%);opacity:.4}to{transform:translateX(0);opacity:1}}
+@keyframes pageExitForward{0%{transform:perspective(1200px) translateX(0%) rotateY(0deg) scaleX(1);opacity:1}40%{transform:perspective(1200px) translateX(-8%) rotateY(-25deg) scaleX(0.92);opacity:1}100%{transform:perspective(1200px) translateX(-100%) rotateY(-35deg) scaleX(0.85);opacity:0}}
+@keyframes pageEnterForward{0%{transform:perspective(1200px) translateX(100%) rotateY(35deg) scaleX(0.85);opacity:0}60%{transform:perspective(1200px) translateX(8%) rotateY(25deg) scaleX(0.92);opacity:1}100%{transform:perspective(1200px) translateX(0%) rotateY(0deg) scaleX(1);opacity:1}}
+@keyframes pageExitBack{0%{transform:perspective(1200px) translateX(0%) rotateY(0deg) scaleX(1);opacity:1}40%{transform:perspective(1200px) translateX(8%) rotateY(25deg) scaleX(0.92);opacity:1}100%{transform:perspective(1200px) translateX(100%) rotateY(35deg) scaleX(0.85);opacity:0}}
+@keyframes pageEnterBack{0%{transform:perspective(1200px) translateX(-100%) rotateY(-35deg) scaleX(0.85);opacity:0}60%{transform:perspective(1200px) translateX(-8%) rotateY(-25deg) scaleX(0.92);opacity:1}100%{transform:perspective(1200px) translateX(0%) rotateY(0deg) scaleX(1);opacity:1}}
+@keyframes coverOpen{0%{transform:perspective(1200px) rotateY(0deg) scaleX(1);opacity:1}50%{transform:perspective(1200px) rotateY(-20deg) scaleX(.9);opacity:.8}100%{transform:perspective(1200px) rotateY(-40deg) scaleX(.75);opacity:0}}
 
-.fade{animation:fadeUp .5s ease both}
+.fade{animation:fadeUp .45s ease both}
 .fadein{animation:fadeIn .3s ease both}
 .float{animation:float 4s ease-in-out infinite}
+.page-flip-forward{animation:pageExitForward .55s cubic-bezier(.4,0,.2,1) forwards;will-change:transform}
+.page-flip-back{animation:pageExitBack .55s cubic-bezier(.4,0,.2,1) forwards;will-change:transform}
+.page-enter-forward{animation:pageEnterForward .55s cubic-bezier(.4,0,.2,1) forwards;will-change:transform}
+.page-enter-back{animation:pageEnterBack .55s cubic-bezier(.4,0,.2,1) forwards;will-change:transform}
+.cover-opening{animation:coverOpen .6s cubic-bezier(.4,0,.2,1) forwards;will-change:transform}
 
-.page-flip-forward  { animation: pageExitForward  0.55s cubic-bezier(.4,0,.2,1) forwards; will-change:transform; }
-.page-flip-back     { animation: pageExitBack    0.55s cubic-bezier(.4,0,.2,1) forwards; will-change:transform; }
-.page-enter-forward { animation: pageEnterForward 0.55s cubic-bezier(.4,0,.2,1) forwards; will-change:transform; }
-.page-enter-back    { animation: pageEnterBack   0.55s cubic-bezier(.4,0,.2,1) forwards; will-change:transform; }
-.cover-opening      { animation: coverOpen       0.6s  cubic-bezier(.4,0,.2,1) forwards; will-change:transform; }
-
-/* ── Wrap ── */
+/* ── Layout ── */
 .wrap{
   min-height:100svh;position:relative;z-index:1;
   display:flex;flex-direction:column;align-items:center;
-  padding-top:env(safe-area-inset-top,20px);
-  padding-top:max(20px,env(safe-area-inset-top));
-  padding-bottom:max(84px,calc(64px + env(safe-area-inset-bottom)));
+  padding-top:max(24px,env(safe-area-inset-top));
+  padding-bottom:max(88px,calc(68px + env(safe-area-inset-bottom)));
   padding-left:max(20px,env(safe-area-inset-left));
   padding-right:max(20px,env(safe-area-inset-right));
   box-sizing:border-box;
 }
-/* Landing page: full-width, no padding, no centering constraint */
-.wrap.landing-active{
-  padding:0 !important;
-  align-items:stretch;
-}
-.wrap.landing-active > .fade{
-  max-width:100% !important;
-  width:100% !important;
-}
-/* Home screen shell — remove wrap's own side padding so the panel fills properly */
+.wrap.landing-active{padding:0 !important;align-items:stretch}
+.wrap.landing-active > .fade{max-width:100% !important;width:100% !important}
 .wrap.home-active{
-  padding-left:0 !important;
-  padding-right:0 !important;
-  padding-top: max(0px,env(safe-area-inset-top)) !important;
+  padding-left:0 !important;padding-right:0 !important;
+  padding-top:max(0px,env(safe-area-inset-top)) !important;
   align-items:stretch;
 }
-.wrap.home-active > .hw-shell{
-  width:100% !important;
-  max-width:100% !important;
-}
-/* Sidebar scrollbar */
-.hw-shell ::-webkit-scrollbar{ width:4px; }
-.hw-shell ::-webkit-scrollbar-track{ background:transparent; }
-.hw-shell ::-webkit-scrollbar-thumb{ background:rgba(255,255,255,.08); border-radius:99px; }
-/* On mobile, inner screens fill full width */
+.wrap.home-active > .hw-shell{width:100% !important;max-width:100% !important}
+.hw-shell ::-webkit-scrollbar{width:3px}
+.hw-shell ::-webkit-scrollbar-thumb{background:rgba(255,255,255,.07);border-radius:99px}
 @media(max-width:699px){
-  .wrap > .fade { width:100% !important; max-width:100% !important; }
-  .has-bottom-nav { width:100% !important; max-width:100% !important; }
+  .wrap > .fade{width:100% !important;max-width:100% !important}
+  .has-bottom-nav{width:100% !important;max-width:100% !important}
 }
 
 /* ── Buttons ── */
+/* PRIMARY — gold, always */
 .btn-cta{
-  background:linear-gradient(270deg,#c084fc,#818cf8,#38bdf8,#c084fc);
-  background-size:280% 100%;animation:gradFlow 4s ease infinite;
-  color:white;border:none;border-radius:999px;
-  padding:17px 44px;font-size:17px;font-weight:800;
+  background:linear-gradient(135deg,#d4a842,#b88a20);
+  color:#130c00;border:none;border-radius:var(--r-lg);
+  padding:15px 40px;font-size:16px;font-weight:800;
   font-family:'Nunito',sans-serif;cursor:pointer;
-  transition:transform .2s,box-shadow .2s;
-  box-shadow:0 6px 32px rgba(130,80,240,.45);
-  letter-spacing:.01em;min-height:52px;
-  -webkit-tap-highlight-color:transparent;touch-action:manipulation;
-  display:inline-block
+  transition:transform .16s,box-shadow .16s;
+  box-shadow:0 4px 24px rgba(180,130,30,.38),0 1px 3px rgba(0,0,0,.25);
+  letter-spacing:.01em;min-height:50px;
+  -webkit-tap-highlight-color:transparent;touch-action:manipulation;display:inline-block
 }
-.btn-cta:hover{transform:translateY(-2px) scale(1.01);box-shadow:0 10px 40px rgba(130,80,240,.6)}
-.btn-cta:active{transform:scale(.97);box-shadow:0 3px 16px rgba(130,80,240,.4)}
-.btn-cta.full{width:100%;display:block}
-.btn-cta.btn-pulse{animation:gradFlow 4s ease infinite,btnPulse 5s ease-in-out infinite}
+.btn-cta:hover{transform:translateY(-2px);box-shadow:0 8px 32px rgba(180,130,30,.55)}
+.btn-cta:active{transform:scale(.98);box-shadow:0 2px 12px rgba(180,130,30,.3)}
+.btn-cta.full{width:100%;display:block;text-align:center}
+.btn-cta.pulse{animation:goldPulse 2.5s ease-in-out infinite}
 
+/* SOLID — purple, wizard/forms */
 .btn-solid{
-  background:linear-gradient(135deg,#4c2d99,#7c4dcc);
-  color:white;border:none;border-radius:16px;
-  padding:15px 24px;font-size:16px;font-weight:700;
+  background:linear-gradient(135deg,#3d2080,#6b35c8);
+  color:white;border:none;border-radius:var(--r-lg);
+  padding:14px 24px;font-size:16px;font-weight:700;
   font-family:'Nunito',sans-serif;cursor:pointer;width:100%;
-  transition:all .2s;box-shadow:0 4px 20px rgba(90,58,158,.35);
-  min-height:52px;-webkit-tap-highlight-color:transparent;touch-action:manipulation
+  transition:all .16s;box-shadow:0 4px 20px rgba(80,40,160,.3);
+  min-height:50px;-webkit-tap-highlight-color:transparent;touch-action:manipulation
 }
-.btn-solid:hover{transform:translateY(-2px);filter:brightness(1.1);box-shadow:0 8px 28px rgba(90,58,158,.5)}
-.btn-solid:active{transform:scale(.98);filter:brightness(.95)}
+.btn-solid:hover{transform:translateY(-2px);box-shadow:0 8px 28px rgba(80,40,160,.5)}
+.btn-solid:active{transform:scale(.98)}
 
+/* SOFT — ghost */
 .btn-soft{
-  background:rgba(255,255,255,.06);color:rgba(255,255,255,.65);
-  border:1px solid rgba(255,255,255,.12);border-radius:14px;
-  padding:13px 20px;font-size:14px;font-family:'Nunito',sans-serif;
-  font-weight:600;cursor:pointer;transition:all .18s;
+  background:var(--surface-1);color:var(--text-2);
+  border:1px solid var(--border-1);border-radius:var(--r-md);
+  padding:12px 20px;font-size:14px;font-family:'Nunito',sans-serif;
+  font-weight:600;cursor:pointer;transition:all .15s;
   min-height:44px;-webkit-tap-highlight-color:transparent;touch-action:manipulation
 }
-.btn-soft:hover{background:rgba(255,255,255,.11);color:white;border-color:rgba(255,255,255,.22)}
-.btn-soft:active{background:rgba(255,255,255,.15);transform:scale(.98)}
+.btn-soft:hover{background:var(--surface-2);color:var(--text-1);border-color:var(--border-2)}
+.btn-soft:active{background:var(--surface-3);transform:scale(.98)}
 
+/* BOOK — inside story reader */
 .btn-book{
-  background:linear-gradient(135deg,#150800,#3a1800);
-  color:var(--gold-light);border:1px solid rgba(201,168,76,.25);
-  border-radius:12px;padding:12px 20px;font-size:13px;font-weight:700;
-  font-family:'Nunito',sans-serif;cursor:pointer;transition:all .2s;
-  box-shadow:0 2px 10px rgba(0,0,0,.4);min-height:44px;
-  -webkit-tap-highlight-color:transparent;touch-action:manipulation
+  background:var(--surface-1);color:var(--text-2);
+  border:1px solid var(--border-1);border-radius:var(--r-md);
+  padding:13px 20px;font-size:14px;font-weight:700;
+  font-family:'Nunito',sans-serif;cursor:pointer;transition:all .16s;
+  min-height:46px;-webkit-tap-highlight-color:transparent;touch-action:manipulation;
+  width:100%;display:flex;align-items:center;justify-content:center;gap:8px
 }
-.btn-book:hover{filter:brightness(1.2);transform:translateY(-1px)}
+.btn-book:hover{background:var(--surface-2);border-color:var(--border-2);color:var(--text-1)}
 .btn-book:active{transform:scale(.97)}
-.btn-book:disabled{opacity:.25;cursor:default;transform:none;filter:none}
+.btn-book:disabled{opacity:.25;cursor:default;transform:none}
+.btn-book.gold{border-color:var(--gold-border);color:var(--gold-light)}
+.btn-book.gold:hover{background:rgba(201,168,76,.1)}
 
-/* ── Inputs ── */
+/* ── Input ── */
 input{
-  width:100%;padding:15px 18px;border-radius:16px;
-  border:1.5px solid rgba(255,255,255,.09);
-  background:rgba(255,255,255,.05);
-  color:white;font-size:16px;font-family:'Nunito',sans-serif;
-  outline:none;transition:border-color .2s,background .2s;
+  width:100%;padding:14px 16px;border-radius:var(--r-md);
+  border:1.5px solid var(--border-1);
+  background:rgba(255,255,255,.04);
+  color:var(--text-1);font-size:16px;font-family:'Nunito',sans-serif;
+  outline:none;transition:border-color .18s,background .18s,box-shadow .18s;
   -webkit-appearance:none;appearance:none
 }
-input:focus{border-color:rgba(139,92,246,.6);background:rgba(255,255,255,.07)}
-input::placeholder{color:rgba(255,255,255,.18)}
-
-/* ── Pill toggles ── */
-.pill{
-  display:inline-flex;align-items:center;gap:5px;
-  padding:10px 14px;border-radius:999px;
-  border:1.5px solid rgba(255,255,255,.1);
-  background:rgba(255,255,255,.04);
-  color:rgba(255,255,255,.55);cursor:pointer;
-  font-family:'Nunito',sans-serif;font-size:13px;font-weight:600;
-  transition:all .18s;white-space:nowrap;line-height:1;
-  min-height:40px;-webkit-tap-highlight-color:transparent;touch-action:manipulation
+input:focus{
+  border-color:rgba(201,168,76,.5);
+  background:rgba(255,255,255,.06);
+  box-shadow:0 0 0 3px rgba(201,168,76,.09)
 }
-.pill:hover{border-color:rgba(180,145,255,.4);color:white}
-.pill:active{transform:scale(.95)}
-.pill.on{background:rgba(124,77,204,.22);border-color:rgba(180,145,255,.6);color:white}
-.pill.on-green{background:rgba(74,222,128,.15);border-color:rgba(74,222,128,.5);color:#a7f3d0}
-
-.tab{
-  padding:10px 16px;border-radius:999px;
-  border:1.5px solid rgba(255,255,255,.08);
-  background:rgba(255,255,255,.04);
-  color:rgba(255,255,255,.45);cursor:pointer;
-  font-family:'Nunito',sans-serif;font-size:14px;font-weight:600;
-  transition:all .18s;min-height:40px;
-  -webkit-tap-highlight-color:transparent;touch-action:manipulation
-}
-.tab:active{transform:scale(.95)}
-.tab.on{background:rgba(124,77,204,.22);border-color:rgba(180,145,255,.55);color:white}
+input::placeholder{color:var(--text-4)}
+label{display:block;font-size:11px;font-weight:700;color:var(--text-3);
+  letter-spacing:.1em;text-transform:uppercase;margin-bottom:7px;
+  font-family:'Nunito',sans-serif}
 
 /* ── Form card ── */
 .form-card{
-  background:rgba(255,255,255,.04);
-  border:1px solid rgba(255,255,255,.08);
-  border-radius:24px;padding:28px 24px;
-  backdrop-filter:blur(12px)
+  background:rgba(255,255,255,.035);
+  border:1px solid var(--border-1);border-radius:var(--r-2xl);
+  padding:28px 24px;backdrop-filter:blur(12px)
+}
+
+/* ── Selection pills (mood/lesson) ── */
+.sel-pill{
+  display:inline-flex;align-items:center;gap:6px;
+  padding:10px 16px;border-radius:999px;
+  border:1.5px solid var(--border-1);
+  background:var(--surface-1);
+  color:var(--text-2);cursor:pointer;
+  font-family:'Nunito',sans-serif;font-size:13px;font-weight:700;
+  transition:all .15s;white-space:nowrap;
+  min-height:40px;-webkit-tap-highlight-color:transparent;touch-action:manipulation
+}
+.sel-pill:hover{border-color:var(--gold-border);color:var(--text-1);background:var(--surface-2)}
+.sel-pill.on{
+  background:rgba(201,168,76,.12);
+  border-color:rgba(201,168,76,.45);
+  color:var(--gold-light)
+}
+
+/* ── Library / Story type tile ── */
+.type-tile{
+  padding:18px 16px;border-radius:var(--r-lg);cursor:pointer;
+  text-align:left;transition:all .14s;border:1.5px solid var(--border-1);
+  background:var(--surface-1);-webkit-tap-highlight-color:transparent
+}
+.type-tile:hover{background:var(--surface-2);border-color:var(--border-2)}
+.type-tile.on{background:rgba(201,168,76,.1);border-color:rgba(201,168,76,.4)}
+
+/* ── Section card ── */
+.s-card{
+  border-radius:var(--r-lg);border:1px solid var(--border-1);
+  background:var(--surface-1);overflow:hidden
+}
+.s-card-head{
+  padding:12px 18px;border-bottom:1px solid rgba(255,255,255,.05);
+  display:flex;align-items:center;gap:9px
+}
+.step-num{
+  width:20px;height:20px;border-radius:50%;flex-shrink:0;
+  background:rgba(255,255,255,.07);border:1px solid var(--border-2);
+  display:flex;align-items:center;justify-content:center;
+  font-size:10px;font-weight:800;font-family:'Nunito',sans-serif;
+  color:var(--text-3)
 }
 
 /* ── Skeleton ── */
 .skeleton{
-  background:linear-gradient(90deg,#241b3e 25%,#342b52 50%,#241b3e 75%);
-  background-size:200% 100%;animation:shimmer 1.6s infinite
+  background:linear-gradient(90deg,#181228 25%,#261e3e 50%,#181228 75%);
+  background-size:200% 100%;animation:shimmer 1.5s infinite
 }
-
-/* ── Misc ── */
-.err{color:#ff8080;font-size:13px;margin-top:6px}
-.lnk{color:var(--purple-light);cursor:pointer}
-.lnk:hover{text-decoration:underline}
-::-webkit-scrollbar{width:4px}
-::-webkit-scrollbar-thumb{background:rgba(255,255,255,.1);border-radius:4px}
 
 /* ── Typography ── */
 .hero-title{
   font-family:'Playfair Display',serif;
-  font-size:clamp(38px,8vw,72px);
-  line-height:1.04;letter-spacing:-.025em;
-  margin-bottom:20px
-}
-.hero-sub{
-  color:rgba(255,255,255,.44);
-  font-size:clamp(15px,2.8vw,18px);line-height:1.8;
-  font-family:'Crimson Pro',serif;font-style:italic
+  font-size:clamp(38px,8vw,72px);line-height:1.03;
+  letter-spacing:-.025em;margin-bottom:20px
 }
 .eyebrow{
-  font-size:11px;letter-spacing:.18em;text-transform:uppercase;
-  color:rgba(255,255,255,.25);font-family:'Nunito',sans-serif
+  font-size:11px;letter-spacing:.16em;text-transform:uppercase;
+  color:var(--text-3);font-family:'Nunito',sans-serif;font-weight:700
 }
-.section-label{
-  display:block;font-size:11px;letter-spacing:.16em;text-transform:uppercase;
-  color:rgba(255,255,255,.28);font-family:'Nunito',sans-serif;margin-bottom:10px
-}
+.hero-sub{color:var(--text-3);font-size:clamp(15px,2.6vw,18px);line-height:1.8;font-family:'Crimson Pro',serif;font-style:italic}
 
-/* ── Orb blobs ── */
+/* ── Misc ── */
+.err{color:#ff8080;font-size:13px;margin-top:4px}
+.lnk{color:var(--gold-light);cursor:pointer;transition:opacity .14s}
+.lnk:hover{opacity:.75;text-decoration:underline}
+::-webkit-scrollbar{width:4px}
+::-webkit-scrollbar-thumb{background:rgba(255,255,255,.1);border-radius:4px}
 .orb{position:absolute;border-radius:50%;pointer-events:none;filter:blur(80px);animation:orb 12s ease-in-out infinite}
 
-/* ── Tablet (iPad) optimizations ── */
-@media (min-width: 700px) and (max-width: 1023px) {
-  .pill { padding: 11px 18px !important; font-size: 14px !important; }
-  .btn-soft { font-size: 15px !important; padding: 15px 20px !important; }
-  .btn-solid { font-size: 16px !important; padding: 16px 22px !important; }
-  .btn-cta { font-size: 17px !important; padding: 20px 32px !important; }
-  .tab { font-size: 14px !important; padding: 10px 18px !important; }
-  input, select { font-size: 16px !important; padding: 16px 18px !important; }
-  label { font-size: 14px !important; }
-  .section-label { font-size: 12px !important; }
-}
-/* ── Feature strip (horizontal scroll on mobile) ── */
-.features-strip{
-  display:flex;gap:12px;
-  overflow-x:auto;-webkit-overflow-scrolling:touch;
-  scrollbar-width:none;padding:4px 0 16px
-}
+/* ── Features strip ── */
+.features-strip{display:flex;gap:12px;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;padding:4px 0 16px}
 .features-strip::-webkit-scrollbar{display:none}
-.feat-card{
-  flex:0 0 auto;
-  display:flex;flex-direction:column;gap:8px;
-  padding:20px 18px;border-radius:20px;
-  background:rgba(255,255,255,.03);
-  border:1px solid rgba(255,255,255,.06);
-  width:140px;text-align:center;
-  transition:all .25s
-}
-.feat-card:hover{background:rgba(255,255,255,.06);transform:translateY(-3px)}
-@media(min-width:641px){
-  .features-strip{flex-wrap:wrap;overflow-x:visible;justify-content:center}
-  .feat-card{width:152px}
-}
+.feat-card{flex:0 0 auto;display:flex;flex-direction:column;gap:8px;padding:20px 18px;border-radius:18px;background:var(--surface-1);border:1px solid var(--border-1);width:140px;text-align:center;transition:all .2s}
+.feat-card:hover{background:var(--surface-2);transform:translateY(-3px)}
+@media(min-width:641px){.features-strip{flex-wrap:wrap;overflow-x:visible;justify-content:center}.feat-card{width:152px}}
 
-/* ── Lesson pills ── */
-.l-pill{
-  display:inline-flex;align-items:center;gap:5px;
-  padding:6px 13px;border-radius:999px;font-size:12px;font-weight:600;
-  background:rgba(74,222,128,.07);border:1px solid rgba(74,222,128,.16);
-  color:rgba(255,255,255,.62);white-space:nowrap;font-family:'Nunito',sans-serif;
-  transition:all .15s
-}
-.l-pill:hover{background:rgba(74,222,128,.14);color:#bbf7d0}
-
-/* ── Snippet cards ── */
-.snip{padding:13px 15px;border-radius:14px;backdrop-filter:blur(8px)}
-
-/* ── Coloring book modal ── */
-.coloring-modal{
-  position:fixed;inset:0;z-index:100;
-  background:rgba(0,0,0,.85);backdrop-filter:blur(6px);
-  display:flex;align-items:center;justify-content:center;
-  padding:20px;animation:fadeIn .2s ease
-}
-.coloring-modal-inner{
-  background:#fff;border-radius:20px;padding:0;
-  max-width:520px;width:100%;overflow:hidden;
-  box-shadow:0 40px 80px rgba(0,0,0,.8)
-}
-
-/* ── Badge toast ── */
+/* ── Badge ── */
 .badge-toast{
-  position:fixed;
-  bottom:calc(76px + env(safe-area-inset-bottom));
-  left:16px; right:16px;
-  max-width:360px;
-  margin:0 auto;
-  z-index:10000;
+  position:fixed;bottom:calc(76px + env(safe-area-inset-bottom));
+  left:16px;right:16px;max-width:360px;margin:0 auto;z-index:10000;
   background:linear-gradient(135deg,#1a0a38,#2d1060);
-  border:1px solid rgba(201,168,76,.4);border-radius:16px;
+  border:1px solid var(--gold-border);border-radius:var(--r-lg);
   padding:14px 18px;display:flex;gap:12px;align-items:center;
-  box-shadow:0 8px 32px rgba(0,0,0,.6),0 0 0 1px rgba(255,255,255,.06);
-  animation:fadeUp .4s ease both;
+  box-shadow:0 8px 32px rgba(0,0,0,.6);animation:fadeUp .4s ease both
 }
-
-/* ── Badge grid ── */
 .badge-grid{display:flex;gap:10px;flex-wrap:wrap}
 .badge-item{
   display:flex;flex-direction:column;align-items:center;gap:5px;
-  padding:14px 10px;border-radius:16px;width:80px;text-align:center;
-  background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);
-  transition:all .2s
+  padding:14px 8px;border-radius:var(--r-md);width:80px;text-align:center;
+  background:var(--surface-1);border:1px solid var(--border-1);transition:all .18s
 }
-.badge-item.earned{
-  background:rgba(201,168,76,.1);border-color:rgba(201,168,76,.3);
-}
-.badge-item.earned:hover{background:rgba(201,168,76,.18);transform:translateY(-2px)}
+.badge-item.earned{background:rgba(201,168,76,.08);border-color:rgba(201,168,76,.28)}
+.badge-item.earned:hover{background:rgba(201,168,76,.14);transform:translateY(-2px)}
 
-/* ── Mobile bottom nav ── */
-.bottom-nav {
-  position: fixed;
-  bottom: 0; left: 0; right: 0;
-  z-index: 9999;
-  display: flex;
-  height: 60px;
-  background: rgba(7,5,14,.98);
-  border-top: 1px solid rgba(255,255,255,.07);
-  padding-bottom: env(safe-area-inset-bottom, 0px);
-}
-.bottom-nav button {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 3px;
-  background: none;
-  border: none;
-  cursor: pointer;
-  padding: 0;
-  -webkit-tap-highlight-color: transparent;
-  touch-action: manipulation;
-  opacity: .45;
-  transition: opacity .15s;
-}
-.bottom-nav button.active { opacity: 1; }
-.bottom-nav button svg { display: block; }
-.bottom-nav button .nav-label {
-  font-family: 'Nunito', sans-serif;
-  font-size: 10px;
-  font-weight: 700;
-  color: white;
-  letter-spacing: .03em;
-}
-.has-bottom-nav {
-  padding-bottom: calc(68px + env(safe-area-inset-bottom, 0px)) !important;
-}
+/* ── Coloring modal ── */
+.coloring-modal{position:fixed;inset:0;z-index:100;background:rgba(0,0,0,.85);backdrop-filter:blur(6px);display:flex;align-items:center;justify-content:center;padding:20px;animation:fadeIn .2s ease}
+.coloring-modal-inner{background:#fff;border-radius:var(--r-xl);max-width:520px;width:100%;overflow:hidden;box-shadow:0 40px 80px rgba(0,0,0,.8)}
 
-/* ── Mobile-first layout ── */
+/* ── Bottom nav ── */
+.bottom-nav{
+  position:fixed;bottom:0;left:0;right:0;z-index:9999;
+  display:flex;height:60px;
+  background:rgba(7,5,13,.96);border-top:1px solid var(--border-1);
+  padding-bottom:env(safe-area-inset-bottom,0px);backdrop-filter:blur(20px)
+}
+.bottom-nav button{
+  flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:3px;background:none;border:none;cursor:pointer;padding:0;
+  -webkit-tap-highlight-color:transparent;touch-action:manipulation;opacity:.4;transition:opacity .15s
+}
+.bottom-nav button.active{opacity:1}
+.bottom-nav button .nav-label{font-family:'Nunito',sans-serif;font-size:10px;font-weight:700;color:white;letter-spacing:.03em}
+.has-bottom-nav{padding-bottom:calc(68px + env(safe-area-inset-bottom,0px)) !important}
+
+/* ── Tablet ── */
+@media(min-width:700px) and (max-width:1023px){
+  .sel-pill,.btn-soft{font-size:14px !important;padding:11px 18px !important}
+  .btn-solid,.btn-cta{font-size:16px !important;padding:16px 28px !important}
+  input,select{font-size:16px !important}
+}
+/* ── Mobile ── */
 @media(max-width:640px){
   .wrap{padding-top:14px}
-  .hero-title{font-size:clamp(34px,9.5vw,52px);letter-spacing:-.02em}
-  .hero-sub{font-size:15px;line-height:1.7}
-  .btn-cta{font-size:15px;padding:15px 20px;min-height:52px}
+  .btn-cta{font-size:15px;padding:15px 24px;min-height:50px}
   .btn-solid{font-size:15px;padding:14px 18px}
-  .form-card{padding:22px 18px;border-radius:20px}
-  input{font-size:16px}
+  .form-card{padding:22px 18px;border-radius:var(--r-xl)}
   .feat-card{width:128px;padding:16px 12px}
-  .pill{font-size:12px;padding:9px 12px}
-  .tab{font-size:13px;padding:9px 14px}
+  .sel-pill{font-size:13px;padding:9px 14px}
 }
 `;
+
+
+
 
 const LBL = { display:"block", color:"rgba(255,255,255,.32)", fontSize:11, letterSpacing:".12em", textTransform:"uppercase", marginBottom:7 };
 
@@ -2134,43 +2039,62 @@ NO title. Start immediately.`;
             LOGIN
         ══════════════════════════════════════════════════════════════════════ */}
         {screen==="login" && (
-          <div className="fade" style={{ maxWidth:420, width:"100%", display:"flex", flexDirection:"column", justifyContent:"center", minHeight:"75vh", gap:0 }}>
-            <div style={{ textAlign:"center", marginBottom:28 }}>
-              <DreamweaverLogo size={42} showText={true} />
-              <p style={{ color:"rgba(255,255,255,.3)", fontFamily:"'Crimson Pro',serif", fontStyle:"italic", marginTop:12, fontSize:15 }}>Bedtime stories, reimagined</p>
+          <div className="fade" style={{ maxWidth:400, width:"100%", display:"flex", flexDirection:"column", justifyContent:"center", minHeight:"82vh", gap:0 }}>
+            <div style={{ textAlign:"center", marginBottom:36 }}>
+              <div style={{ fontSize:54, marginBottom:14, animation:"float 5s ease-in-out infinite", filter:"drop-shadow(0 0 28px rgba(200,165,55,.5))", display:"inline-block" }}>🌙</div>
+              <div style={{ fontFamily:"'Playfair Display',serif", fontSize:30, fontWeight:800, letterSpacing:"-.025em", color:"var(--text-1)", marginBottom:6 }}>DreamWeaver</div>
+              <div style={{ fontFamily:"'Crimson Pro',serif", fontStyle:"italic", color:"var(--text-3)", fontSize:16 }}>Bedtime stories, reimagined</div>
             </div>
-            <div className="form-card" style={{ display:"flex", flexDirection:"column", gap:16 }}>
-              <h2 style={{ fontFamily:"'Playfair Display',serif", fontSize:20 }}>Welcome back</h2>
-              {err && <p className="err">{err}</p>}
-              {[{k:"email",l:"Email",t:"email",ph:"you@example.com"},{k:"password",l:"Password",t:"password",ph:"••••••••"}].map(f => (
-                <div key={f.k}><label style={LBL}>{f.l}</label><input type={f.t} placeholder={f.ph} value={af[f.k]} onChange={e=>setAf({...af,[f.k]:e.target.value})} onKeyDown={e=>e.key==="Enter"&&login()} /></div>
-              ))}
-              <button className="btn-solid" style={{ marginTop:4 }} onClick={login}>Sign In</button>
-              <p style={{ textAlign:"center", color:"rgba(255,255,255,.3)", fontSize:14 }}>No account? <span className="lnk" onClick={()=>{setErr("");setScreen("signup");}}>Start free trial</span></p>
+            <div className="form-card" style={{ display:"flex", flexDirection:"column", gap:20 }}>
+              <div style={{ marginBottom:4 }}>
+                <div style={{ fontFamily:"'Playfair Display',serif", fontSize:22, fontWeight:800, color:"var(--text-1)", marginBottom:6 }}>Welcome back</div>
+                <div style={{ fontSize:13, color:"var(--text-3)", fontFamily:"'Nunito',sans-serif" }}>Sign in to your child's story world</div>
+              </div>
+              {err && <div className="err">{err}</div>}
+              <div>
+                <label>Email address</label>
+                <input type="email" placeholder="you@example.com" value={af.email} onChange={e=>setAf({...af,email:e.target.value})} onKeyDown={e=>e.key==="Enter"&&login()} autoFocus />
+              </div>
+              <div>
+                <label>Password</label>
+                <input type="password" placeholder="Your password" value={af.password} onChange={e=>setAf({...af,password:e.target.value})} onKeyDown={e=>e.key==="Enter"&&login()} />
+              </div>
+              <button className="btn-solid" style={{ marginTop:4 }} onClick={login}>Sign in →</button>
+              <div style={{ borderTop:"1px solid var(--border-1)", paddingTop:16, textAlign:"center", fontSize:14, color:"var(--text-3)" }}>
+                No account? <span className="lnk" onClick={()=>{setErr("");setScreen("signup");}}>Start 7-night free trial</span>
+              </div>
             </div>
           </div>
         )}
 
-        {/* ═══════════════════════════════════════════════════════════════════
-            SIGNUP
-        ══════════════════════════════════════════════════════════════════════ */}
         {screen==="signup" && (
-          <div className="fade" style={{ maxWidth:420, width:"100%", display:"flex", flexDirection:"column", justifyContent:"center", minHeight:"80vh" }}>
-            <div style={{ textAlign:"center", marginBottom:22 }}>
-              <div style={{ fontSize:"clamp(44px,10vw,56px)", marginBottom:10, animation:"float 4s ease-in-out infinite" }}>🌙</div>
-              <h1 style={{ fontFamily:"'Playfair Display',serif", fontSize:"clamp(26px,6vw,32px)" }}>DreamWeaver</h1>
+          <div className="fade" style={{ maxWidth:400, width:"100%", display:"flex", flexDirection:"column", justifyContent:"center", minHeight:"82vh" }}>
+            <div style={{ textAlign:"center", marginBottom:32 }}>
+              <div style={{ fontSize:54, marginBottom:14, animation:"float 5s ease-in-out infinite", filter:"drop-shadow(0 0 28px rgba(200,165,55,.5))", display:"inline-block" }}>🌙</div>
+              <div style={{ fontFamily:"'Playfair Display',serif", fontSize:30, fontWeight:800, letterSpacing:"-.025em", color:"var(--text-1)" }}>DreamWeaver</div>
             </div>
-            <div className="form-card" style={{ display:"flex", flexDirection:"column", gap:16 }}>
-              <div>
-                <h2 style={{ fontFamily:"'Playfair Display',serif", fontSize:20 }}>Start your free trial</h2>
-                <p style={{ color:"rgba(255,255,255,.3)", fontSize:13, marginTop:5 }}>7 Nights Free · $5.99/mo · +$2.99 per additional child</p>
+            <div className="form-card" style={{ display:"flex", flexDirection:"column", gap:20 }}>
+              <div style={{ marginBottom:4 }}>
+                <div style={{ fontFamily:"'Playfair Display',serif", fontSize:22, fontWeight:800, color:"var(--text-1)", marginBottom:6 }}>Start your free trial</div>
+                <div style={{ fontSize:13, color:"var(--text-3)", fontFamily:"'Nunito',sans-serif" }}>7 nights free · $5.99/mo after · no credit card</div>
               </div>
-              {err && <p className="err">{err}</p>}
-              {[{k:"name",l:"Your Name",t:"text",ph:"Parent's name"},{k:"email",l:"Email",t:"email",ph:"you@example.com"},{k:"password",l:"Password",t:"password",ph:"Create a password"}].map(f => (
-                <div key={f.k}><label style={LBL}>{f.l}</label><input type={f.t} placeholder={f.ph} value={af[f.k]} onChange={e=>setAf({...af,[f.k]:e.target.value})} onKeyDown={e=>e.key==="Enter"&&signup()} /></div>
-              ))}
-              <button className="btn-solid" style={{ marginTop:4 }} onClick={signup}>Create Free Account</button>
-              <p style={{ textAlign:"center", color:"rgba(255,255,255,.3)", fontSize:14 }}>Have an account? <span className="lnk" onClick={()=>{setErr("");setScreen("login");}}>Sign in</span></p>
+              {err && <div className="err">{err}</div>}
+              <div>
+                <label>Your name</label>
+                <input type="text" placeholder="Parent's name" value={af.name} onChange={e=>setAf({...af,name:e.target.value})} onKeyDown={e=>e.key==="Enter"&&signup()} autoFocus />
+              </div>
+              <div>
+                <label>Email address</label>
+                <input type="email" placeholder="you@example.com" value={af.email} onChange={e=>setAf({...af,email:e.target.value})} onKeyDown={e=>e.key==="Enter"&&signup()} />
+              </div>
+              <div>
+                <label>Password</label>
+                <input type="password" placeholder="Create a password" value={af.password} onChange={e=>setAf({...af,password:e.target.value})} onKeyDown={e=>e.key==="Enter"&&signup()} />
+              </div>
+              <button className="btn-cta full" style={{ marginTop:4 }} onClick={signup}>Create free account ✨</button>
+              <div style={{ borderTop:"1px solid var(--border-1)", paddingTop:16, textAlign:"center", fontSize:14, color:"var(--text-3)" }}>
+                Have an account? <span className="lnk" onClick={()=>{setErr("");setScreen("login");}}>Sign in</span>
+              </div>
             </div>
           </div>
         )}
@@ -2190,7 +2114,7 @@ NO title. Start immediately.`;
 
             <h1 style={{ fontFamily:"'Playfair Display',serif", fontSize:"clamp(26px,6vw,36px)", lineHeight:1.2, marginBottom:14 }}>
               Welcome to<br/>
-              <em style={{ background:"linear-gradient(120deg,#c084fc 0%,#a78bfa 40%,#67e8f9 100%)", WebkitBackgroundClip:"text", WebkitTextFillColor:"transparent", backgroundClip:"text" }}>
+              <em style={{ background:"linear-gradient(120deg,#e8c96a 0%,#d4a842 50%,#c49030 100%)", WebkitBackgroundClip:"text", WebkitTextFillColor:"transparent", backgroundClip:"text" }}>
                 your child's story world
               </em>
             </h1>
@@ -2408,49 +2332,45 @@ NO title. Start immediately.`;
                     </div>
                   )}
 
-                  {/* ═══════════════════════════════════════════
-                      SCROLLABLE CONTENT — top to bottom flow
-                  ═══════════════════════════════════════════ */}
-                  <div style={{ flex:1, padding: mobile ? "20px 18px 110px" : "28px 32px 32px", display:"flex", flexDirection:"column", gap:20, overflowY:"auto" }}>
+                  {/* SCROLLABLE CONTENT */}
+                  <div style={{ flex:1, padding:mobile?"18px 18px 110px":"28px 32px 36px", display:"flex", flexDirection:"column", gap:18, overflowY:"auto" }}>
 
-                    {/* ── GREETING HEADER ── */}
-                    <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between" }}>
-                      <div style={{ display:"flex", alignItems:"center", gap:18 }}>
-                        <div style={{ fontSize: mobile ? 48 : 56, lineHeight:1, filter:"drop-shadow(0 0 24px rgba(200,170,80,.55))", animation:"float 5s ease-in-out infinite", flexShrink:0 }}>{moonPhase}</div>
+                    {/* ── Greeting ── */}
+                    <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", paddingBottom:4 }}>
+                      <div style={{ display:"flex", alignItems:"center", gap:16 }}>
+                        <div style={{ fontSize:mobile?46:54, lineHeight:1, filter:"drop-shadow(0 0 22px rgba(200,170,80,.5))", animation:"float 5s ease-in-out infinite", flexShrink:0 }}>{moonPhase}</div>
                         <div>
-                          <div style={{ fontSize:12, letterSpacing:".1em", textTransform:"uppercase", color:"rgba(255,255,255,.35)", fontFamily:"'Nunito',sans-serif", fontWeight:700, marginBottom:5 }}>{greeting}</div>
-                          <div style={{ fontFamily:"'Playfair Display',serif", fontSize: mobile ? "clamp(28px,7vw,36px)" : 38, fontWeight:800, letterSpacing:"-.025em", color:"white", lineHeight:1 }}>
+                          <div style={{ fontSize:11, letterSpacing:".1em", textTransform:"uppercase", color:"var(--text-3)", fontFamily:"'Nunito',sans-serif", fontWeight:700, marginBottom:4 }}>{greeting}</div>
+                          <div style={{ fontFamily:"'Playfair Display',serif", fontSize:mobile?"clamp(26px,7vw,34px)":36, fontWeight:800, letterSpacing:"-.025em", color:"var(--text-1)", lineHeight:1 }}>
                             {active.child_name}
                           </div>
                         </div>
                       </div>
                       {!mobile && (
                         <div style={{ display:"flex", alignItems:"center", gap:8 }}>
-                          <div style={{ display:"flex", alignItems:"center", gap:0, borderRadius:10, border:"1px solid rgba(255,255,255,.09)", overflow:"hidden" }}>
+                          <div style={{ display:"flex", alignItems:"center", gap:0, borderRadius:10, border:"1px solid var(--border-1)", overflow:"hidden" }}>
                             {[{v:streak||0,l:"streak",i:"🔥"},{v:childStories,l:"stories",i:"📖"},{v:badges.length,l:"badges",i:"🏅"}].map(({v,l,i},idx)=>(
-                              <div key={l} style={{ display:"flex", alignItems:"center", gap:6, padding:"9px 16px", borderRight: idx<2 ? "1px solid rgba(255,255,255,.08)" : "none", background:"rgba(255,255,255,.04)" }}>
+                              <div key={l} style={{ display:"flex", alignItems:"center", gap:7, padding:"9px 16px", borderRight:idx<2?"1px solid var(--border-1)":"none", background:"var(--surface-1)" }}>
                                 <span style={{ fontSize:13 }}>{i}</span>
                                 <div>
-                                  <div style={{ fontFamily:"'Nunito',sans-serif", fontSize:15, fontWeight:800, color:"rgba(255,255,255,.8)", lineHeight:1 }}>{v}</div>
-                                  <div style={{ fontFamily:"'Nunito',sans-serif", fontSize:10, color:"rgba(255,255,255,.3)", marginTop:1 }}>{l}</div>
+                                  <div style={{ fontFamily:"'Nunito',sans-serif", fontSize:15, fontWeight:800, color:"var(--text-1)", lineHeight:1 }}>{v}</div>
+                                  <div style={{ fontFamily:"'Nunito',sans-serif", fontSize:10, color:"var(--text-3)", marginTop:1 }}>{l}</div>
                                 </div>
                               </div>
                             ))}
                           </div>
-                          <button onClick={()=>setScreen("settings")} style={{ width:38, height:38, borderRadius:10, background:"rgba(255,255,255,.04)", border:"1px solid rgba(255,255,255,.09)", display:"flex", alignItems:"center", justifyContent:"center", cursor:"pointer", flexShrink:0 }}>
-                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.5)" strokeWidth="2" strokeLinecap="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-2 2 2 2 0 01-2-2v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83 0 2 2 0 010-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 01-2-2 2 2 0 012-2h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 010-2.83 2 2 0 012.83 0l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 012-2 2 2 0 012 2v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 0 2 2 0 010 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 012 2 2 2 0 01-2 2h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+                          <button onClick={()=>setScreen("settings")} style={{ width:38, height:38, borderRadius:10, background:"var(--surface-1)", border:"1px solid var(--border-1)", display:"flex", alignItems:"center", justifyContent:"center", cursor:"pointer", flexShrink:0 }}>
+                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.45)" strokeWidth="2" strokeLinecap="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-2 2 2 2 0 01-2-2v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83 0 2 2 0 010-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 01-2-2 2 2 0 012-2h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 010-2.83 2 2 0 012.83 0l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 012-2 2 2 0 012 2v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 0 2 2 0 010 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 012 2 2 2 0 01-2 2h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
                           </button>
                         </div>
                       )}
                     </div>
 
-                    {/* ── STORY TYPE ── */}
-                    <div style={{ borderRadius:14, border:"1px solid rgba(255,255,255,.1)", background:"rgba(255,255,255,.04)", overflow:"hidden" }}>
-                      <div style={{ padding:"14px 20px 13px", borderBottom:"1px solid rgba(255,255,255,.07)", display:"flex", alignItems:"center", gap:10 }}>
-                        <div style={{ width:20, height:20, borderRadius:"50%", background:"rgba(255,255,255,.08)", border:"1px solid rgba(255,255,255,.14)", display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}>
-                          <span style={{ fontSize:10, fontWeight:800, fontFamily:"'Nunito',sans-serif", color:"rgba(255,255,255,.55)" }}>1</span>
-                        </div>
-                        <span style={{ fontSize:12, letterSpacing:".1em", textTransform:"uppercase", color:"rgba(255,255,255,.5)", fontFamily:"'Nunito',sans-serif", fontWeight:700 }}>Story type</span>
+                    {/* ── Story type ── */}
+                    <div className="s-card">
+                      <div className="s-card-head">
+                        <div className="step-num">1</div>
+                        <span style={{ fontSize:11, letterSpacing:".12em", textTransform:"uppercase", color:"var(--text-3)", fontFamily:"'Nunito',sans-serif", fontWeight:700 }}>Story type</span>
                       </div>
                       <div style={{ padding:"12px 12px", display:"grid", gridTemplateColumns:"1fr 1fr", gap:8 }}>
                         {[
@@ -2458,32 +2378,25 @@ NO title. Start immediately.`;
                           {id:"lesson",    label:"Life lesson", sub:"Woven with a gentle moral", icon:"✨"},
                         ].map(t=>(
                           <button key={t.id} onClick={()=>setStoryMode(t.id)}
-                            style={{ padding:"16px 18px", borderRadius:10, cursor:"pointer", textAlign:"left", transition:"all .14s", WebkitTapHighlightColor:"transparent", background: storyMode===t.id ? "rgba(255,255,255,.1)" : "rgba(255,255,255,.03)", border:`1px solid ${storyMode===t.id ? "rgba(255,255,255,.22)" : "rgba(255,255,255,.08)"}` }}
-                            onMouseEnter={e=>{ if(storyMode!==t.id) e.currentTarget.style.background="rgba(255,255,255,.06)"; }}
-                            onMouseLeave={e=>{ if(storyMode!==t.id) e.currentTarget.style.background="rgba(255,255,255,.03)"; }}>
+                            className={"type-tile"+(storyMode===t.id?" on":"")}>
                             <div style={{ fontSize:22, marginBottom:10 }}>{t.icon}</div>
-                            <div style={{ fontFamily:"'Nunito',sans-serif", fontWeight:800, fontSize:15, color: storyMode===t.id ? "white" : "rgba(255,255,255,.55)", marginBottom:4 }}>{t.label}</div>
-                            <div style={{ fontFamily:"'Nunito',sans-serif", fontSize:12, color: storyMode===t.id ? "rgba(255,255,255,.55)" : "rgba(255,255,255,.28)", lineHeight:1.4 }}>{t.sub}</div>
+                            <div style={{ fontFamily:"'Nunito',sans-serif", fontWeight:800, fontSize:15, color:storyMode===t.id?"var(--gold-light)":"var(--text-2)", marginBottom:4 }}>{t.label}</div>
+                            <div style={{ fontFamily:"'Nunito',sans-serif", fontSize:12, color:storyMode===t.id?"var(--text-2)":"var(--text-4)", lineHeight:1.4 }}>{t.sub}</div>
                           </button>
                         ))}
                       </div>
                     </div>
 
-                    {/* ── LESSON (conditional) ── */}
+                    {/* ── Lesson ── */}
                     {storyMode==="lesson" && (
-                      <div style={{ borderRadius:14, border:"1px solid rgba(255,255,255,.1)", background:"rgba(255,255,255,.04)", overflow:"hidden" }}>
-                        <div style={{ padding:"14px 20px 13px", borderBottom:"1px solid rgba(255,255,255,.07)", display:"flex", alignItems:"center", gap:10 }}>
-                          <div style={{ width:20, height:20, borderRadius:"50%", background:"rgba(255,255,255,.08)", border:"1px solid rgba(255,255,255,.14)", display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}>
-                            <span style={{ fontSize:10, fontWeight:800, fontFamily:"'Nunito',sans-serif", color:"rgba(255,255,255,.55)" }}>2</span>
-                          </div>
-                          <span style={{ fontSize:12, letterSpacing:".1em", textTransform:"uppercase", color:"rgba(255,255,255,.5)", fontFamily:"'Nunito',sans-serif", fontWeight:700 }}>Lesson</span>
+                      <div className="s-card">
+                        <div className="s-card-head">
+                          <div className="step-num">2</div>
+                          <span style={{ fontSize:11, letterSpacing:".12em", textTransform:"uppercase", color:"var(--text-3)", fontFamily:"'Nunito',sans-serif", fontWeight:700 }}>Lesson</span>
                         </div>
-                        <div style={{ padding:"14px 14px", display:"flex", flexWrap:"wrap", gap:8 }}>
+                        <div style={{ padding:"12px 12px", display:"flex", flexWrap:"wrap", gap:7 }}>
                           {LESSONS.map(l=>(
-                            <button key={l.id} onClick={()=>setLesson(l.id)}
-                              style={{ padding:"9px 16px", borderRadius:8, cursor:"pointer", transition:"all .12s", WebkitTapHighlightColor:"transparent", background: lesson===l.id ? "rgba(255,255,255,.1)" : "rgba(255,255,255,.04)", border:`1px solid ${lesson===l.id ? "rgba(255,255,255,.22)" : "rgba(255,255,255,.09)"}`, fontFamily:"'Nunito',sans-serif", fontWeight:700, fontSize:13, color: lesson===l.id ? "white" : "rgba(255,255,255,.5)" }}
-                              onMouseEnter={e=>{ if(lesson!==l.id) e.currentTarget.style.background="rgba(255,255,255,.07)"; }}
-                              onMouseLeave={e=>{ if(lesson!==l.id) e.currentTarget.style.background="rgba(255,255,255,.04)"; }}>
+                            <button key={l.id} onClick={()=>setLesson(l.id)} className={"sel-pill"+(lesson===l.id?" on":"")}>
                               {l.emoji} {l.label}
                             </button>
                           ))}
@@ -2491,79 +2404,74 @@ NO title. Start immediately.`;
                       </div>
                     )}
 
-                    {/* ── MOOD ── */}
-                    <div style={{ borderRadius:14, border:"1px solid rgba(255,255,255,.1)", background:"rgba(255,255,255,.04)", overflow:"hidden" }}>
-                      <div style={{ padding:"14px 20px 13px", borderBottom:"1px solid rgba(255,255,255,.07)", display:"flex", alignItems:"center", gap:10 }}>
-                        <div style={{ width:20, height:20, borderRadius:"50%", background:"rgba(255,255,255,.08)", border:"1px solid rgba(255,255,255,.14)", display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}>
-                          <span style={{ fontSize:10, fontWeight:800, fontFamily:"'Nunito',sans-serif", color:"rgba(255,255,255,.55)" }}>{storyMode==="lesson" ? "3" : "2"}</span>
-                        </div>
-                        <span style={{ fontSize:12, letterSpacing:".1em", textTransform:"uppercase", color:"rgba(255,255,255,.5)", fontFamily:"'Nunito',sans-serif", fontWeight:700 }}>Mood</span>
+                    {/* ── Mood ── */}
+                    <div className="s-card">
+                      <div className="s-card-head">
+                        <div className="step-num">{storyMode==="lesson"?"3":"2"}</div>
+                        <span style={{ fontSize:11, letterSpacing:".12em", textTransform:"uppercase", color:"var(--text-3)", fontFamily:"'Nunito',sans-serif", fontWeight:700 }}>Mood</span>
                       </div>
-                      <div style={{ padding:"14px 14px", display:"flex", flexWrap:"wrap", gap:8 }}>
+                      <div style={{ padding:"12px 12px", display:"flex", flexWrap:"wrap", gap:7 }}>
                         {MOODS.map(m=>(
-                          <button key={m.id} onClick={()=>setMood(m.id)}
-                            style={{ padding:"10px 18px", borderRadius:8, cursor:"pointer", transition:"all .12s", WebkitTapHighlightColor:"transparent", background: mood===m.id ? "rgba(255,255,255,.1)" : "rgba(255,255,255,.04)", border:`1px solid ${mood===m.id ? "rgba(255,255,255,.22)" : "rgba(255,255,255,.09)"}`, fontFamily:"'Nunito',sans-serif", fontWeight:700, fontSize:14, color: mood===m.id ? "white" : "rgba(255,255,255,.5)" }}
-                            onMouseEnter={e=>{ if(mood!==m.id) e.currentTarget.style.background="rgba(255,255,255,.07)"; }}
-                            onMouseLeave={e=>{ if(mood!==m.id) e.currentTarget.style.background="rgba(255,255,255,.04)"; }}>
+                          <button key={m.id} onClick={()=>setMood(m.id)} className={"sel-pill"+(mood===m.id?" on":"")} style={{ fontSize:14, padding:"10px 18px" }}>
                             {m.emoji} {m.label}
                           </button>
                         ))}
                       </div>
                     </div>
 
-                    {/* ── LAST NIGHT ── */}
+                    {/* ── Last story ── */}
                     {lastStory && !todayStory && (
-                      <div onClick={()=>{const ps=lastStory.text.split("\n\n✦\n\n");setPages(ps);setTitle(lastStory.title||"");setImgs(lastStory.page_images||[]);setCoverImg(lastStory.cover_image||null);setSpread(lastStory.cover_image?-1:0);setStory(lastStory);setStoryPhase("ready");setScreen("story");try{localStorage.setItem("dw_last_story",lastStory.id);}catch{}}}
-                        style={{ display:"flex", alignItems:"center", gap:14, padding:"14px 16px", borderRadius:12, border:"1px solid rgba(255,255,255,.08)", background:"rgba(255,255,255,.025)", cursor:"pointer", transition:"all .15s" }}
-                        onMouseEnter={e=>{e.currentTarget.style.background="rgba(255,255,255,.055)"; e.currentTarget.style.borderColor="rgba(255,255,255,.14)";}}
-                        onMouseLeave={e=>{e.currentTarget.style.background="rgba(255,255,255,.025)"; e.currentTarget.style.borderColor="rgba(255,255,255,.08)";}}>
-                        <div style={{ width:40, height:52, borderRadius:6, overflow:"hidden", flexShrink:0, background:"rgba(255,255,255,.06)", border:"1px solid rgba(255,255,255,.1)" }}>
+                      <div onClick={()=>{const ps=lastStory.text.split("
+
+✦
+
+");setPages(ps);setTitle(lastStory.title||"");setImgs(lastStory.page_images||[]);setCoverImg(lastStory.cover_image||null);setSpread(lastStory.cover_image?-1:0);setStory(lastStory);setStoryPhase("ready");setScreen("story");try{localStorage.setItem("dw_last_story",lastStory.id);}catch{}}}
+                        style={{ display:"flex", alignItems:"center", gap:14, padding:"14px 16px", borderRadius:14, border:"1px solid var(--border-1)", background:"var(--surface-1)", cursor:"pointer", transition:"all .15s" }}
+                        onMouseEnter={e=>{e.currentTarget.style.background="var(--surface-2)";e.currentTarget.style.borderColor="var(--border-2)";}}
+                        onMouseLeave={e=>{e.currentTarget.style.background="var(--surface-1)";e.currentTarget.style.borderColor="var(--border-1)";}}>
+                        <div style={{ width:42, height:54, borderRadius:7, overflow:"hidden", flexShrink:0, background:"var(--surface-2)", border:"1px solid var(--border-1)" }}>
                           {lastStory.cover_image && <img src={lastStory.cover_image} alt="" style={{ width:"100%", height:"100%", objectFit:"cover" }} />}
                         </div>
                         <div style={{ flex:1, minWidth:0 }}>
-                          <div style={{ fontSize:10, letterSpacing:".1em", textTransform:"uppercase", color:"rgba(255,255,255,.3)", fontFamily:"'Nunito',sans-serif", marginBottom:3 }}>Last night</div>
-                          <div style={{ fontFamily:"'Playfair Display',serif", fontStyle:"italic", fontSize:15, color:"rgba(255,255,255,.75)", whiteSpace:"nowrap", overflow:"hidden", textOverflow:"ellipsis" }}>{lastStory.title||"Your last story"}</div>
+                          <div style={{ fontSize:10, letterSpacing:".1em", textTransform:"uppercase", color:"var(--text-3)", fontFamily:"'Nunito',sans-serif", fontWeight:700, marginBottom:3 }}>Last night</div>
+                          <div style={{ fontFamily:"'Crimson Pro',serif", fontStyle:"italic", fontSize:15, color:"var(--text-1)", whiteSpace:"nowrap", overflow:"hidden", textOverflow:"ellipsis" }}>{lastStory.title||"Your last story"}</div>
                         </div>
-                        <span style={{ fontSize:12, color:"rgba(255,255,255,.3)", fontFamily:"'Nunito',sans-serif", flexShrink:0 }}>Re-read →</span>
+                        <span style={{ fontSize:12, color:"var(--text-3)", fontFamily:"'Nunito',sans-serif", flexShrink:0 }}>Re-read →</span>
                       </div>
                     )}
 
-                    {/* ── PHOTO NUDGE ── */}
+                    {/* ── Photo nudge ── */}
                     {!active.character_card && (
                       <div onClick={()=>{setEditId(active.id);setPf(active);setScreen("profile");}}
-                        style={{ display:"flex", alignItems:"center", gap:14, padding:"14px 16px", borderRadius:12, border:"1px solid rgba(255,255,255,.08)", background:"rgba(255,255,255,.025)", cursor:"pointer", transition:"all .15s" }}
-                        onMouseEnter={e=>{e.currentTarget.style.background="rgba(255,255,255,.055)"; e.currentTarget.style.borderColor="rgba(255,255,255,.14)";}}
-                        onMouseLeave={e=>{e.currentTarget.style.background="rgba(255,255,255,.025)"; e.currentTarget.style.borderColor="rgba(255,255,255,.08)";}}>
-                        <div style={{ width:40, height:40, borderRadius:10, border:"1.5px dashed rgba(255,255,255,.18)", display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}>
+                        style={{ display:"flex", alignItems:"center", gap:14, padding:"14px 16px", borderRadius:14, border:"1px solid var(--border-1)", background:"var(--surface-1)", cursor:"pointer", transition:"all .15s" }}
+                        onMouseEnter={e=>{e.currentTarget.style.background="var(--surface-2)";e.currentTarget.style.borderColor="var(--border-2)";}}
+                        onMouseLeave={e=>{e.currentTarget.style.background="var(--surface-1)";e.currentTarget.style.borderColor="var(--border-1)";}}>
+                        <div style={{ width:42, height:42, borderRadius:10, border:"1.5px dashed rgba(255,255,255,.18)", display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}>
                           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.35)" strokeWidth="1.8" strokeLinecap="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
                         </div>
                         <div style={{ flex:1 }}>
-                          <div style={{ fontFamily:"'Nunito',sans-serif", fontSize:14, fontWeight:700, color:"rgba(255,255,255,.7)", marginBottom:2 }}>Add {active.child_name}'s photo</div>
-                          <div style={{ fontSize:12, color:"rgba(255,255,255,.32)", fontFamily:"'Nunito',sans-serif" }}>The hero will look just like them</div>
+                          <div style={{ fontFamily:"'Nunito',sans-serif", fontSize:14, fontWeight:700, color:"var(--text-2)", marginBottom:2 }}>Add {active.child_name}'s photo</div>
+                          <div style={{ fontSize:12, color:"var(--text-3)", fontFamily:"'Nunito',sans-serif" }}>The hero will look just like them</div>
                         </div>
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.25)" strokeWidth="2" strokeLinecap="round"><path d="M9 18l6-6-6-6"/></svg>
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--text-4)" strokeWidth="2" strokeLinecap="round"><path d="M9 18l6-6-6-6"/></svg>
                       </div>
                     )}
 
-                    {/* ── GENERATE BUTTON ── */}
+                    {/* ── Generate ── */}
                     <div>
                       <button onClick={generateStory}
                         style={{
-                          width:"100%", padding: mobile ? "20px" : "19px",
-                          borderRadius:14, cursor:"pointer",
-                          background: todayStory
-                            ? "rgba(255,255,255,.06)"
-                            : "linear-gradient(135deg, #d4a842 0%, #c49030 50%, #a87820 100%)",
-                          color: todayStory ? "rgba(255,255,255,.5)" : "#1a0d00",
+                          width:"100%", padding:mobile?"19px":"18px", borderRadius:14, cursor:"pointer",
+                          background:todayStory?"var(--surface-2)":"linear-gradient(135deg,#d4a842,#b88a20)",
+                          color:todayStory?"var(--text-2)":"#130c00",
                           fontFamily:"'Nunito',sans-serif", fontWeight:800,
-                          fontSize: mobile ? 17 : 16,
-                          letterSpacing:".01em",
-                          boxShadow: todayStory ? "none" : "0 8px 32px rgba(180,130,30,.4), 0 2px 6px rgba(0,0,0,.3)",
-                          transition:"all .18s", WebkitTapHighlightColor:"transparent",
-                          border: todayStory ? "1px solid rgba(255,255,255,.1)" : "none",
+                          fontSize:mobile?17:16, letterSpacing:".01em",
+                          border:todayStory?"1px solid var(--border-1)":"none",
+                          boxShadow:todayStory?"none":"0 6px 28px rgba(180,130,30,.4)",
+                          transition:"all .16s", WebkitTapHighlightColor:"transparent",
                         }}
-                        onMouseEnter={e=>{ e.currentTarget.style.transform="translateY(-2px)"; if(!todayStory) e.currentTarget.style.boxShadow="0 12px 40px rgba(180,130,30,.5), 0 3px 8px rgba(0,0,0,.35)"; }}
-                        onMouseLeave={e=>{ e.currentTarget.style.transform=""; e.currentTarget.style.boxShadow=todayStory?"none":"0 8px 32px rgba(180,130,30,.4), 0 2px 6px rgba(0,0,0,.3)"; }}>
+                        onMouseEnter={e=>{if(!todayStory){e.currentTarget.style.transform="translateY(-2px)";e.currentTarget.style.boxShadow="0 10px 36px rgba(180,130,30,.55)";}}}
+                        onMouseLeave={e=>{e.currentTarget.style.transform="";e.currentTarget.style.boxShadow=todayStory?"none":"0 6px 28px rgba(180,130,30,.4)";}}>
                         {todayStory
                           ? "📖  Read tonight's story"
                           : storyMode==="lesson"
@@ -2571,24 +2479,21 @@ NO title. Start immediately.`;
                             : `✨  Generate — ${selMood?.label||"Magical"} adventure`}
                       </button>
                       {!todayStory && (
-                        <div style={{ textAlign:"center", marginTop:10, fontSize:12, color:"rgba(255,255,255,.25)", fontFamily:"'Nunito',sans-serif" }}>
+                        <div style={{ textAlign:"center", marginTop:10, fontSize:12, color:"var(--text-4)", fontFamily:"'Nunito',sans-serif" }}>
                           14 illustrated pages · ready in ~40 seconds
                         </div>
                       )}
                     </div>
 
-                    {/* Footer links */}
-                    <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center" }}>
-                      <button onClick={()=>{setEditId(active.id);setPf(active);setScreen("profile");}}
-                        style={{ background:"none", border:"none", cursor:"pointer", fontFamily:"'Nunito',sans-serif", fontSize:12, color:"rgba(255,255,255,.25)", padding:0, transition:"color .15s" }}
-                        onMouseEnter={e=>{e.currentTarget.style.color="rgba(255,255,255,.55)";}}
-                        onMouseLeave={e=>{e.currentTarget.style.color="rgba(255,255,255,.25)";}}>
+                    {/* ── Footer ── */}
+                    <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", paddingTop:4 }}>
+                      <button onClick={()=>{setEditId(active.id);setPf(active);setScreen("profile");}} style={{ background:"none", border:"none", cursor:"pointer", fontFamily:"'Nunito',sans-serif", fontSize:12, color:"var(--text-4)", padding:0, transition:"color .14s" }} onMouseEnter={e=>{e.currentTarget.style.color="var(--text-2)";}} onMouseLeave={e=>{e.currentTarget.style.color="var(--text-4)";}}>
                         Edit {active.child_name}'s profile →
                       </button>
                       {!mobile && (
                         <div style={{ display:"flex", gap:16 }}>
                           {[{l:"Library",fn:()=>{loadLibrary();setScreen("library");}},{l:"Badges",fn:()=>setScreen("badges")}].map(({l,fn})=>(
-                            <button key={l} onClick={fn} style={{ background:"none", border:"none", cursor:"pointer", fontFamily:"'Nunito',sans-serif", fontSize:12, color:"rgba(255,255,255,.25)", padding:0, transition:"color .15s" }} onMouseEnter={e=>e.currentTarget.style.color="rgba(255,255,255,.55)"} onMouseLeave={e=>e.currentTarget.style.color="rgba(255,255,255,.25)"}>{l}</button>
+                            <button key={l} onClick={fn} style={{ background:"none", border:"none", cursor:"pointer", fontFamily:"'Nunito',sans-serif", fontSize:12, color:"var(--text-4)", padding:0, transition:"color .14s" }} onMouseEnter={e=>e.currentTarget.style.color="var(--text-2)"} onMouseLeave={e=>e.currentTarget.style.color="var(--text-4)"}>{l}</button>
                           ))}
                         </div>
                       )}
@@ -2676,28 +2581,24 @@ NO title. Start immediately.`;
 
                 {/* Actions — stacked rows on mobile */}
                 <div style={{ marginTop:18, display:"flex", flexDirection:"column", gap:10, maxWidth: tablet ? 680 : 520, margin:"18px auto 0" }}>
-                  {/* Row 1: favorite */}
-                  <button className="btn-book" onClick={toggleFavorite} style={{ background:story?.is_favorite?"linear-gradient(135deg,rgba(201,168,76,.2),rgba(201,168,76,.1))":"", borderColor:story?.is_favorite?"rgba(201,168,76,.5)":"", color:story?.is_favorite?"var(--gold-light)":"" }}>
-                    {story?.is_favorite ? "★ Saved to Favorites" : "☆ Save to Favorites"}
+                  {/* Actions */}
+                  <button className="btn-book" onClick={toggleFavorite}
+                    style={{ background:story?.is_favorite?"rgba(201,168,76,.1)":"", borderColor:story?.is_favorite?"rgba(201,168,76,.4)":"", color:story?.is_favorite?"var(--gold-light)":"rgba(255,255,255,.6)" }}>
+                    <span>{story?.is_favorite ? "★" : "☆"}</span>
+                    {story?.is_favorite ? "Saved to Favorites" : "Save to Favorites"}
                   </button>
-                  {/* Row 2: coloring book */}
-                  <button className="btn-book" onClick={generateColoringPage} disabled={coloringLoading} style={{ background:"linear-gradient(135deg,#0d0a1e,#1a1040)", borderColor:"rgba(192,132,252,.3)", color:"#d8b4fe", opacity:coloringLoading?0.6:1 }}>
-                    {coloringLoading?"🎨 Generating…":"🖍️ Make a Coloring Page"}
+                  <button className="btn-book" onClick={generateColoringPage} disabled={coloringLoading}
+                    style={{ borderColor:"rgba(192,132,252,.25)", color:"#c4a0ff" }}>
+                    <span>{coloringLoading?"🎨":"🖍️"}</span>
+                    {coloringLoading?"Generating coloring page…":"Make a Coloring Page"}
                   </button>
-                  {/* Row 3: Sequel CTA */}
                   {story && !story.is_sequel_of && (
-                    <button onClick={()=>setShowSequelPrompt(true)}
-                      style={{ width:"100%", padding:"15px", borderRadius:18, border:"1.5px solid rgba(192,132,252,.35)",
-                        background:"rgba(124,77,204,.12)", color:"#d8b4fe",
-                        fontFamily:"'Nunito',sans-serif", fontWeight:700, fontSize:14, cursor:"pointer",
-                        display:"flex", alignItems:"center", justifyContent:"center", gap:8,
-                        transition:"all .15s", WebkitTapHighlightColor:"transparent" }}>
-                      <span style={{ fontSize:18 }}>✨</span>
+                    <button onClick={()=>setShowSequelPrompt(true)} className="btn-book"
+                      style={{ borderColor:"rgba(192,132,252,.25)", color:"#c4a0ff" }}>
+                      <span>✨</span>
                       Write a Sequel
-                      <span style={{ fontSize:11, opacity:.6, fontWeight:600 }}>· new adventure</span>
                     </button>
                   )}
-
                   {/* Row 4: nav + utilities */}
                   {mobile ? (
                     <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:8 }}>
@@ -2755,9 +2656,9 @@ NO title. Start immediately.`;
 
               <button onClick={()=>{ setShowSequelPrompt(false); generateSequel(); }}
                 style={{ width:"100%", padding:"17px", borderRadius:18, border:"none", cursor:"pointer",
-                  background:"linear-gradient(135deg,#5b21b6,#7c3aed,#9333ea)", backgroundSize:"200% 200%", animation:"gradFlow 4s ease infinite",
-                  color:"white", fontFamily:"'Nunito',sans-serif", fontWeight:800, fontSize:15,
-                  boxShadow:"0 8px 32px rgba(91,33,182,.45)", marginBottom:10 }}>
+                  background:"linear-gradient(135deg, #d4a842 0%, #c49030 50%, #a87820 100%)",
+                  color:"#1a0d00", fontFamily:"'Nunito',sans-serif", fontWeight:800, fontSize:15,
+                  boxShadow:"0 6px 28px rgba(180,130,30,.4)", marginBottom:10 }}>
                 ✨ Write the Sequel
               </button>
               <button onClick={()=>setShowSequelPrompt(false)}
@@ -2806,29 +2707,38 @@ NO title. Start immediately.`;
             BADGES SCREEN
         ══════════════════════════════════════════════════════════════════════ */}
         {screen==="badges" && (
-          <div className="fade has-bottom-nav" style={{ maxWidth:480, width:"100%" }}>
-            <div style={{ display:"flex", alignItems:"center", gap:12, marginBottom:22 }}>
-              <button className="btn-soft" style={{ flexShrink:0, width:"auto", padding:"12px 16px" }} onClick={()=>setScreen("home")}>← Home</button>
-              <h2 style={{ fontFamily:"'Playfair Display',serif", fontSize:"clamp(17px,4vw,21px)", fontStyle:"italic" }}>🏅 {active?.child_name}'s Badges</h2>
+          <div className="fade has-bottom-nav" style={{ maxWidth:520, width:"100%" }}>
+            {/* Header */}
+            <div style={{ display:"flex", alignItems:"center", gap:14, marginBottom:28 }}>
+              <button onClick={()=>setScreen("home")} style={{ width:36, height:36, borderRadius:"50%", background:"rgba(255,255,255,.06)", border:"1px solid rgba(255,255,255,.09)", cursor:"pointer", display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}>
+                <svg width="8" height="14" viewBox="0 0 8 14" fill="none"><path d="M7 1L1 7l6 6" stroke="rgba(255,255,255,.6)" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/></svg>
+              </button>
+              <div>
+                <div style={{ fontFamily:"'Playfair Display',serif", fontSize:22, fontWeight:800, fontStyle:"italic" }}>{active?.child_name}'s Badges</div>
+                <div style={{ fontSize:12, color:"rgba(255,255,255,.35)", fontFamily:"'Nunito',sans-serif", marginTop:2 }}>{badges.length} of {BADGE_DEFS.length} earned</div>
+              </div>
             </div>
-            <p style={{ color:"rgba(255,255,255,.3)", fontSize:13, marginBottom:20, fontFamily:"'Crimson Pro',serif", fontStyle:"italic" }}>{badges.length} of {BADGE_DEFS.length} earned</p>
+
+            {badges.length === 0 && (
+              <div style={{ textAlign:"center", padding:"40px 20px", background:"rgba(255,255,255,.03)", borderRadius:16, border:"1px solid rgba(255,255,255,.07)", marginBottom:20 }}>
+                <div style={{ fontSize:40, marginBottom:12, opacity:.4 }}>🏅</div>
+                <div style={{ fontFamily:"'Playfair Display',serif", fontSize:17, fontStyle:"italic", color:"rgba(255,255,255,.5)", marginBottom:6 }}>No badges yet</div>
+                <div style={{ fontSize:13, color:"rgba(255,255,255,.25)", fontFamily:"'Nunito',sans-serif" }}>Read tonight's story to earn your first one</div>
+              </div>
+            )}
+
             <div className="badge-grid">
               {BADGE_DEFS.map(b => {
                 const earned = badges.includes(b.id);
                 return (
                   <div key={b.id} className={`badge-item ${earned?"earned":""}`} title={b.desc}>
-                    <span style={{ fontSize:28, filter:earned?"none":"grayscale(1) opacity(.25)" }}>{b.emoji}</span>
+                    <span style={{ fontSize:28, filter:earned?"none":"grayscale(1) opacity(.2)" }}>{b.emoji}</span>
                     <span style={{ fontSize:10, fontWeight:700, color:earned?"rgba(255,255,255,.85)":"rgba(255,255,255,.2)", lineHeight:1.3, fontFamily:"'Nunito',sans-serif" }}>{b.label}</span>
-                    {earned && <span style={{ fontSize:9, color:"var(--gold)", fontFamily:"'Nunito',sans-serif" }}>✦ earned</span>}
+                    {earned && <span style={{ fontSize:9, color:"var(--gold)", fontFamily:"'Nunito',sans-serif", letterSpacing:".06em" }}>✦ earned</span>}
                   </div>
                 );
               })}
             </div>
-            {badges.length===0 && (
-              <div style={{ textAlign:"center", padding:"32px 20px", color:"rgba(255,255,255,.25)", fontFamily:"'Crimson Pro',serif", fontStyle:"italic", fontSize:15 }}>
-                Read your first story tonight to start earning badges ✨
-              </div>
-            )}
           </div>
         )}
 
@@ -2836,40 +2746,43 @@ NO title. Start immediately.`;
             LIBRARY
         ══════════════════════════════════════════════════════════════════════ */}
         {screen==="library" && (
-          <div className="fade has-bottom-nav" style={{ maxWidth:560, width:"100%" }}>
-            <div style={{ display:"flex", alignItems:"center", gap:12, marginBottom:16 }}>
-              <button className="btn-soft" style={{ flexShrink:0, width:"auto", padding:"12px 16px" }} onClick={()=>setScreen("home")}>← Home</button>
-              <h2 style={{ fontFamily:"'Playfair Display',serif", fontSize:"clamp(16px,4vw,20px)", fontStyle:"italic", overflow:"hidden", textOverflow:"ellipsis", whiteSpace:"nowrap" }}>📚 {active?.child_name}'s Library</h2>
+          <div className="fade has-bottom-nav" style={{ maxWidth:600, width:"100%" }}>
+            {/* Header */}
+            <div style={{ display:"flex", alignItems:"center", gap:14, marginBottom:24 }}>
+              <button onClick={()=>setScreen("home")} style={{ width:36, height:36, borderRadius:"50%", background:"rgba(255,255,255,.06)", border:"1px solid rgba(255,255,255,.09)", cursor:"pointer", display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}>
+                <svg width="8" height="14" viewBox="0 0 8 14" fill="none"><path d="M7 1L1 7l6 6" stroke="rgba(255,255,255,.6)" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/></svg>
+              </button>
+              <div style={{ flex:1, minWidth:0 }}>
+                <div style={{ fontFamily:"'Playfair Display',serif", fontSize:22, fontWeight:800, fontStyle:"italic", overflow:"hidden", textOverflow:"ellipsis", whiteSpace:"nowrap" }}>{active?.child_name}'s Library</div>
+                <div style={{ fontSize:12, color:"rgba(255,255,255,.35)", fontFamily:"'Nunito',sans-serif", marginTop:2 }}>{library.length} {library.length===1?"story":"stories"} saved</div>
+              </div>
             </div>
+
             {/* Filter tabs */}
-            <div style={{ display:"flex", gap:8, marginBottom:18 }}>
+            <div style={{ display:"flex", gap:8, marginBottom:20 }}>
               {[{id:"all",label:"All Stories"},{id:"favorites",label:"★ Favorites"}].map(f => (
                 <button key={f.id} onClick={()=>setLibFilter(f.id)}
-                  style={{ padding:"8px 18px", borderRadius:999, border:"1px solid", fontSize:13, fontFamily:"'Nunito',sans-serif", fontWeight:700, cursor:"pointer", transition:"all .2s",
-                    background: libFilter===f.id ? "rgba(201,168,76,.15)" : "transparent",
-                    borderColor: libFilter===f.id ? "rgba(201,168,76,.4)" : "rgba(255,255,255,.12)",
-                    color: libFilter===f.id ? "var(--gold-light)" : "rgba(255,255,255,.45)" }}>
+                  style={{ padding:"8px 18px", borderRadius:999, border:"1px solid", fontSize:13, fontFamily:"'Nunito',sans-serif", fontWeight:700, cursor:"pointer", transition:"all .18s",
+                    background: libFilter===f.id ? "rgba(201,168,76,.12)" : "var(--surface-1)",
+                    borderColor: libFilter===f.id ? "rgba(201,168,76,.4)" : "var(--border-1)",
+                    color: libFilter===f.id ? "var(--gold-light)" : "var(--text-3)" }}>
                   {f.label}
                 </button>
               ))}
             </div>
+
             {library.length===0 ? (
               <div style={{ textAlign:"center", padding:"clamp(48px,10vw,72px) 20px" }}>
-                {/* Soft glow behind moon */}
-                <div style={{ position:"relative", display:"inline-block", marginBottom:24 }}>
-                  <div style={{ position:"absolute", inset:"-20px", borderRadius:"50%", background:"radial-gradient(circle,rgba(200,170,80,.12) 0%,transparent 70%)", pointerEvents:"none" }} />
-                  <div style={{ fontSize:"clamp(52px,12vw,68px)", animation:"float 4s ease-in-out infinite", filter:"drop-shadow(0 0 24px rgba(200,170,80,.3))", position:"relative" }}>🌙</div>
-                </div>
-                <h3 style={{ fontFamily:"'Playfair Display',serif", fontSize:"clamp(20px,5vw,26px)", fontStyle:"italic", marginBottom:10, lineHeight:1.3 }}>
+                <div style={{ fontSize:"clamp(52px,12vw,68px)", animation:"float 4s ease-in-out infinite", filter:"drop-shadow(0 0 24px rgba(200,170,80,.3))", marginBottom:24, display:"block" }}>🌙</div>
+                <div style={{ fontFamily:"'Playfair Display',serif", fontSize:"clamp(20px,5vw,26px)", fontStyle:"italic", marginBottom:10, lineHeight:1.3 }}>
                   {active?.child_name}'s first story<br/>is waiting to be written
-                </h3>
-                <p style={{ color:"rgba(255,255,255,.32)", fontFamily:"'Crimson Pro',serif", fontStyle:"italic", fontSize:"clamp(14px,3.5vw,16px)", lineHeight:1.8, maxWidth:300, margin:"0 auto 28px" }}>
+                </div>
+                <div style={{ color:"rgba(255,255,255,.32)", fontFamily:"'Crimson Pro',serif", fontStyle:"italic", fontSize:15, lineHeight:1.8, maxWidth:300, margin:"0 auto 28px" }}>
                   Every night, a brand new 14-page illustrated picture book — starring {active?.child_name} as the hero.
-                </p>
-                <button className="btn-cta" style={{ margin:"0 auto", display:"block", width:"auto", padding:"16px 32px" }} onClick={()=>setScreen("home")}>
+                </div>
+                <button className="btn-cta" style={{ margin:"0 auto", display:"block", width:"auto", padding:"15px 32px" }} onClick={()=>setScreen("home")}>
                   ✨ Open Tonight's Story
                 </button>
-                <p style={{ color:"rgba(255,255,255,.15)", fontSize:12, marginTop:14 }}>Stories you generate will appear here</p>
               </div>
             ) : (
               <div style={{ display:"flex", flexDirection:"column", gap:10 }}>
@@ -2879,29 +2792,38 @@ NO title. Start immediately.`;
                   const label=isToday?"Tonight":d.toLocaleDateString("en-US",{weekday:"short",month:"short",day:"numeric"});
                   return (
                     <div key={s.id}
-                      onClick={()=>{const ps=s.text.split("\n\n✦\n\n");setPages(ps);setTitle(s.title||"");setImgs(s.page_images||[]);setCoverImg(s.cover_image||null);setSpread(s.cover_image?-1:0);setStory(s);setStoryPhase("ready");setScreen("story");try{localStorage.setItem("dw_last_story",s.id);localStorage.setItem("dw_last_screen","story");}catch{}}}
-                      style={{ display:"flex", gap:12, alignItems:"center", padding:"14px", cursor:"pointer", borderRadius:18, background:"rgba(255,255,255,.04)", border:`1px solid ${isToday?"rgba(201,168,76,.2)":"rgba(255,255,255,.07)"}`, transition:"all .2s", WebkitTapHighlightColor:"transparent" }}
-                      onMouseEnter={e=>{e.currentTarget.style.background="rgba(255,255,255,.08)"}}
-                      onMouseLeave={e=>{e.currentTarget.style.background="rgba(255,255,255,.04)"}}>
-                      {s.page_images?.[0]
-                        ? <img src={s.page_images[0]} alt="" style={{ width:"clamp(48px,12vw,64px)", height:"clamp(36px,9vw,48px)", objectFit:"cover", borderRadius:10, flexShrink:0 }} />
-                        : <div style={{ width:"clamp(48px,12vw,64px)", height:"clamp(36px,9vw,48px)", borderRadius:10, background:"linear-gradient(135deg,#c9b8f8,#818cf8)", display:"flex", alignItems:"center", justifyContent:"center", fontSize:18, flexShrink:0 }}>🌙</div>}
+                      onClick={()=>{const ps=s.text.split("
+
+✦
+
+");setPages(ps);setTitle(s.title||"");setImgs(s.page_images||[]);setCoverImg(s.cover_image||null);setSpread(s.cover_image?-1:0);setStory(s);setStoryPhase("ready");setScreen("story");try{localStorage.setItem("dw_last_story",s.id);localStorage.setItem("dw_last_screen","story");}catch{}}}
+                      style={{ display:"flex", gap:14, alignItems:"center", padding:"14px 16px", cursor:"pointer", borderRadius:14, background:"rgba(255,255,255,.04)", border:`1px solid ${isToday?"rgba(201,168,76,.22)":"rgba(255,255,255,.08)"}`, transition:"all .18s", WebkitTapHighlightColor:"transparent" }}
+                      onMouseEnter={e=>{e.currentTarget.style.background="rgba(255,255,255,.08)";e.currentTarget.style.borderColor=isToday?"rgba(201,168,76,.4)":"rgba(255,255,255,.14)";}}
+                      onMouseLeave={e=>{e.currentTarget.style.background="rgba(255,255,255,.04)";e.currentTarget.style.borderColor=isToday?"rgba(201,168,76,.22)":"rgba(255,255,255,.08)";}}>
+                      {s.cover_image||s.page_images?.[0]
+                        ? <img src={s.cover_image||s.page_images[0]} alt="" style={{ width:52, height:68, objectFit:"cover", borderRadius:8, flexShrink:0, border:"1px solid rgba(255,255,255,.1)" }} />
+                        : <div style={{ width:52, height:68, borderRadius:8, background:"linear-gradient(135deg,#2d1860,#5b21b6)", display:"flex", alignItems:"center", justifyContent:"center", fontSize:20, flexShrink:0 }}>🌙</div>}
                       <div style={{ flex:1, minWidth:0 }}>
-                        <div style={{ display:"flex", gap:7, alignItems:"center", marginBottom:3, flexWrap:"wrap" }}>
-                          <span style={{ color:isToday?"var(--gold)":"rgba(255,255,255,.28)", fontSize:11, letterSpacing:".08em", textTransform:"uppercase", fontWeight:700 }}>{label}</span>
-                          {s.lesson_type && <span style={{ background:"rgba(74,222,128,.12)", border:"1px solid rgba(74,222,128,.22)", borderRadius:999, padding:"1px 8px", fontSize:10, color:"#6ee7a0", flexShrink:0 }}>{LESSONS.find(l=>l.id===s.lesson_type)?.emoji} {LESSONS.find(l=>l.id===s.lesson_type)?.label}</span>}
+                        <div style={{ display:"flex", gap:7, alignItems:"center", marginBottom:4, flexWrap:"wrap" }}>
+                          <span style={{ color:isToday?"var(--gold)":"rgba(255,255,255,.3)", fontSize:11, letterSpacing:".08em", textTransform:"uppercase", fontWeight:700, fontFamily:"'Nunito',sans-serif" }}>{label}</span>
+                          {s.lesson_type && <span style={{ background:"rgba(74,222,128,.1)", border:"1px solid rgba(74,222,128,.2)", borderRadius:999, padding:"1px 8px", fontSize:10, color:"#6ee7a0", flexShrink:0 }}>{LESSONS.find(l=>l.id===s.lesson_type)?.emoji} {LESSONS.find(l=>l.id===s.lesson_type)?.label}</span>}
                         </div>
                         <div style={{ display:"flex", alignItems:"center", gap:6 }}>
-                          {s.is_favorite && <span style={{ color:"var(--gold)", fontSize:12, flexShrink:0 }}>★</span>}
-                          <div style={{ color:"rgba(255,255,255,.85)", fontFamily:"'Crimson Pro',serif", fontStyle:"italic", fontSize:"clamp(13px,3.5vw,15px)", overflow:"hidden", textOverflow:"ellipsis", whiteSpace:"nowrap" }}>{s.title||s.text?.slice(0,60)+"…"}</div>
+                          {s.is_favorite && <span style={{ color:"var(--gold)", fontSize:13, flexShrink:0 }}>★</span>}
+                          <div style={{ color:"rgba(255,255,255,.85)", fontFamily:"'Crimson Pro',serif", fontStyle:"italic", fontSize:15, overflow:"hidden", textOverflow:"ellipsis", whiteSpace:"nowrap" }}>{s.title||s.text?.slice(0,60)+"…"}</div>
                         </div>
+                        <div style={{ fontSize:11, color:"rgba(255,255,255,.25)", fontFamily:"'Nunito',sans-serif", marginTop:3 }}>{s.page_images?.length||0} illustrations</div>
                       </div>
-                      <div style={{ display:"flex", flexDirection:"column", alignItems:"flex-end", gap:6, flexShrink:0 }}>
-                        <span style={{ color:"rgba(201,168,76,.4)", fontSize:16 }}>›</span>
+                      <div style={{ display:"flex", flexDirection:"column", alignItems:"flex-end", gap:8, flexShrink:0 }}>
+                        <svg width="6" height="12" viewBox="0 0 6 12" fill="none"><path d="M1 1l4 5-4 5" stroke="rgba(255,255,255,.25)" strokeWidth="1.5" strokeLinecap="round"/></svg>
                         {s.is_favorite && (
                           <button
-                            onClick={(e)=>{ e.stopPropagation(); const ps=s.text.split("\n\n✦\n\n"); setPages(ps); setTitle(s.title||""); setImgs(s.page_images||[]); setCoverImg(s.cover_image||null); setSpread(s.cover_image?-1:0); setStory(s); setStoryPhase("ready"); setScreen("story"); setTimeout(()=>generateSequel(),150); }}
-                            style={{ background:"rgba(74,222,128,.08)", border:"1px solid rgba(74,222,128,.25)", borderRadius:99, padding:"3px 10px", fontSize:11, color:"#6ee7a0", fontFamily:"'Nunito',sans-serif", fontWeight:700, cursor:"pointer", whiteSpace:"nowrap" }}>
+                            onClick={(e)=>{ e.stopPropagation(); const ps=s.text.split("
+
+✦
+
+"); setPages(ps); setTitle(s.title||""); setImgs(s.page_images||[]); setCoverImg(s.cover_image||null); setSpread(s.cover_image?-1:0); setStory(s); setStoryPhase("ready"); setScreen("story"); setTimeout(()=>generateSequel(),150); }}
+                            style={{ background:"rgba(201,168,76,.08)", border:"1px solid rgba(201,168,76,.25)", borderRadius:99, padding:"4px 10px", fontSize:11, color:"var(--gold-light)", fontFamily:"'Nunito',sans-serif", fontWeight:700, cursor:"pointer", whiteSpace:"nowrap" }}>
                             📖 Sequel
                           </button>
                         )}
@@ -2923,90 +2845,77 @@ NO title. Start immediately.`;
           const currentKids = profiles.length;
           const newPrice = PRICE_BASE + currentKids * PRICE_PER_EXTRA;
           return (
-          <div className="fade" style={{ maxWidth:400, width:"100%", textAlign:"center", paddingTop:"clamp(20px,6vw,40px)" }}>
-            <div style={{ fontSize:"clamp(44px,12vw,60px)", marginBottom:16, animation:"float 4s ease-in-out infinite" }}>🌙</div>
+          <div className="fade" style={{ maxWidth:440, width:"100%", paddingTop:"clamp(16px,4vw,32px)" }}>
+            {/* Moon header */}
+            <div style={{ textAlign:"center", marginBottom:32 }}>
+              <div style={{ fontSize:56, marginBottom:16, animation:"float 5s ease-in-out infinite", filter:"drop-shadow(0 0 28px rgba(200,160,50,.55))" }}>🌙</div>
+              {isTrialEnd ? (
+                <>
+                  <div style={{ fontFamily:"'Playfair Display',serif", fontSize:26, fontWeight:800, letterSpacing:"-.02em", marginBottom:8, lineHeight:1.2 }}>Your trial has ended</div>
+                  <div style={{ color:"rgba(255,255,255,.4)", fontFamily:"'Crimson Pro',serif", fontStyle:"italic", fontSize:16, lineHeight:1.7 }}>
+                    Keep the magic going — subscribe to continue<br/>generating stories for your family.
+                  </div>
+                </>
+              ) : (
+                <>
+                  <div style={{ fontFamily:"'Playfair Display',serif", fontSize:26, fontWeight:800, letterSpacing:"-.02em", marginBottom:8 }}>Add another child</div>
+                  <div style={{ color:"rgba(255,255,255,.4)", fontFamily:"'Crimson Pro',serif", fontStyle:"italic", fontSize:16, lineHeight:1.7 }}>
+                    Your plan updates to <strong style={{ color:"var(--gold-light)" }}>${newPrice.toFixed(2)}/month</strong> for {currentKids + 1} children.
+                  </div>
+                </>
+              )}
+            </div>
 
-            {isTrialEnd ? (
-              <>
-                <h2 style={{ fontFamily:"'Playfair Display',serif", fontSize:"clamp(22px,6vw,28px)", marginBottom:8, lineHeight:1.2 }}>Your Free Trial Has Ended</h2>
-                <p style={{ color:"rgba(255,255,255,.35)", marginBottom:28, lineHeight:1.8, fontFamily:"'Crimson Pro',serif", fontSize:"clamp(14px,3.5vw,16px)" }}>
-                  Keep the magic going — subscribe to continue<br/>generating stories for your family.
-                </p>
-              </>
-            ) : (
-              <>
-                <h2 style={{ fontFamily:"'Playfair Display',serif", fontSize:"clamp(22px,6vw,28px)", marginBottom:8, lineHeight:1.2 }}>Add Another Child</h2>
-                <p style={{ color:"rgba(255,255,255,.35)", marginBottom:28, lineHeight:1.8, fontFamily:"'Crimson Pro',serif", fontSize:"clamp(14px,3.5vw,16px)" }}>
-                  Your plan would update to <strong style={{ color:"white" }}>${newPrice.toFixed(2)}/month</strong><br/>
-                  to cover {currentKids + 1} children.
-                </p>
-              </>
-            )}
-
-            {/* Pricing breakdown */}
-            <div style={{ background:"rgba(255,255,255,.03)", border:"1px solid rgba(255,255,255,.08)", borderRadius:18, padding:"clamp(18px,3vw,24px)", marginBottom:24, textAlign:"left" }}>
-              <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", paddingBottom:12, marginBottom:12, borderBottom:"1px solid rgba(255,255,255,.06)" }}>
-                <span style={{ color:"rgba(255,255,255,.6)", fontSize:14, fontFamily:"'Nunito',sans-serif" }}>First Child</span>
-                <span style={{ color:"white", fontWeight:700, fontSize:14 }}>${PRICE_BASE.toFixed(2)}/mo</span>
-              </div>
-              <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", paddingBottom:12, marginBottom:12, borderBottom:"1px solid rgba(255,255,255,.06)" }}>
-                <span style={{ color:"rgba(255,255,255,.6)", fontSize:14, fontFamily:"'Nunito',sans-serif" }}>Each Additional Child</span>
-                <span style={{ color:"white", fontWeight:700, fontSize:14 }}>+${PRICE_PER_EXTRA.toFixed(2)}/mo</span>
-              </div>
+            {/* 3 big value props */}
+            <div style={{ display:"flex", flexDirection:"column", gap:10, marginBottom:24 }}>
               {[
-                "14-Page Illustrated Story Every Night",
-                "AI Watercolor Art On Every Page",
-                "Photo-Matched Character Illustrations",
-                "Life Lesson Story Mode",
-                "Read Aloud Narrator",
-                "Story Library Saved Forever",
-                "Coloring Book Generator",
-                "Milestone Badges",
-                "Cancel Anytime",
-              ].map(f => (
-                <div key={f} style={{ display:"flex", gap:10, alignItems:"center", padding:"8px 0", minHeight:36 }}>
-                  <span style={{ color:"var(--gold)", flexShrink:0, fontSize:12 }}>✦</span>
-                  <span style={{ color:"rgba(255,255,255,.55)", fontSize:"clamp(12px,3vw,13px)", fontFamily:"'Nunito',sans-serif" }}>{f}</span>
+                { icon:"📖", title:"A new story every night", desc:"14 illustrated pages, unique every time" },
+                { icon:"🎨", title:"Illustrated just for them", desc:"Watercolor art tailored to your child" },
+                { icon:"✨", title:"Life lessons woven in", desc:"Adventure, bravery, kindness, and more" },
+              ].map(({icon,title,desc}) => (
+                <div key={title} style={{ display:"flex", alignItems:"center", gap:16, padding:"16px 18px", borderRadius:14, background:"rgba(255,255,255,.04)", border:"1px solid rgba(255,255,255,.08)" }}>
+                  <div style={{ fontSize:26, flexShrink:0 }}>{icon}</div>
+                  <div>
+                    <div style={{ fontFamily:"'Nunito',sans-serif", fontSize:15, fontWeight:700, color:"rgba(255,255,255,.9)", marginBottom:2 }}>{title}</div>
+                    <div style={{ fontFamily:"'Nunito',sans-serif", fontSize:13, color:"rgba(255,255,255,.38)" }}>{desc}</div>
+                  </div>
                 </div>
               ))}
             </div>
 
+            {/* Pricing */}
+            <div style={{ background:"rgba(201,168,76,.06)", border:"1px solid rgba(201,168,76,.2)", borderRadius:16, padding:"20px 22px", marginBottom:20 }}>
+              <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:12 }}>
+                <div style={{ fontFamily:"'Nunito',sans-serif", fontSize:14, color:"rgba(255,255,255,.6)" }}>Monthly plan</div>
+                <div style={{ fontFamily:"'Playfair Display',serif", fontSize:24, fontWeight:800, color:"var(--gold-light)" }}>
+                  ${isTrialEnd ? PRICE_BASE.toFixed(2) : newPrice.toFixed(2)}<span style={{ fontSize:14, fontFamily:"'Nunito',sans-serif", fontWeight:600, color:"rgba(255,255,255,.4)" }}>/mo</span>
+                </div>
+              </div>
+              <div style={{ display:"flex", flexWrap:"wrap", gap:6 }}>
+                {["Unlimited stories","Cancel anytime","All children included","Story library forever"].map(f => (
+                  <div key={f} style={{ display:"flex", alignItems:"center", gap:5, padding:"4px 10px", borderRadius:999, background:"rgba(201,168,76,.08)", border:"1px solid rgba(201,168,76,.15)" }}>
+                    <span style={{ color:"var(--gold)", fontSize:10 }}>✦</span>
+                    <span style={{ fontSize:11, fontFamily:"'Nunito',sans-serif", fontWeight:600, color:"rgba(255,255,255,.6)" }}>{f}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
             <div style={{ display:"flex", flexDirection:"column", gap:10 }}>
-              <button className="btn-cta full">
+              <button className="btn-cta full" style={{ fontSize:16, padding:"17px" }}>
                 {isTrialEnd ? `Subscribe — $${PRICE_BASE.toFixed(2)}/Month` : `Update Plan — $${newPrice.toFixed(2)}/Month`}
               </button>
-              <button className="btn-soft" onClick={()=>setScreen("home")}>Maybe Later</button>
+              <button className="btn-soft" onClick={()=>setScreen("home")}>Maybe later</button>
             </div>
-            <p style={{ color:"rgba(255,255,255,.18)", fontSize:11, marginTop:12 }}>No Commitment · Cancel Anytime</p>
+            <p style={{ textAlign:"center", fontSize:12, color:"rgba(255,255,255,.18)", fontFamily:"'Nunito',sans-serif", marginTop:12 }}>No commitment · Cancel anytime</p>
           </div>
           );
         })()}
-
-
 
         {/* ═══════════════════════════════════════════════════════════════════
             SETTINGS / ACCOUNT
         ══════════════════════════════════════════════════════════════════════ */}
         {screen==="settings" && (() => {
-          const GRP = ({children, style={}}) => (
-            <div style={{ background:"rgba(255,255,255,.04)", borderRadius:20, overflow:"hidden", marginBottom:10, ...style }}>{children}</div>
-          );
-          const ROW = ({icon, label, value, onPress, danger, last=false, badge}) => (
-            <div onClick={onPress} style={{ display:"flex", alignItems:"center", gap:14, padding:"15px 18px",
-              borderBottom:last?"none":"1px solid rgba(255,255,255,.05)",
-              cursor:onPress?"pointer":"default", transition:"background .12s",
-              background:"transparent" }}
-              onMouseEnter={e=>{if(onPress)e.currentTarget.style.background="rgba(255,255,255,.03)";}}
-              onMouseLeave={e=>{e.currentTarget.style.background="transparent";}}>
-              {icon && <div style={{ width:34, height:34, borderRadius:10, background:"rgba(255,255,255,.07)", display:"flex", alignItems:"center", justifyContent:"center", fontSize:17, flexShrink:0 }}>{icon}</div>}
-              <div style={{ flex:1, minWidth:0 }}>
-                <div style={{ fontSize:14, fontWeight:600, fontFamily:"'Nunito',sans-serif", color:danger?"rgba(255,100,100,.8)":"rgba(255,255,255,.82)" }}>{label}</div>
-                {value && <div style={{ fontSize:12, color:"rgba(255,255,255,.3)", fontFamily:"'Nunito',sans-serif", marginTop:1, overflow:"hidden", textOverflow:"ellipsis", whiteSpace:"nowrap" }}>{value}</div>}
-              </div>
-              {badge && <div style={{ fontSize:11, fontWeight:700, fontFamily:"'Nunito',sans-serif", background:badge.bg||"rgba(201,168,76,.15)", color:badge.color||"var(--gold)", padding:"3px 10px", borderRadius:999, flexShrink:0 }}>{badge.text}</div>}
-              {onPress && !danger && <svg width="7" height="12" viewBox="0 0 7 12" fill="none"><path d="M1 1l5 5-5 5" stroke="rgba(255,255,255,.2)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>}
-            </div>
-          );
           const isActive = sub?.status==="active";
           const isTrial  = sub?.status==="trial";
           const openPortal = async () => {
@@ -3026,91 +2935,111 @@ NO title. Start immediately.`;
               else alert("Could not start checkout.");
             } catch { alert("Could not start checkout. Please try again."); }
           };
+
+          const SGroup = ({children}) => <div style={{ background:"rgba(255,255,255,.04)", border:"1px solid rgba(255,255,255,.08)", borderRadius:14, overflow:"hidden", marginBottom:12 }}>{children}</div>;
+          const SRow = ({icon, label, value, onPress, danger, last=false, badge, right}) => (
+            <div onClick={onPress} style={{ display:"flex", alignItems:"center", gap:14, padding:"14px 18px",
+              borderBottom:last?"none":"1px solid rgba(255,255,255,.05)",
+              cursor:onPress?"pointer":"default", transition:"background .12s" }}
+              onMouseEnter={e=>{if(onPress)e.currentTarget.style.background="rgba(255,255,255,.04)";}}
+              onMouseLeave={e=>{e.currentTarget.style.background="transparent";}}>
+              {icon && <div className="settings-icon">{icon}</div>}
+              <div style={{ flex:1, minWidth:0 }}>
+                <div style={{ fontSize:14, fontWeight:600, fontFamily:"'Nunito',sans-serif", color:danger?"rgba(255,80,80,.8)":"rgba(255,255,255,.88)" }}>{label}</div>
+                {value && <div style={{ fontSize:12, color:"rgba(255,255,255,.3)", fontFamily:"'Nunito',sans-serif", marginTop:2, overflow:"hidden", textOverflow:"ellipsis", whiteSpace:"nowrap" }}>{value}</div>}
+              </div>
+              {right}
+              {badge && <div style={{ fontSize:11, fontWeight:700, fontFamily:"'Nunito',sans-serif", background:badge.bg||"rgba(201,168,76,.12)", color:badge.color||"var(--gold-light)", padding:"3px 10px", borderRadius:999, flexShrink:0, border:`1px solid ${badge.border||"rgba(201,168,76,.25)"}` }}>{badge.text}</div>}
+              {onPress && !danger && <svg width="6" height="11" viewBox="0 0 6 11" fill="none"><path d="M1 1l4 4.5L1 10" stroke="rgba(255,255,255,.22)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>}
+            </div>
+          );
+
           return (
-          <div className="fade has-bottom-nav" style={{ width:"100%", maxWidth:480 }}>
+          <div className="fade has-bottom-nav" style={{ width:"100%", maxWidth:500 }}>
 
             {/* Header */}
             <div style={{ display:"flex", alignItems:"center", gap:14, marginBottom:28 }}>
-              <button onClick={()=>setScreen("home")} style={{ width:36, height:36, borderRadius:"50%", background:"rgba(255,255,255,.07)", border:"none", cursor:"pointer", display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}>
+              <button onClick={()=>setScreen("home")} style={{ width:36, height:36, borderRadius:"50%", background:"rgba(255,255,255,.06)", border:"1px solid rgba(255,255,255,.09)", cursor:"pointer", display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}>
                 <svg width="8" height="14" viewBox="0 0 8 14" fill="none"><path d="M7 1L1 7l6 6" stroke="rgba(255,255,255,.6)" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/></svg>
               </button>
-              <h2 style={{ fontFamily:"'Playfair Display',serif", fontSize:"clamp(20px,5vw,24px)", fontStyle:"italic", fontWeight:800 }}>Account</h2>
+              <div style={{ fontFamily:"'Playfair Display',serif", fontSize:24, fontWeight:800, fontStyle:"italic" }}>Account</div>
             </div>
 
             {/* Profile card */}
-            <div style={{ display:"flex", alignItems:"center", gap:16, padding:"18px 20px", background:"rgba(255,255,255,.04)", borderRadius:20, marginBottom:10 }}>
-              <div style={{ width:48, height:48, borderRadius:"50%", background:"linear-gradient(135deg,#5b21b6,#7c3aed)", display:"flex", alignItems:"center", justifyContent:"center", fontSize:22, flexShrink:0 }}>🌙</div>
+            <div style={{ display:"flex", alignItems:"center", gap:16, padding:"18px 20px", background:"rgba(255,255,255,.04)", borderRadius:16, marginBottom:12, border:"1px solid rgba(255,255,255,.08)" }}>
+              <div style={{ width:48, height:48, borderRadius:"50%", background:"linear-gradient(135deg,#3d2080,#7c4dcc)", display:"flex", alignItems:"center", justifyContent:"center", fontSize:22, flexShrink:0 }}>🌙</div>
               <div style={{ flex:1, minWidth:0 }}>
-                <div style={{ fontSize:14, fontWeight:700, color:"rgba(255,255,255,.85)", fontFamily:"'Nunito',sans-serif", marginBottom:2 }}>{user?.email}</div>
-                <div style={{ fontSize:12, color:"rgba(255,255,255,.3)", fontFamily:"'Nunito',sans-serif" }}>
+                <div style={{ fontSize:15, fontWeight:700, color:"rgba(255,255,255,.88)", fontFamily:"'Nunito',sans-serif", marginBottom:2, overflow:"hidden", textOverflow:"ellipsis", whiteSpace:"nowrap" }}>{user?.email}</div>
+                <div style={{ fontSize:12, color:"rgba(255,255,255,.32)", fontFamily:"'Nunito',sans-serif" }}>
                   Member since {new Date(user?.created_at||Date.now()).toLocaleDateString("en-US",{month:"long",year:"numeric"})}
                 </div>
               </div>
             </div>
 
-            {/* Subscription */}
-            <GRP>
-              <ROW icon={isActive?"✅":isTrial?"🕐":"❌"} label={isActive?"Pro Plan Active":isTrial?"Free Trial":"No Subscription"}
-                value={isActive?`$${monthlyPrice().toFixed(2)}/month · renews automatically`:isTrial?`${daysLeft()} days remaining · then $${PRICE_BASE.toFixed(2)}/mo`:"Subscribe to generate stories"}
-                badge={isActive?{text:"Pro",bg:"rgba(74,222,128,.12)",color:"#86efac"}:isTrial?{text:"Trial"}:{text:"Free",bg:"rgba(255,255,255,.07)",color:"rgba(255,255,255,.4)"}} last />
-            </GRP>
+            {/* Stats strip */}
+            <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr 1fr", gap:8, marginBottom:12 }}>
+              {[{label:"Stories",val:library.length,icon:"📖"},{label:"Streak",val:streak,icon:"🔥"},{label:"Badges",val:`${badges.length}/${BADGE_DEFS.length}`,icon:"🏅"}].map(s => (
+                <div key={s.label} style={{ background:"rgba(255,255,255,.04)", borderRadius:12, padding:"14px 10px", textAlign:"center", border:"1px solid rgba(255,255,255,.07)" }}>
+                  <div style={{ fontSize:18, marginBottom:4 }}>{s.icon}</div>
+                  <div style={{ fontFamily:"'Playfair Display',serif", fontSize:20, fontWeight:800, color:"var(--gold-light)", marginBottom:2 }}>{s.val}</div>
+                  <div style={{ fontSize:10, color:"rgba(255,255,255,.3)", fontFamily:"'Nunito',sans-serif", letterSpacing:".06em", textTransform:"uppercase" }}>{s.label}</div>
+                </div>
+              ))}
+            </div>
 
-            {isActive && (
-              <GRP>
-                <ROW icon="💳" label="Manage Billing" value="Update payment method, invoices, cancel" onPress={openPortal} />
-                <ROW icon="📋" label="Billing History" value="View past invoices" onPress={openPortal} last />
-              </GRP>
-            )}
+            {/* Subscription */}
+            <SGroup>
+              <SRow icon={isActive?"✅":isTrial?"🕐":"❌"}
+                label={isActive?"Pro Plan Active":isTrial?"Free Trial":"No Subscription"}
+                value={isActive?`$${monthlyPrice().toFixed(2)}/month · renews automatically`:isTrial?`${daysLeft()} nights remaining · then $${PRICE_BASE.toFixed(2)}/mo`:"Subscribe to generate stories"}
+                badge={isActive?{text:"Pro",bg:"rgba(74,222,128,.1)",color:"#86efac",border:"rgba(74,222,128,.25)"}:isTrial?{text:"Trial"}:{text:"Free",bg:"rgba(255,255,255,.06)",color:"rgba(255,255,255,.4)",border:"rgba(255,255,255,.12)"}}
+                last />
+            </SGroup>
+
             {isTrial && (
               <button onClick={startCheckout}
-                style={{ width:"100%", padding:"17px", borderRadius:18, border:"none", cursor:"pointer", marginBottom:10,
-                  background:"linear-gradient(135deg,#5b21b6,#7c3aed,#9333ea)", backgroundSize:"200% 200%", animation:"gradFlow 4s ease infinite",
-                  color:"white", fontFamily:"'Nunito',sans-serif", fontWeight:800, fontSize:15,
-                  boxShadow:"0 8px 32px rgba(91,33,182,.45)" }}>
+                style={{ width:"100%", padding:"16px", borderRadius:14, border:"none", cursor:"pointer", marginBottom:12,
+                  background:"linear-gradient(135deg, #d4a842 0%, #c49030 50%, #a87820 100%)",
+                  color:"#1a0d00", fontFamily:"'Nunito',sans-serif", fontWeight:800, fontSize:15,
+                  boxShadow:"0 6px 28px rgba(180,130,30,.4)" }}>
                 ✨ Upgrade to Pro — ${PRICE_BASE.toFixed(2)}/month
               </button>
             )}
 
+            {isActive && (
+              <SGroup>
+                <SRow icon="💳" label="Manage Billing" value="Update payment, invoices, cancel" onPress={openPortal} />
+                <SRow icon="📋" label="Billing History" value="View past invoices" onPress={openPortal} last />
+              </SGroup>
+            )}
+
             {/* Children */}
-            <div style={{ fontSize:11, color:"rgba(255,255,255,.25)", fontFamily:"'Nunito',sans-serif", letterSpacing:".1em", textTransform:"uppercase", marginBottom:8, paddingLeft:4 }}>Children</div>
-            <GRP>
+            <div style={{ fontSize:11, color:"rgba(255,255,255,.28)", fontFamily:"'Nunito',sans-serif", letterSpacing:".1em", textTransform:"uppercase", marginBottom:8, paddingLeft:2, fontWeight:700 }}>Children</div>
+            <SGroup>
               {profiles.map((p,i) => (
-                <ROW key={p.id} icon={p.photo_url?<img src={p.photo_url} alt="" style={{width:22,height:22,borderRadius:"50%",objectFit:"cover"}}/>:"👶"}
+                <SRow key={p.id}
+                  icon={p.photo_url?<img src={p.photo_url} alt="" style={{width:22,height:22,borderRadius:"50%",objectFit:"cover"}}/>:"👶"}
                   label={p.child_name} value={`Age ${p.age||"?"} · ${library.filter(s=>s.child_profile_id===p.id).length} stories`}
                   onPress={()=>{setEditId(p.id);setPf(p);setScreen("profile");}}
                   last={i===profiles.length-1&&!canAddProfile()} />
               ))}
               {canAddProfile() && (
-                <ROW icon="➕" label="Add Child" value="Create a new story profile"
+                <SRow icon="➕" label="Add Child" value="Create a new story profile"
                   onPress={()=>{setEditId(null);setPf({child_name:"",age:"",stuffed_animal:"",best_friend:"",favorite_animal:"",scared_of:"",favorite_thing:""});setWizStep(0);setScreen("wizard");}}
                   last />
               )}
-            </GRP>
-
-            {/* Stats */}
-            <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr 1fr", gap:8, marginBottom:10 }}>
-              {[
-                {label:"Stories", val:library.length},
-                {label:"Night Streak", val:streak},
-                {label:"Badges", val:`${badges.length}/${BADGE_DEFS.length}`},
-              ].map(s => (
-                <div key={s.label} style={{ background:"rgba(255,255,255,.04)", borderRadius:16, padding:"14px 12px", textAlign:"center" }}>
-                  <div style={{ fontFamily:"'Playfair Display',serif", fontSize:22, fontWeight:800, color:"var(--gold-light)", marginBottom:3 }}>{s.val}</div>
-                  <div style={{ fontSize:11, color:"rgba(255,255,255,.3)", fontFamily:"'Nunito',sans-serif" }}>{s.label}</div>
-                </div>
-              ))}
-            </div>
+            </SGroup>
 
             {/* Misc */}
-            <GRP>
-              <ROW icon="🏅" label="Badges & Achievements" value={`${badges.length} of ${BADGE_DEFS.length} earned`} onPress={()=>setScreen("badges")} />
-              <ROW icon="📚" label="Story Library" value={`${library.length} stories saved`} onPress={()=>{loadLibrary();setScreen("library");}} last />
-            </GRP>
+            <SGroup>
+              <SRow icon="🏅" label="Badges & Achievements" value={`${badges.length} of ${BADGE_DEFS.length} earned`} onPress={()=>setScreen("badges")} />
+              <SRow icon="📚" label="Story Library" value={`${library.length} stories saved`} onPress={()=>{loadLibrary();setScreen("library");}} last />
+            </SGroup>
 
             {/* Sign out */}
-            <GRP>
-              <ROW icon="🚪" label="Sign Out" onPress={logout} danger last />
-            </GRP>
+            <SGroup>
+              <SRow icon="🚪" label="Sign Out" onPress={logout} danger last />
+            </SGroup>
 
             <p style={{ textAlign:"center", fontSize:11, color:"rgba(255,255,255,.12)", fontFamily:"'Nunito',sans-serif", marginTop:8, marginBottom:4 }}>
               DreamWeaver · dreamweaverstory.com
