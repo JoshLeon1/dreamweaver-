@@ -2421,11 +2421,7 @@ NO title. Start immediately.`;
 
                     {/* ── Last story ── */}
                     {lastStory && !todayStory && (
-                      <div onClick={()=>{const ps=lastStory.text.split("
-
-✦
-
-");setPages(ps);setTitle(lastStory.title||"");setImgs(lastStory.page_images||[]);setCoverImg(lastStory.cover_image||null);setSpread(lastStory.cover_image?-1:0);setStory(lastStory);setStoryPhase("ready");setScreen("story");try{localStorage.setItem("dw_last_story",lastStory.id);}catch{}}}
+                      <div onClick={()=>{const ps=lastStory.text.split("\n\n✦\n\n");setPages(ps);setTitle(lastStory.title||"");setImgs(lastStory.page_images||[]);setCoverImg(lastStory.cover_image||null);setSpread(lastStory.cover_image?-1:0);setStory(lastStory);setStoryPhase("ready");setScreen("story");try{localStorage.setItem("dw_last_story",lastStory.id);}catch{}}}
                         style={{ display:"flex", alignItems:"center", gap:14, padding:"14px 16px", borderRadius:14, border:"1px solid var(--border-1)", background:"var(--surface-1)", cursor:"pointer", transition:"all .15s" }}
                         onMouseEnter={e=>{e.currentTarget.style.background="var(--surface-2)";e.currentTarget.style.borderColor="var(--border-2)";}}
                         onMouseLeave={e=>{e.currentTarget.style.background="var(--surface-1)";e.currentTarget.style.borderColor="var(--border-1)";}}>
@@ -2792,11 +2788,7 @@ NO title. Start immediately.`;
                   const label=isToday?"Tonight":d.toLocaleDateString("en-US",{weekday:"short",month:"short",day:"numeric"});
                   return (
                     <div key={s.id}
-                      onClick={()=>{const ps=s.text.split("
-
-✦
-
-");setPages(ps);setTitle(s.title||"");setImgs(s.page_images||[]);setCoverImg(s.cover_image||null);setSpread(s.cover_image?-1:0);setStory(s);setStoryPhase("ready");setScreen("story");try{localStorage.setItem("dw_last_story",s.id);localStorage.setItem("dw_last_screen","story");}catch{}}}
+                      onClick={()=>{const ps=s.text.split("\n\n✦\n\n");setPages(ps);setTitle(s.title||"");setImgs(s.page_images||[]);setCoverImg(s.cover_image||null);setSpread(s.cover_image?-1:0);setStory(s);setStoryPhase("ready");setScreen("story");try{localStorage.setItem("dw_last_story",s.id);localStorage.setItem("dw_last_screen","story");}catch{}}}
                       style={{ display:"flex", gap:14, alignItems:"center", padding:"14px 16px", cursor:"pointer", borderRadius:14, background:"rgba(255,255,255,.04)", border:`1px solid ${isToday?"rgba(201,168,76,.22)":"rgba(255,255,255,.08)"}`, transition:"all .18s", WebkitTapHighlightColor:"transparent" }}
                       onMouseEnter={e=>{e.currentTarget.style.background="rgba(255,255,255,.08)";e.currentTarget.style.borderColor=isToday?"rgba(201,168,76,.4)":"rgba(255,255,255,.14)";}}
                       onMouseLeave={e=>{e.currentTarget.style.background="rgba(255,255,255,.04)";e.currentTarget.style.borderColor=isToday?"rgba(201,168,76,.22)":"rgba(255,255,255,.08)";}}>
@@ -2818,11 +2810,7 @@ NO title. Start immediately.`;
                         <svg width="6" height="12" viewBox="0 0 6 12" fill="none"><path d="M1 1l4 5-4 5" stroke="rgba(255,255,255,.25)" strokeWidth="1.5" strokeLinecap="round"/></svg>
                         {s.is_favorite && (
                           <button
-                            onClick={(e)=>{ e.stopPropagation(); const ps=s.text.split("
-
-✦
-
-"); setPages(ps); setTitle(s.title||""); setImgs(s.page_images||[]); setCoverImg(s.cover_image||null); setSpread(s.cover_image?-1:0); setStory(s); setStoryPhase("ready"); setScreen("story"); setTimeout(()=>generateSequel(),150); }}
+                            onClick={(e)=>{ e.stopPropagation(); const ps=s.text.split("\n\n✦\n\n"); setPages(ps); setTitle(s.title||""); setImgs(s.page_images||[]); setCoverImg(s.cover_image||null); setSpread(s.cover_image?-1:0); setStory(s); setStoryPhase("ready"); setScreen("story"); setTimeout(()=>generateSequel(),150); }}
                             style={{ background:"rgba(201,168,76,.08)", border:"1px solid rgba(201,168,76,.25)", borderRadius:99, padding:"4px 10px", fontSize:11, color:"var(--gold-light)", fontFamily:"'Nunito',sans-serif", fontWeight:700, cursor:"pointer", whiteSpace:"nowrap" }}>
                             📖 Sequel
                           </button>
