@@ -1092,8 +1092,8 @@ export default function App() {
   const hasAccess = () => { if (!sub) return true; // allow while loading - server will catch expired
     if (sub.status==="active") return true; if (sub.status==="trial"&&new Date(sub.trial_ends_at)>new Date()) return true; return false; };
   const daysLeft = () => sub ? Math.max(0,Math.ceil((new Date(sub.trial_ends_at)-new Date())/86400000)) : 0;
-  const [paymentSuccess, setPaymentSuccess] = React.useState(false);
-  React.useEffect(()=>{
+  const [paymentSuccess, setPaymentSuccess] = useState(false);
+  useEffect(()=>{
     if(window.location.search.includes("payment=success")){
       setPaymentSuccess(true);
       window.history.replaceState({},"",window.location.pathname);
