@@ -1096,6 +1096,32 @@ export default function App() {
   const hasAccess = () => { if (!sub) return true; // allow while loading - server will catch expired
     if (sub.status==="active") return true; if (sub.status==="trial"&&new Date(sub.trial_ends_at)>new Date()) return true; return false; };
   const daysLeft = () => sub ? Math.max(0,Math.ceil((new Date(sub.trial_ends_at)-new Date())/86400000)) : 0;
+
+  const confirmAddChild = async () => {
+    setAddChildLoading(true);
+    setAddChildErr("");
+    try {
+      const newCount = profiles.length + 1;
+      const r = await fetch("/api/stripe-update-subscription", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ user_id: user.id, child_count: newCount }),
+      });
+      const d = await r.json();
+      if (d.error) { setAddChildErr(d.error); setAddChildLoading(false); return; }
+      // Update local sub state with new child count
+      setSub(prev => ({ ...prev, child_count: newCount }));
+      setShowAddChildUpsell(false);
+      // Open the wizard
+      setEditId(null);
+      setPf({ child_name:"", age:"", stuffed_animal:"", best_friend:"", favorite_animal:"", scared_of:"", favorite_thing:"" });
+      setWizStep(0);
+      setScreen("wizard");
+    } catch(e) {
+      setAddChildErr("Something went wrong. Please try again.");
+    }
+    setAddChildLoading(false);
+  };
   const [paymentSuccess, setPaymentSuccess] = useState(false);
   useEffect(()=>{
     if(window.location.search.includes("payment=success")){
@@ -1513,6 +1539,9 @@ NO title. Start immediately.`;
   const [showShareCard, setShowShareCard] = useState(false);
   const [showSequelPrompt, setShowSequelPrompt] = useState(false);
   const [showTomorrowModal, setShowTomorrowModal] = useState(null); // null | "story" | "sequel"
+  const [showAddChildUpsell, setShowAddChildUpsell] = useState(false);
+  const [addChildLoading, setAddChildLoading] = useState(false);
+  const [addChildErr, setAddChildErr] = useState("");
 
   const shareStory = async () => {
     setShowShareCard(true);
@@ -2275,7 +2304,7 @@ NO title. Start immediately.`;
                         );
                       })}
                       {canAddProfile()
-                        ? <button onClick={()=>{setEditId(null);setPf({child_name:"",age:"",stuffed_animal:"",best_friend:"",favorite_animal:"",scared_of:"",favorite_thing:""});setWizStep(0);setScreen("wizard");}}
+                        ? <button onClick={()=>{setEditId(null);if(sub?.status==="active"&&profiles.length>=1){setShowAddChildUpsell(true);}else{setPf({child_name:"",age:"",stuffed_animal:"",best_friend:"",favorite_animal:"",scared_of:"",favorite_thing:""});setWizStep(0);setScreen("wizard");}}}
                             style={{ width:"100%", display:"flex", alignItems:"center", gap:10, padding:"8px 8px", borderRadius:8, marginTop:4, background:"transparent", border:"none", cursor:"pointer", textAlign:"left" }}
                             onMouseEnter={e=>{e.currentTarget.style.background="rgba(255,255,255,.04)";}}
                             onMouseLeave={e=>{e.currentTarget.style.background="transparent";}}>
@@ -2340,7 +2369,7 @@ NO title. Start immediately.`;
                         const on = active?.id===p.id;
                         return <button key={p.id} onClick={()=>{setActive(p);setPf(p);}} style={{ flexShrink:0, padding:"11px 18px", background:"transparent", border:"none", borderBottom: on?"2px solid rgba(201,168,76,.75)":"2px solid transparent", cursor:"pointer", fontFamily:"'Nunito',sans-serif", fontSize:13, fontWeight: on?700:500, color: on?"rgba(255,255,255,.9)":"rgba(255,255,255,.35)", marginBottom:"-1px", transition:"all .15s", WebkitTapHighlightColor:"transparent" }}>{p.child_name}</button>;
                       })}
-                      {canAddProfile() && <button onClick={()=>{setEditId(null);setPf({child_name:"",age:"",stuffed_animal:"",best_friend:"",favorite_animal:"",scared_of:"",favorite_thing:""});setWizStep(0);setScreen("wizard");}} style={{ flexShrink:0, padding:"11px 14px", background:"transparent", border:"none", borderBottom:"2px solid transparent", cursor:"pointer", fontFamily:"'Nunito',sans-serif", fontSize:13, color:"rgba(255,255,255,.2)", marginBottom:"-1px" }}>+ Add</button>}
+                      {canAddProfile() && <button onClick={()=>{setEditId(null);if(sub?.status==="active"&&profiles.length>=1){setShowAddChildUpsell(true);}else{setPf({child_name:"",age:"",stuffed_animal:"",best_friend:"",favorite_animal:"",scared_of:"",favorite_thing:""});setWizStep(0);setScreen("wizard");}}} style={{ flexShrink:0, padding:"11px 14px", background:"transparent", border:"none", borderBottom:"2px solid transparent", cursor:"pointer", fontFamily:"'Nunito',sans-serif", fontSize:13, color:"rgba(255,255,255,.2)", marginBottom:"-1px" }}>+ Add</button>}
                     </div>
                   )}
 
@@ -2628,6 +2657,57 @@ NO title. Start immediately.`;
 
         {/* Sequel prompt modal */}
         {/* ── Already-have-story-today modal ── */}
+        {/* ── Add child upsell modal ── */}
+        {showAddChildUpsell && (
+          <div style={{ position:"fixed", inset:0, background:"rgba(0,0,0,.75)", backdropFilter:"blur(14px)", zIndex:2000,
+            display:"flex", alignItems:"flex-end", justifyContent:"center" }}
+            onClick={()=>{setShowAddChildUpsell(false);setAddChildErr("");}}>
+            <div style={{ background:"linear-gradient(175deg,#120828,#0d0618)", border:"1px solid rgba(255,255,255,.09)",
+              borderRadius:"24px 24px 0 0", padding:"clamp(20px,4vw,32px)", width:"100%", maxWidth:480,
+              animation:"slideUp .3s ease", paddingBottom:"max(28px,env(safe-area-inset-bottom,28px))" }}
+              onClick={e=>e.stopPropagation()}>
+              <div style={{ width:40, height:4, borderRadius:99, background:"rgba(255,255,255,.12)", margin:"0 auto 28px" }} />
+
+              <div style={{ textAlign:"center", marginBottom:28 }}>
+                <div style={{ fontSize:48, marginBottom:14, display:"inline-block" }}>👨‍👧‍👦</div>
+                <div style={{ fontFamily:"'Playfair Display',serif", fontSize:24, fontWeight:800,
+                  letterSpacing:"-.02em", color:"var(--text-1)", marginBottom:10, lineHeight:1.2 }}>
+                  Add another child
+                </div>
+                <div style={{ fontFamily:"'Crimson Pro',serif", fontStyle:"italic", fontSize:16,
+                  color:"rgba(255,255,255,.45)", lineHeight:1.7 }}>
+                  Each additional child is <strong style={{ color:"var(--gold-light)", fontStyle:"normal" }}>$2.99/month</strong> — they get their own personalized stories every night.
+                </div>
+              </div>
+
+              {/* Price breakdown */}
+              <div style={{ background:"rgba(201,168,76,.06)", border:"1px solid rgba(201,168,76,.15)",
+                borderRadius:14, padding:"16px 20px", marginBottom:20 }}>
+                <div style={{ display:"flex", justifyContent:"space-between", marginBottom:8 }}>
+                  <span style={{ fontFamily:"'Nunito',sans-serif", fontSize:13, color:"rgba(255,255,255,.45)" }}>Current plan ({profiles.length} {profiles.length===1?"child":"children"})</span>
+                  <span style={{ fontFamily:"'Nunito',sans-serif", fontSize:13, fontWeight:700, color:"rgba(255,255,255,.6)" }}>${(5.99+(profiles.length-1)*2.99).toFixed(2)}/mo</span>
+                </div>
+                <div style={{ display:"flex", justifyContent:"space-between", paddingTop:8, borderTop:"1px solid rgba(255,255,255,.06)" }}>
+                  <span style={{ fontFamily:"'Nunito',sans-serif", fontSize:14, fontWeight:800, color:"var(--text-1)" }}>New plan ({profiles.length+1} children)</span>
+                  <span style={{ fontFamily:"'Playfair Display',serif", fontSize:18, fontWeight:800, color:"var(--gold-light)" }}>${(5.99+profiles.length*2.99).toFixed(2)}/mo</span>
+                </div>
+              </div>
+
+              {addChildErr && <div className="err" style={{ marginBottom:12, textAlign:"center" }}>{addChildErr}</div>}
+
+              <div style={{ display:"flex", flexDirection:"column", gap:10 }}>
+                <button className="btn-cta full" style={{ fontSize:15, opacity:addChildLoading?.8:1 }}
+                  onClick={confirmAddChild} disabled={addChildLoading}>
+                  {addChildLoading ? "Updating plan…" : `Add child — $${(5.99+profiles.length*2.99).toFixed(2)}/mo`}
+                </button>
+                <button className="btn-soft" onClick={()=>{setShowAddChildUpsell(false);setAddChildErr("");}}>
+                  Maybe later
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Payment success toast */}
         {paymentSuccess && (
           <div style={{ position:"fixed", top:24, left:"50%", transform:"translateX(-50%)", zIndex:10001,
@@ -3160,7 +3240,7 @@ NO title. Start immediately.`;
               ))}
               {canAddProfile() && (
                 <SRow icon="➕" label="Add Child" value="Create a new story profile"
-                  onPress={()=>{setEditId(null);setPf({child_name:"",age:"",stuffed_animal:"",best_friend:"",favorite_animal:"",scared_of:"",favorite_thing:""});setWizStep(0);setScreen("wizard");}}
+                  onPress={()=>{setEditId(null);if(sub?.status==="active"&&profiles.length>=1){setShowAddChildUpsell(true);}else{setPf({child_name:"",age:"",stuffed_animal:"",best_friend:"",favorite_animal:"",scared_of:"",favorite_thing:""});setWizStep(0);setScreen("wizard");}}}
                   last />
               )}
             </SGroup>
