@@ -119,9 +119,9 @@ const CSS = `
 
 :root{
   --night:#07050d;
-  --surface-1:rgba(255,255,255,.04);
-  --surface-2:rgba(255,255,255,.07);
-  --surface-3:rgba(255,255,255,.11);
+  --surface-1:rgba(255,255,255,.055);
+  --surface-2:rgba(255,255,255,.09);
+  --surface-3:rgba(255,255,255,.13);
   --border-1:rgba(255,255,255,.07);
   --border-2:rgba(255,255,255,.12);
   --border-3:rgba(255,255,255,.2);
@@ -143,7 +143,8 @@ const CSS = `
 
 html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
 body{
-  background:var(--night);min-height:100vh;
+  background:radial-gradient(ellipse at 20% 0%,#1a0f2e 0%,#0d0618 40%,#07050d 100%);
+  min-height:100vh;
   font-family:'Nunito',sans-serif;color:var(--text-1);
   overflow-x:hidden;-webkit-font-smoothing:antialiased;
   -moz-osx-font-smoothing:grayscale;-webkit-tap-highlight-color:transparent;
@@ -291,38 +292,41 @@ label{display:block;font-size:11px;font-weight:700;color:var(--text-3);
 /* ── Selection pills (mood/lesson) ── */
 .sel-pill{
   display:inline-flex;align-items:center;gap:6px;
-  padding:10px 16px;border-radius:999px;
-  border:1.5px solid var(--border-1);
-  background:var(--surface-1);
-  color:var(--text-2);cursor:pointer;
+  padding:10px 18px;border-radius:999px;
+  border:1.5px solid rgba(255,255,255,.1);
+  background:rgba(255,255,255,.06);
+  color:rgba(255,255,255,.7);cursor:pointer;
   font-family:'Nunito',sans-serif;font-size:13px;font-weight:700;
   transition:all .15s;white-space:nowrap;
   min-height:40px;-webkit-tap-highlight-color:transparent;touch-action:manipulation
 }
-.sel-pill:hover{border-color:var(--gold-border);color:var(--text-1);background:var(--surface-2)}
+.sel-pill:hover{border-color:rgba(201,168,76,.4);color:var(--text-1);background:rgba(255,255,255,.09)}
 .sel-pill.on{
-  background:rgba(201,168,76,.12);
-  border-color:rgba(201,168,76,.45);
-  color:var(--gold-light)
+  background:rgba(201,168,76,.15);
+  border-color:rgba(201,168,76,.55);
+  color:var(--gold-light);
+  box-shadow:0 0 12px rgba(201,168,76,.15)
 }
 
 /* ── Library / Story type tile ── */
 .type-tile{
   padding:18px 16px;border-radius:var(--r-lg);cursor:pointer;
-  text-align:left;transition:all .14s;border:1.5px solid var(--border-1);
-  background:var(--surface-1);-webkit-tap-highlight-color:transparent
+  text-align:left;transition:all .18s;border:1.5px solid rgba(255,255,255,.07);
+  background:rgba(255,255,255,.04);-webkit-tap-highlight-color:transparent
 }
-.type-tile:hover{background:var(--surface-2);border-color:var(--border-2)}
-.type-tile.on{background:rgba(201,168,76,.1);border-color:rgba(201,168,76,.4)}
+.type-tile:hover{background:rgba(255,255,255,.08);border-color:rgba(255,255,255,.14)}
+.type-tile.on{background:rgba(201,168,76,.12);border-color:rgba(201,168,76,.5);box-shadow:0 0 0 1px rgba(201,168,76,.15) inset}
 
 /* ── Section card ── */
 .s-card{
-  border-radius:var(--r-lg);border:1px solid var(--border-1);
-  background:var(--surface-1);overflow:hidden
+  border-radius:var(--r-lg);border:1px solid rgba(255,255,255,.06);
+  background:rgba(255,255,255,.055);overflow:hidden;
+  box-shadow:0 2px 16px rgba(0,0,0,.25)
 }
 .s-card-head{
-  padding:12px 18px;border-bottom:1px solid rgba(255,255,255,.05);
-  display:flex;align-items:center;gap:9px
+  padding:11px 16px;border-bottom:1px solid rgba(255,255,255,.05);
+  display:flex;align-items:center;gap:9px;
+  background:rgba(255,255,255,.02)
 }
 .step-num{
   width:20px;height:20px;border-radius:50%;flex-shrink:0;
@@ -2242,20 +2246,20 @@ NO title. Start immediately.`;
             <div className="fade has-bottom-nav hw-shell" style={{ width:"100%", maxWidth: mobile ? "100%" : 980 }}>
               <div style={{
                 display:"flex", flexDirection: mobile ? "column" : "row",
-                minHeight: mobile ? "auto" : "calc(100vh - 60px)",
-                borderRadius: mobile ? 0 : 18,
+                minHeight: mobile ? "auto" : "100vh",
+                borderRadius: 0,
                 overflow:"hidden",
-                border: mobile ? "none" : "1px solid rgba(255,255,255,.1)",
+                border: "none",
               }}>
 
                 {/* ── SIDEBAR ── */}
                 {!mobile && (
-                  <div style={{ width:216, flexShrink:0, borderRight:"1px solid rgba(255,255,255,.08)", display:"flex", flexDirection:"column", background:"rgba(0,0,0,.5)" }}>
+                  <div style={{ width:220, flexShrink:0, borderRight:"1px solid rgba(255,255,255,.05)", display:"flex", flexDirection:"column", background:"rgba(255,255,255,.025)" }}>
                     <div style={{ padding:"24px 20px 20px", borderBottom:"1px solid rgba(255,255,255,.07)" }}>
                       <DreamweaverLogo size={22} showText={true} />
                     </div>
                     <div style={{ padding:"16px 12px", flex:1 }}>
-                      <div style={{ fontSize:10, letterSpacing:".12em", textTransform:"uppercase", color:"rgba(255,255,255,.3)", fontFamily:"'Nunito',sans-serif", fontWeight:700, padding:"0 8px", marginBottom:8 }}>Children</div>
+                      <div style={{ fontSize:10, letterSpacing:".12em", textTransform:"uppercase", color:"rgba(255,255,255,.25)", fontFamily:"'Nunito',sans-serif", fontWeight:700, padding:"0 8px", marginBottom:8 }}>Children</div>
                       {profiles.map((p) => {
                         const on = active?.id===p.id;
                         return (
@@ -2314,7 +2318,7 @@ NO title. Start immediately.`;
                 )}
 
                 {/* ── MAIN PANEL ── */}
-                <div style={{ flex:1, display:"flex", flexDirection:"column", minWidth:0, overflowY:"auto", background:"rgba(255,255,255,.02)" }}>
+                <div style={{ flex:1, display:"flex", flexDirection:"column", minWidth:0, overflowY:"auto", background:"transparent" }}>
 
                   {/* Mobile header */}
                   {mobile && (
@@ -2341,7 +2345,7 @@ NO title. Start immediately.`;
                   )}
 
                   {/* SCROLLABLE CONTENT */}
-                  <div style={{ flex:1, padding:mobile?"18px 18px 110px":"28px 32px 36px", display:"flex", flexDirection:"column", gap:18, overflowY:"auto" }}>
+                  <div style={{ flex:1, padding:mobile?"20px 18px 110px":"32px 40px 40px", display:"flex", flexDirection:"column", gap:14, overflowY:"auto" }}>
 
                     {/* ── Greeting ── */}
                     <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", paddingBottom:4 }}>
