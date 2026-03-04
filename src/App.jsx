@@ -135,6 +135,7 @@ const CSS = `
   --purple-light:#b08fff;
   --spine-dark:#1a0802;--spine-mid:#5c2e0e;--spine-light:#8b4a14;
   --cream:#fdf8ef;
+  --ink:#1a0f2e;
   --r-sm:8px;--r-md:12px;--r-lg:16px;--r-xl:20px;--r-2xl:24px;
 }
 
